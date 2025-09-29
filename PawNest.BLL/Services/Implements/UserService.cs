@@ -33,6 +33,8 @@ public class UserService : BaseService<UserService>, IUserService
                     orderBy: u => u.OrderBy(n => n.Name)
                 );
 
+            
+
             if (users == null || !users.Any())
             {
                 throw new NotFoundException("No users found.");
