@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Everwell.BLL.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PawNest.BLL.Services.Interfaces;
@@ -7,9 +8,10 @@ using PawNest.DAL.Data.Context;
 using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Data.Exceptions;
 using PawNest.DAL.Data.Requests.Auth;
+using PawNest.DAL.Data.Requests.User;
+using PawNest.DAL.Data.Responses.User;
 using PawNest.DAL.Repositories.Interfaces;
 using System.Data.Entity;
-using Microsoft.EntityFrameworkCore;
 
 namespace PawNest.BLL.Services.Implements
 {
@@ -197,6 +199,68 @@ namespace PawNest.BLL.Services.Implements
         public Task<bool> VerifyResetCodeAndResetPasswordAsync(string code, string email, string newPassword)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<RegisterResponse> Register(RegisterRequest request)
+        {
+            try
+            {
+                // Check if email already exists
+                var existingUser = await _unitOfWork.GetRepository<User>()
+                    .FirstOrDefaultAsync(u => u.Email == request.Email, null, null);
+
+                if (existingUser != null)
+                {
+                    return new RegisterResponse
+                    {
+                        Success = false,
+                        Message = "Tài khoản với Email này đã tồn tại. Vui lòng sử dụng Email khác."
+                    };
+                }
+
+                // Create user with Customer role (default role for public registration)
+                var createUserRequest = new CreateUserRequest
+                {
+                    Name = request.Name,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    Address = request.Address,
+                    Password = request.Password,
+                    Role = "customer" // Default role for public registration
+                };
+
+                // Use the existing UserService to create the user
+                var userResponse = await _userService.Create(createUserRequest);
+
+                // Convert CreateUserResponse to GetUserResponse manually (safer approach)
+                var getUserResponse = new CreateUserResponse
+                {
+                    Id = userResponse.Id,
+                    Name = userResponse.Name,
+                    Email = userResponse.Email,
+                    PhoneNumber = userResponse.PhoneNumber,
+                    Address = userResponse.Address,
+                    Role = userResponse.Role,
+                    AvatarUrl = null, // Default for new users
+                    // IsActive = userResponse.IsActive
+                };
+
+                return new RegisterResponse
+                {
+                    Success = true,
+                    Message = "User registered successfully. You can now login with your credentials.",
+                    User = getUserResponse
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Registration error: {ex.Message}");
+                return new RegisterResponse
+                {
+                    Success = false,
+                    Message = "An error occurred during registration. Please try again."
+                };
+            }
         }
     }
 }

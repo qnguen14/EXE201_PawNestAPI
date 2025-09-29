@@ -93,5 +93,47 @@ namespace Everwell.API.Controllers
 
             return Ok(apiResponse);
         }
+
+        [HttpPost(ApiEndpointConstants.Auth.RegisterEndpoint)]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            // Basic null check for request object
+            if (request == null)
+            {
+                return BadRequest("Invalid registration request.");
+            }
+
+            // Validate model state (data annotations validation)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // AuthService handles:
+                // 1. Email uniqueness validation
+                // 2. Password hashing
+                // 3. User entity creation
+                // 4. Role assignment
+                // 5. Database persistence
+                var response = await _authService.Register(request);
+
+                if (response.Success)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    // Return validation errors (e.g., email already exists)
+                    return BadRequest(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { Success = false, Message = "An error occurred during registration." });
+            }
+        }
     }
 }
