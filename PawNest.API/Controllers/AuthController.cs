@@ -135,5 +135,40 @@ namespace Everwell.API.Controllers
                     new { Success = false, Message = "An error occurred during registration." });
             }
         }
+
+        [HttpPost(ApiEndpointConstants.Auth.LogoutEndpoint)]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                // Extract JWT token from Authorization header ("Bearer <token>")
+                var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrWhiteSpace(authHeader))
+                {
+                    return BadRequest("Authorization header is missing.");
+                }
+
+                // AuthService handles:
+                // 1. Token extraction from "Bearer <token>" format
+                // 2. Adding token to BlacklistedToken table
+                // 3. Database persistence
+                var response = await _authService.Logout(authHeader);
+
+                if (response.Success)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { Success = false, Message = "An error occurred during logout." });
+            }
+        }
     }
 }

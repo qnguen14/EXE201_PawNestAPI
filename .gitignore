@@ -495,3 +495,4 @@ fabric.properties
 PawNest.DAL/obj
 PawNest.BLL/obj
 PawNest.API/obj
+PawNest.DAL/Migrations

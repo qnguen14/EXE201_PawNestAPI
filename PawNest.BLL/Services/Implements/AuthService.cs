@@ -9,6 +9,7 @@ using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Data.Exceptions;
 using PawNest.DAL.Data.Requests.Auth;
 using PawNest.DAL.Data.Requests.User;
+using PawNest.DAL.Data.Responses.Auth;
 using PawNest.DAL.Data.Responses.User;
 using PawNest.DAL.Repositories.Interfaces;
 using System.Data.Entity;
@@ -190,17 +191,6 @@ namespace PawNest.BLL.Services.Implements
                     password.StartsWith("$2x$"));
         }
 
-
-        public Task<bool> SendPasswordResetCodeAsync(string email)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> VerifyResetCodeAndResetPasswordAsync(string code, string email, string newPassword)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<RegisterResponse> Register(RegisterRequest request)
         {
             try
@@ -261,6 +251,66 @@ namespace PawNest.BLL.Services.Implements
                     Message = "An error occurred during registration. Please try again."
                 };
             }
+        }
+
+        public async Task<LogoutResponse> Logout(string token)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    return new LogoutResponse
+                    {
+                        Success = false,
+                        Message = "Cần có token để đăng xuất."
+                    };
+                }
+
+                // Remove "Bearer " prefix if present
+                if (token.StartsWith("Bearer "))
+                {
+                    token = token.Substring(7);
+                }
+
+                // Blacklist the token
+                var blacklisted = await _tokenService.BlacklistTokenAsync(token);
+
+                if (blacklisted)
+                {
+                    return new LogoutResponse
+                    {
+                        Success = true,
+                        Message = "Đăng xuất thành công."
+                    };
+                }
+                else
+                {
+                    return new LogoutResponse
+                    {
+                        Success = false,
+                        Message = "Đăng xuất không thành. Vui lòng thử lại."
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi đăng xuất: {ex.Message}");
+                return new LogoutResponse
+                {
+                    Success = false,
+                    Message = "Đã xảy ra lỗi server."
+                };
+            }
+        }
+
+        public Task<bool> SendPasswordResetCodeAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> VerifyResetCodeAndResetPasswordAsync(string code, string email, string newPassword)
+        {
+            throw new NotImplementedException();
         }
     }
 }

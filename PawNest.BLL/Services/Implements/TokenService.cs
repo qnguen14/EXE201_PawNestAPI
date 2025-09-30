@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Context;
+using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,12 @@ namespace PawNest.BLL.Services.Implements
     {
         private readonly IMemoryCache _cache;
         private readonly IUnitOfWork<PawNestDbContext> _unitOfWork;
+
+        public TokenService(IMemoryCache cache, IUnitOfWork<PawNestDbContext> unitOfWork)
+        {
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        }
 
         public string GeneratePasswordResetCode(Guid userId)
         {
@@ -63,98 +70,95 @@ namespace PawNest.BLL.Services.Implements
 
         public async Task<bool> BlacklistTokenAsync(string token)
         {
-            //try
-            //{
-            //    return await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            //    {
-            //        var tokenHash = ComputeHash(token);
-            //        var expiresAt = GetTokenExpiration(token);
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var tokenHash = ComputeHash(token);
+                    var expiresAt = GetTokenExpiration(token);
 
-            //        // Ensure DateTime values are UTC
-            //        var blacklistedToken = new BlacklistedToken
-            //        {
-            //            Id = Guid.NewGuid(),
-            //            TokenHash = tokenHash,
-            //            BlacklistedAt = DateTime.UtcNow, // Use UTC
-            //            ExpiresAt = DateTime.SpecifyKind(expiresAt, DateTimeKind.Utc) // Ensure UTC kind
-            //        };
+                    // Ensure DateTime values are UTC
+                    var blacklistedToken = new BlacklistedToken
+                    {
+                        Id = Guid.NewGuid(),
+                        TokenHash = tokenHash,
+                        BlacklistedAt = DateTime.UtcNow, // Use UTC
+                        ExpiresAt = DateTime.SpecifyKind(expiresAt, DateTimeKind.Utc) // Ensure UTC kind
+                    };
 
-            //        await _unitOfWork.GetRepository<BlacklistedToken>().InsertAsync(blacklistedToken);
-            //        _cache.Set($"blacklisted_{tokenHash}", true, blacklistedToken.ExpiresAt);
+                    await _unitOfWork.GetRepository<BlacklistedToken>().InsertAsync(blacklistedToken);
+                    _cache.Set($"blacklisted_{tokenHash}", true, blacklistedToken.ExpiresAt);
 
-            //        Console.WriteLine($"Token blacklisted successfully: {tokenHash.Substring(0, 10)}...");
-            //        return true;
-            //    });
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Error blacklisting token: {ex.Message}");
-            //    return false;
-            //}
-            throw new Exception("Not implemented");
+                    Console.WriteLine($"Token blacklisted successfully: {tokenHash.Substring(0, 10)}...");
+                    return true;
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error blacklisting token: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<bool> IsTokenBlacklistedAsync(string token)
         {
-            //try
-            //{
-            //    var tokenHash = ComputeHash(token);
+            try
+            {
+                var tokenHash = ComputeHash(token);
 
-            //    if (_cache.TryGetValue($"blacklisted_{tokenHash}", out _))
-            //    {
-            //        return true;
-            //    }
+                if (_cache.TryGetValue($"blacklisted_{tokenHash}", out _))
+                {
+                    return true;
+                }
 
-            //    var blacklistedToken = await _unitOfWork.GetRepository<BlacklistedToken>()
-            //        .FirstOrDefaultAsync(
-            //            predicate: bt => bt.TokenHash == tokenHash && bt.ExpiresAt > DateTime.UtcNow,
-            //            orderBy: null,
-            //            include: null);
+                var blacklistedToken = await _unitOfWork.GetRepository<BlacklistedToken>()
+                    .FirstOrDefaultAsync(
+                        predicate: bt => bt.TokenHash == tokenHash && bt.ExpiresAt > DateTime.UtcNow,
+                        orderBy: null,
+                        include: null);
 
-            //    if (blacklistedToken != null)
-            //    {
-            //        _cache.Set($"blacklisted_{tokenHash}", true, blacklistedToken.ExpiresAt);
-            //        return true;
-            //    }
+                if (blacklistedToken != null)
+                {
+                    _cache.Set($"blacklisted_{tokenHash}", true, blacklistedToken.ExpiresAt);
+                    return true;
+                }
 
-            //    return false;
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Error checking blacklisted token: {ex.Message}");
-            //    return false;
-            //}
-            throw new Exception("Not implemented");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking blacklisted token: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task CleanupExpiredTokensAsync()
         {
-            //try
-            //{
-            //    await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            //    {
-            //        var expiredTokens = await _unitOfWork.GetRepository<BlacklistedToken>()
-            //            .GetListAsync(
-            //                predicate: bt => bt.ExpiresAt <= DateTime.UtcNow,
-            //                orderBy: null,
-            //                include: null,
-            //                take: null);
+            try
+            {
+                await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var expiredTokens = await _unitOfWork.GetRepository<BlacklistedToken>()
+                        .GetListAsync(
+                            predicate: bt => bt.ExpiresAt <= DateTime.UtcNow,
+                            orderBy: null,
+                            include: null,
+                            take: null);
 
-            //        if (expiredTokens.Any())
-            //        {
-            //            foreach (var token in expiredTokens)
-            //            {
-            //                _unitOfWork.GetRepository<BlacklistedToken>().DeleteAsync(token);
-            //            }
-            //            Console.WriteLine($"Cleaned up {expiredTokens.Count} expired tokens");
-            //        }
-            //    });
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Error cleaning up expired tokens: {ex.Message}");
-            //}
-            throw new Exception("Not implemented");
+                    if (expiredTokens.Any())
+                    {
+                        foreach (var token in expiredTokens)
+                        {
+                            _unitOfWork.GetRepository<BlacklistedToken>().DeleteAsync(token);
+                        }
+                        Console.WriteLine($"Cleaned up {expiredTokens.Count} expired tokens");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cleaning up expired tokens: {ex.Message}");
+            }   
         }
 
         private string ComputeHash(string input)

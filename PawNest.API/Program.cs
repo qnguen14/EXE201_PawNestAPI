@@ -11,12 +11,23 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Everwell.BLL.Infrastructure;
+using PawNest.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure timezone for Vietnam (UTC+7) - important for appointment scheduling
+TimeZoneInfo.ClearCachedData();
+var utcPlus7 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
 builder.Services.AddOpenApi();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddMemoryCache();
 
 // Configure Swagger with JWT Bearer authentication
 builder.Services.AddSwaggerGen(options =>
@@ -171,8 +182,8 @@ app.UseCors(options =>
 
 app.UseHttpsRedirection();
 
- app.UseAuthentication(); // Validate JWT tokens
-// app.UseMiddleware<TokenBlacklistMiddleware>(); // Check for blacklisted tokens (logout functionality)
+app.UseAuthentication(); // Validate JWT tokens
+app.UseMiddleware<TokenBlacklistMiddleware>(); // Check for blacklisted tokens (logout functionality)
 app.UseAuthorization(); // Apply role-based access control
 
 // Map API controllers to handle HTTP requests
