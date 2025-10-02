@@ -1,6 +1,0 @@
-@PawNest.API_HostAddress = http://localhost:5052
-
-GET {{PawNest.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
