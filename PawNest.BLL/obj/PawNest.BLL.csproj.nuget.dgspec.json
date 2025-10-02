@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.BLL\\PawNest.BLL.csproj": {}
+    "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj": {}
   },
   "projects": {
-    "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.BLL\\PawNest.BLL.csproj": {
+    "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.BLL\\PawNest.BLL.csproj",
+        "projectUniqueName": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj",
         "projectName": "PawNest.BLL",
-        "projectPath": "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.BLL\\PawNest.BLL.csproj",
-        "packagesPath": "C:\\Users\\qnguy\\.nuget\\packages\\",
-        "outputPath": "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.BLL\\obj\\",
+        "projectPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj",
+        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+        "outputPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.BLL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\qnguy\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,8 +32,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.DAL\\PawNest.DAL.csproj": {
-                "projectPath": "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.DAL\\PawNest.DAL.csproj"
+              "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj": {
+                "projectPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj"
               }
             }
           }
@@ -75,24 +75,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.DAL\\PawNest.DAL.csproj": {
+    "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.DAL\\PawNest.DAL.csproj",
+        "projectUniqueName": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj",
         "projectName": "PawNest.DAL",
-        "projectPath": "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.DAL\\PawNest.DAL.csproj",
-        "packagesPath": "C:\\Users\\qnguy\\.nuget\\packages\\",
-        "outputPath": "D:\\coding\\fpt\\EXE201\\PawNest\\PawNest.DAL\\obj\\",
+        "projectPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj",
+        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+        "outputPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\qnguy\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -194,7 +194,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,15 +1,28 @@
-using PawNest.DAL.Repositories.Implements;
-using PawNest.DAL.Repositories.Interfaces;
-using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using PawNest.BLL.Services.Implements;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Context;
-
+using PawNest.DAL.Repositories.Implements;
+using PawNest.DAL.Repositories.Interfaces;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Ignore circular references
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+
+        // Ignore null values (optional)
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger with JWT Bearer authentication
@@ -21,70 +34,70 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "A Freelancer project - Pet Care Service API",
     });
-    // options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
-    // {
-    //     Name = "Authorization",
-    //     In = ParameterLocation.Header,
-    //     Type = SecuritySchemeType.Http,
-    //     Scheme = "Bearer",
-    //     BearerFormat = "JWT",
-    //     Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter your token:"
-    // });
-    // options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    // {
-    //     {
-    //         new OpenApiSecurityScheme
-    //         {
-    //             Reference = new OpenApiReference
-    //             {
-    //                 Type = ReferenceType.SecurityScheme,
-    //                 Id = JwtBearerDefaults.AuthenticationScheme
-    //             }
-    //         },
-    //         new List<string>()
-    //     }
-    // });
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter your token:"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+     {
+         {
+             new OpenApiSecurityScheme
+             {
+                 Reference = new OpenApiReference
+                 {
+                     Type = ReferenceType.SecurityScheme,
+                     Id = JwtBearerDefaults.AuthenticationScheme
+                 }
+             },
+             new List<string>()
+         }
+     });
 });
 
 // Configure JWT Bearer authentication
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddJwtBearer(options =>
-//     {
-//         options.RequireHttpsMetadata = true; // Enforce HTTPS in production for security
-//         options.TokenValidationParameters = new TokenValidationParameters
-//         {
-//             // Validate all critical JWT components
-//             ValidateIssuer = true, // Ensure token comes from trusted issuer
-//             ValidateAudience = true, // Ensure token is intended for this API
-//             ValidateLifetime = true, // Check token expiration
-//             ValidateIssuerSigningKey = true, // Verify token signature
-//             
-//             // JWT configuration from appsettings
-//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])),
-//             ValidIssuer = builder.Configuration["Jwt:Issuer"],
-//             ValidAudience = builder.Configuration["Jwt:Audience"],
-//             
-//             // Security settings
-//             ClockSkew = TimeSpan.Zero, // Disable default 5-minute clock skew for precise expiration
-//             NameClaimType = JwtRegisteredClaimNames.Sub, // Map user ID claim
-//             RoleClaimType = ClaimTypes.Role, // Map role-based authorization claim
-//         };
-//
-//         // JWT event handlers for debugging and logging
-//         options.Events = new JwtBearerEvents
-//         {
-//             OnMessageReceived = context =>
-//             {
-//                 // Log received tokens for debugging (remove in production)
-//                 var token = context
-//                     .Request.Headers["Authorization"]
-//                     .ToString()
-//                     .Replace("Bearer ", "");
-//                 Console.WriteLine($"Received token: {token}");
-//                 return Task.CompletedTask;
-//             },
-//         };
-//     });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+    options.RequireHttpsMetadata = true; // Enforce HTTPS in production for security
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        // Validate all critical JWT components
+        ValidateIssuer = true, // Ensure token comes from trusted issuer
+        ValidateAudience = true, // Ensure token is intended for this API
+        ValidateLifetime = true, // Check token expiration
+        ValidateIssuerSigningKey = true, // Verify token signature
+
+        // JWT configuration from appsettings
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])),
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+
+        // Security settings
+        ClockSkew = TimeSpan.Zero, // Disable default 5-minute clock skew for precise expiration
+        NameClaimType = JwtRegisteredClaimNames.Sub, // Map user ID claim
+        RoleClaimType = ClaimTypes.Role, // Map role-based authorization claim
+    };
+        //
+        //         // JWT event handlers for debugging and logging
+        //         options.Events = new JwtBearerEvents
+        //         {
+        //             OnMessageReceived = context =>
+        //             {
+        //                 // Log received tokens for debugging (remove in production)
+        //                 var token = context
+        //                     .Request.Headers["Authorization"]
+        //                     .ToString()
+        //                     .Replace("Bearer ", "");
+        //                 Console.WriteLine($"Received token: {token}");
+        //                 return Task.CompletedTask;
+        //             },
+        //         };
+    });
 
 // Configure role-based authorization policies
 builder.Services.AddAuthorization(options =>
@@ -112,7 +125,8 @@ builder.Services.AddHttpContextAccessor();
 // Configure AutoMapper with mapping profiles
 // Register application services
 builder.Services.AddScoped<IUserService, UserService>();
-
+builder.Services.AddScoped<IPetRepository, PetRepository>();
+builder.Services.AddScoped<IPetService, PetService>();
 // Configure 
 
 // Configure database configuration
@@ -164,9 +178,9 @@ app.UseCors(options =>
 
 app.UseHttpsRedirection();
 
-// app.UseAuthentication(); // Validate JWT tokens
-// app.UseMiddleware<TokenBlacklistMiddleware>(); // Check for blacklisted tokens (logout functionality)
-// app.UseAuthorization(); // Apply role-based access control
+app.UseAuthentication(); // Validate JWT tokens
+                         // app.UseMiddleware<TokenBlacklistMiddleware>(); // Check for blacklisted tokens (logout functionality)
+app.UseAuthorization(); // Apply role-based access control
 
 // Map API controllers to handle HTTP requests
 app.MapControllers();

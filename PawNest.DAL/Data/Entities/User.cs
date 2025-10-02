@@ -49,4 +49,8 @@ public class User
 
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
     // public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public ICollection<Pet> Pets { get; set; } = new List<Pet>();
+    public ICollection<Service> Services { get; set; } = new List<Service>();
+    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<Report> Reports { get; set; } = new List<Report>();
 }
