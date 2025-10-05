@@ -25,6 +25,9 @@ namespace PawNest.DAL.Data.Requests.Auth
         [Required(ErrorMessage = "Address field is required")]
         public string Address { get; set; }
 
+        [Required(ErrorMessage = "Role field is required")]
+        public string Role { get; set; }
+
         [Required(ErrorMessage = "Password field is required")]
         [MinLength(3, ErrorMessage = "Password must be at least 3 characters")]
         [MaxLength(20, ErrorMessage = "Password cannot be more than 20 characters")]

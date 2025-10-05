@@ -12,10 +12,12 @@ public class ApiEndpointConstants
     {
         public const string AuthEndpoint = ApiEndpoint + "/auth";
         public const string LoginEndpoint = ApiEndpoint + "/login";
-        public const string RegisterEndpoint = ApiEndpoint + "/register"; // to do
-        public const string ChangePasswordEndpoint = ApiEndpoint + "/changepassword"; // to do
-        public const string RefreshTokenEndpoint = ApiEndpoint + "/refreshtoken"; // to do
-        public const string LogoutEndpoint = ApiEndpoint + "/logout"; // to do
+        public const string RegisterEndpoint = ApiEndpoint + "/register"; 
+        public const string SendResetCodeEndpoint = ApiEndpoint + "/reset"; 
+        public const string VerifyResetCodeEndpoint = ApiEndpoint + "/verify/reset"; 
+        public const string DisableAccountEndpoint = ApiEndpoint + "/disable"; 
+        public const string VerifyDisableCodeEndpoint = ApiEndpoint + "/verify/disable";
+        public const string LogoutEndpoint = ApiEndpoint + "/logout"; 
     }
 
     public static class User
@@ -36,5 +38,11 @@ public class ApiEndpointConstants
         public const string UpdateMyProfileEndpoint = UserEndpoint + "/profile/me";
         public const string UpdateAvatarEndpoint = UserEndpoint + "/avatar/{id}";
         public const string UpdateMyAvatarEndpoint = UserEndpoint + "/avatar/me";
+
+        // Freelancer endpoints 
+        public const string FreelancerEndpoint = ApiEndpoint + "/freelancer";
+        public const string GetFreelancersByServiceEndpoint = FreelancerEndpoint + "/service/{serviceId}";
+        public const string GetFreelancerByIdEndpoint = FreelancerEndpoint + "/{id}";
+        public const string GetAllFreelancersEndpoint = FreelancerEndpoint + "/getall";
     }
 }

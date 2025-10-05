@@ -24,7 +24,7 @@ namespace PawNest.BLL.Services.Implements
         private readonly IMapper _mapper;
         private readonly ILogger<AuthService> _logger;
         private readonly ITokenService _tokenService;
-        //private readonly IEmailService _emailService;
+        private readonly IEmailService _emailService;
         private readonly IUserService _userService;
 
         public AuthService(
@@ -34,7 +34,7 @@ namespace PawNest.BLL.Services.Implements
             IMapper mapper,
             ILogger<AuthService> logger,
             ITokenService tokenService,
-            //IEmailService emailService,
+            IEmailService emailService,
             IUserService userService)
         {
             _unitOfWork = unitOfWork;
@@ -43,7 +43,7 @@ namespace PawNest.BLL.Services.Implements
             _mapper = mapper;
             _logger = logger;
             _tokenService = tokenService;
-            //_emailService = emailService;
+            _emailService = emailService;
             _userService = userService;
         }
 
@@ -208,6 +208,15 @@ namespace PawNest.BLL.Services.Implements
                     };
                 }
 
+                if (request.Role != "Customer" && request.Role != "Freelancer")
+                {
+                    return new RegisterResponse
+                    {
+                        Success = false,
+                        Message = "Vai trò không hợp lệ. Vui lòng chọn 'Customer' hoặc 'Freelancer'."
+                    };
+                }
+
                 // Create user with Customer role (default role for public registration)
                 var createUserRequest = new CreateUserRequest
                 {
@@ -216,7 +225,7 @@ namespace PawNest.BLL.Services.Implements
                     PhoneNumber = request.PhoneNumber,
                     Address = request.Address,
                     Password = request.Password,
-                    Role = "customer" // Default role for public registration
+                    Role = request.Role // Default role for public registration
                 };
 
                 // Use the existing UserService to create the user
@@ -303,14 +312,104 @@ namespace PawNest.BLL.Services.Implements
             }
         }
 
-        public Task<bool> SendPasswordResetCodeAsync(string email)
+        public async Task<bool> SendPasswordResetCodeAsync(string email)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userService.GetUserByEmail(email);
+                if (user == null)
+                {
+                    // Don't reveal if email exists or not for security
+                    return true;
+                }
+
+                // Generate 6-digit code
+                var resetCode = _tokenService.GeneratePasswordResetCode(user.Id);
+
+                // Send email with code
+                await _emailService.SendPasswordResetCodeAsync(user.Email, resetCode, user.Name);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending reset code: {ex.Message}");
+                return false;
+            }
         }
 
-        public Task<bool> VerifyResetCodeAndResetPasswordAsync(string code, string email, string newPassword)
+        public async Task<bool> VerifyResetCodeAndResetPasswordAsync(string code, string email, string newPassword)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!_tokenService.ValidatePasswordResetCode(code, email, out Guid userId))
+                    return false;
+
+                var user = await _userService.GetById(userId);
+                if (user == null)
+                    return false;
+
+                // Update user password
+                await _userService.UpdatePasswordAsync(userId, newPassword);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error resetting password: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DisableAccount(Guid userId, string email, string userName)
+        {
+            try
+            {
+                var user = await _unitOfWork.GetRepository<User>()
+                    .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive && u.Name == userName, null, null);
+                // Generate 6-digit code
+                var disableCode = _tokenService.GeneratePasswordResetCode(userId);
+                // Send email with code
+                await _emailService.SendDisableAccountCodeAsync(email, disableCode, userName);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error disabling account: {ex.Message}");
+                return false;
+            }
+        }
+
+        public Task<DisableAccountResponse> VerifyDisableCode(Guid userId, string email, string verifyCode)
+        {
+            try
+            {
+                if (_tokenService.ValidatePasswordResetCode(verifyCode, email, out Guid verifiedUserId) && verifiedUserId == userId)
+                {
+                    return Task.FromResult(new DisableAccountResponse
+                    {
+                        IsDisabled = true,
+                        Message = "Tài khoản đã bị vô hiệu hóa."
+                    });
+                }
+                else
+                {
+                    return Task.FromResult(new DisableAccountResponse
+                    {
+                        IsDisabled = false,
+                        Message = "Mã xác nhận không hợp lệ hoặc đã hết hạn."
+                    });
+                }
+
+            } catch (Exception ex)
+            {
+                Console.WriteLine($"Error verifying disable code: {ex.Message}");
+                return Task.FromResult(new DisableAccountResponse
+                {
+                    IsDisabled = false,
+                    Message = "An error occurred while verifying the code."
+                });
+            }
         }
     }
 }

@@ -496,3 +496,6 @@ PawNest.DAL/obj
 PawNest.BLL/obj
 PawNest.API/obj
 PawNest.DAL/Migrations
+PawNest.API/obj
+PawNest.DAL/obj
+PawNest.BLL/obj
