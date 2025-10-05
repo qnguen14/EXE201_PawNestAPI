@@ -125,7 +125,7 @@ builder.Services.AddHttpContextAccessor();
 // Configure AutoMapper with mapping profiles
 // Register application services
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPetRepository, PetRepository>();
+
 builder.Services.AddScoped<IPetService, PetService>();
 // Configure 
 

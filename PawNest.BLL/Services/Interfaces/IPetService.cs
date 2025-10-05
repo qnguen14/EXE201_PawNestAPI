@@ -1,4 +1,5 @@
 ﻿using PawNest.DAL.Data.Entities;
+using PawNest.DAL.Data.Responses.Pet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,19 +10,11 @@ namespace PawNest.BLL.Services.Interfaces
 {
     public interface IPetService
     {
-        Task<IEnumerable<Pet>> GetAllAsync();
-        Task<Pet> GetByIdAsync(Guid id);
-        Task<Pet> AddAsync(Pet pet);
-        Task<Pet> UpdateAsync(Pet pet);
-        Task<bool> DeleteAsync(Guid id);
-
-        // Pet-specific methods
-        Task<IEnumerable<Pet>> GetPetsByOwnerIdAsync(Guid ownerId);
-        Task<IEnumerable<Pet>> GetMyPetsAsync(); // Lấy pets của user hiện tại
-        Task<Pet> GetPetWithOwnerAsync(Guid petId);
-        Task<Pet> GetPetWithBookingsAsync(Guid petId);
-        Task<bool> HasActiveBookingsAsync(Guid petId);
-        Task<bool> PetExistsAsync(string petName, Guid ownerId);
-        Task<bool> IsOwnerOfPetAsync(Guid petId);
+        Task<IEnumerable<CreatePetResponse>> GetAllPets();
+        Task<CreatePetResponse > GetPetById(Guid petId);
+        Task<Pet> CreatePet(Pet pet);
+        Task<Pet> UpdatePet(Pet pet);
+        Task<bool> DeletePet(Guid petId);
+        Task<Pet> GetPetByOwnerId(Guid ownerId);
     }
 }
