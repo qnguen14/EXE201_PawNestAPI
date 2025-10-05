@@ -1,14 +1,16 @@
 ﻿using AutoMapper;
-using PawNest.BLL.Services;
-using PawNest.DAL.Data.Exceptions;
-using PawNest.DAL.Data.Responses.User;
-using PawNest.DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PawNest.BLL.Services;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Context;
 using PawNest.DAL.Data.Entities;
+using PawNest.DAL.Data.Exceptions;
+using PawNest.DAL.Data.Requests.User;
+using PawNest.DAL.Data.Responses.User;
+using PawNest.DAL.Repositories.Interfaces;
+using System.Data;
 
 namespace PawNest.BLL.Services.Implements;
 
@@ -32,6 +34,8 @@ public class UserService : BaseService<UserService>, IUserService
                     include: u => u.Include(x => x.Role),
                     orderBy: u => u.OrderBy(n => n.Name)
                 );
+
+            
 
             if (users == null || !users.Any())
             {
@@ -71,9 +75,71 @@ public class UserService : BaseService<UserService>, IUserService
         }
     }
 
-    public Task<User> Create(User user)
+    public async Task<CreateUserResponse> Create(CreateUserRequest request)
     {
-        throw new NotImplementedException();
+        try
+        {
+            return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                if (request == null)
+                {
+                    throw new ArgumentNullException(nameof(request), "Request cannot be null.");
+                }
+
+                // Validate the user entity (e.g., check for existing email)
+                var existingUser = await _unitOfWork.GetRepository<User>()
+                    .FirstOrDefaultAsync(
+                        predicate: u => u.Email == request.Email && u.IsActive);
+                if (existingUser != null)
+                {
+                    return null;
+                }
+
+                // Map the basic fields
+                var newUser = _mapper.Map<User>(request);
+
+                // 1. Generate a new ID
+                newUser.Id = Guid.NewGuid();
+
+                // 2. Hash the password
+                newUser.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+                // 3. Resolve and set the role (Role is a separate entity)
+                var role = await _unitOfWork.GetRepository<Role>()
+                    .FirstOrDefaultAsync(predicate: r => r.RoleName == request.Role);
+                if (role == null)
+                {
+                    throw new NotFoundException($"Role '{request.Role}' not found.");
+                }
+                newUser.RoleId = role.Id;       // set FK
+                newUser.Role = role;            // optional: set navigation
+
+                // 4. Set default values
+                newUser.IsActive = true;
+
+                // 5. Validate required fields
+                if (string.IsNullOrEmpty(newUser.Name))
+                    throw new ArgumentException("Name is required");
+                if (string.IsNullOrEmpty(newUser.Email))
+                    throw new ArgumentException("Email is required");
+                if (string.IsNullOrEmpty(newUser.PhoneNumber))
+                    throw new ArgumentException("Phone number is required");
+                if (string.IsNullOrEmpty(newUser.Address))
+                    throw new ArgumentException("Address is required");
+
+                Console.WriteLine($"Creating user: {newUser.Email} with role: {role.RoleName}");
+
+                // Add the new user
+                await _unitOfWork.GetRepository<User>().InsertAsync(newUser);
+
+                return _mapper.Map<CreateUserResponse>(newUser);
+            });
+
+        } catch (Exception ex)
+        {
+            _logger.LogError("An error occurred while creating a user: " + ex.Message);
+            throw;
+        }
     }
 
     public Task<User> Update(User user)
