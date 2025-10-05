@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj": {}
+    "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj": {}
   },
   "projects": {
-    "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj": {
+    "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj",
+        "projectUniqueName": "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj",
         "projectName": "PawNest.DAL",
-        "projectPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj",
-        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.DAL\\obj\\",
+        "projectPath": "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.DAL\\PawNest.DAL.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.DAL\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

@@ -7,12 +7,22 @@ using System.Threading.Tasks;
 
 namespace PawNest.DAL.Data.Entities
 {
+    public enum ServiceType
+    {
+        Grooming,
+        Training,
+        Walking,
+        Sitting,
+        Medical
+    }   
+
     public class Service
     {
         [Key]
         public Guid ServiceId { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; } 
+        public ServiceType Type { get; set; }
         public decimal Price { get; set; }
         public DateTime CreatedAt { get; set; } 
 

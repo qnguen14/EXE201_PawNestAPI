@@ -6665,23 +6665,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ADMIN\\.nuget\\packages\\": {},
+    "C:\\Users\\Admin\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.API\\PawNest.API.csproj",
+      "projectUniqueName": "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.API\\PawNest.API.csproj",
       "projectName": "PawNest.API",
-      "projectPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.API\\PawNest.API.csproj",
-      "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-      "outputPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.API\\obj\\",
+      "projectPath": "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.API\\PawNest.API.csproj",
+      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+      "outputPath": "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -6696,8 +6696,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj": {
-              "projectPath": "D:\\PawNest_BE\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj"
+            "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj": {
+              "projectPath": "D:\\fpt\\EXE201\\EXE201_PawNestAPI\\PawNest.BLL\\PawNest.BLL.csproj"
             }
           }
         }
