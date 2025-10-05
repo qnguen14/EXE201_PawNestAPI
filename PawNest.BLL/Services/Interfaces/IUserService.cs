@@ -1,5 +1,6 @@
-﻿using PawNest.DAL.Data.Responses.User;
-using PawNest.DAL.Data.Entities;
+﻿using PawNest.DAL.Data.Entities;
+using PawNest.DAL.Data.Requests.User;
+using PawNest.DAL.Data.Responses.User;
 
 namespace PawNest.BLL.Services.Interfaces;
 
@@ -7,8 +8,8 @@ public interface IUserService
 {
     Task<IEnumerable<CreateUserResponse>> GetAll();
     Task<CreateUserResponse> GetById(Guid id);
-    Task<User> Create(User user);
-    Task<User> Update(User user);
-    Task<User> Register(User user);
-    Task<User> Login(string email, string password);
+    Task<CreateUserResponse> GetUserByEmail(string email);
+    Task<CreateUserResponse> Create(CreateUserRequest request);
+    Task<bool> UpdatePasswordAsync(Guid userId, string newPassword);
+    Task<CreateUserResponse> Update(Guid userId, UpdateUserRequest request);
 }

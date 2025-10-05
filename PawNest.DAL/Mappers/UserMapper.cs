@@ -25,10 +25,23 @@ public class UserMapper : Profile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-            .ForMember(dest => dest.Password, opt => opt.Ignore()) // Don't return password in response
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.RoleName))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+
+        // User to GetFreelancerResponse
+        CreateMap<User, GetFreelancerResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+            .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role != null ? src.Role.RoleName : null))
+            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
+            .ForMember(dest => dest.Services, opt => opt.MapFrom(src => src.Services)) // ICollection<Service> -> List<Service>
+            .ForMember(dest => dest.ReviewsReceived, opt => opt.MapFrom(src => src.ReviewsReceived)); // ICollection<Review> -> List<Review>
+
+
     }
-    
-    
+
+
 }
