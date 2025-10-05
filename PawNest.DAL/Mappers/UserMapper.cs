@@ -25,7 +25,6 @@ public class UserMapper : Profile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-            .ForMember(dest => dest.Password, opt => opt.Ignore()) // Don't return password in response
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.RoleName))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
@@ -36,7 +35,6 @@ public class UserMapper : Profile
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-            .ForMember(dest => dest.Password, opt => opt.Ignore()) // never expose password
             .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role != null ? src.Role.RoleName : null))
             .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
             .ForMember(dest => dest.Services, opt => opt.MapFrom(src => src.Services)) // ICollection<Service> -> List<Service>

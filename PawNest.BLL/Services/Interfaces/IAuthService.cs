@@ -13,6 +13,8 @@ namespace PawNest.BLL.Services.Interfaces
         Task<LoginResponse> Login(LoginRequest request);
         Task<RegisterResponse> Register(RegisterRequest request);
         Task<LogoutResponse> Logout(string token);
+        Task<bool> DisableAccount(Guid userId, string email, string userName);
+        Task<DisableAccountResponse> VerifyDisableCode(Guid userId, string email, string verifyCode);
         Task<bool> SendPasswordResetCodeAsync(string email);
         Task<bool> VerifyResetCodeAndResetPasswordAsync(string code, string email, string newPassword);
     }

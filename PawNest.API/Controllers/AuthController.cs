@@ -17,7 +17,7 @@ using PawNest.API.Constants;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Metadata;
 using PawNest.DAL.Data.Requests.Auth;
-using PawNest.DAL.Data.Responses.User;
+using PawNest.DAL.Data.Responses.Auth;
 using System.Linq;
 
 namespace Everwell.API.Controllers
@@ -133,6 +133,108 @@ namespace Everwell.API.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { Success = false, Message = "An error occurred during registration." });
+            }
+        }
+
+        [HttpPost(ApiEndpointConstants.Auth.SendResetCodeEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SendResetCode([FromBody] ForgotPasswordRequest request)
+        {
+            // Validate input parameters
+            if (request == null || string.IsNullOrEmpty(request.Email))
+            {
+                return BadRequest("Email is required.");
+            }
+
+            try
+            {
+                // AuthService handles:
+                // 1. Email validation and user lookup
+                // 2. Verification code generation
+                // 3. Email sending via IEmailService
+                // 4. Temporary storage of reset code
+                var result = await _authService.SendPasswordResetCodeAsync(request.Email);
+
+                // Generic response for security (prevents email enumeration)
+                return Ok(new { message = "If an account with that email exists, a verification code has been sent." });
+            }
+            catch (Exception ex)
+            {
+                // Log error details internally but return generic message
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpPost(ApiEndpointConstants.Auth.VerifyResetCodeEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> VerifyCodeAndReset([FromBody] VerifyCodeAndResetRequest request)
+        {
+            // Validate all required parameters are provided
+            if (request == null || string.IsNullOrEmpty(request.Code) ||
+                string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.NewPassword))
+            {
+                return BadRequest("Code, email, and new password are required.");
+            }
+
+            try
+            {
+                // AuthService handles:
+                // 1. Verification code validation
+                // 2. Code expiration check
+                // 3. Password hashing and database update
+                // 4. Code cleanup/invalidation
+                var result = await _authService.VerifyResetCodeAndResetPasswordAsync(
+                    request.Code, request.Email, request.NewPassword);
+
+                if (!result)
+                {
+                    return BadRequest("Invalid or expired verification code.");
+                }
+
+                return Ok(new { message = "Password has been reset successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while resetting your password.");
+            }
+        }
+
+        [HttpPost(ApiEndpointConstants.Auth.DisableAccountEndpoint)]
+        [Authorize]
+        public async Task<IActionResult> Disable()
+        {
+            try
+            {
+                // Extract JWT token from Authorization header ("Bearer <token>")
+                var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+                if (string.IsNullOrWhiteSpace(authHeader))
+                {
+                    return BadRequest("Authorization header is missing.");
+                }
+
+                // AuthService handles:
+                // 1. Token extraction from "Bearer <token>" format
+                // 2. Adding token to BlacklistedToken table
+                // 3. Database persistence
+                var response = await _authService.Logout(authHeader);
+
+                if (response.Success)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { Success = false, Message = "An error occurred during logout." });
             }
         }
 

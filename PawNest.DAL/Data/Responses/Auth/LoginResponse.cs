@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PawNest.DAL.Data.Requests.Auth
+namespace PawNest.DAL.Data.Responses.Auth
 {
     public class LoginResponse
     {

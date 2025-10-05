@@ -10,6 +10,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Everwell.BLL.Infrastructure;
 using PawNest.API.Middleware;
+using PawNest.DAL.Repositories.Interfaces;
+using PawNest.DAL.Repositories.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,6 +129,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IFreelancerService, FreelancerService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<TokenProvider>();
 
 // Configure 

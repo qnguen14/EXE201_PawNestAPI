@@ -8,8 +8,8 @@ public interface IUserService
 {
     Task<IEnumerable<CreateUserResponse>> GetAll();
     Task<CreateUserResponse> GetById(Guid id);
+    Task<CreateUserResponse> GetUserByEmail(string email);
     Task<CreateUserResponse> Create(CreateUserRequest request);
-    Task<User> Update(User user);
-    Task<User> Register(User user);
-    Task<User> Login(string email, string password);
+    Task<bool> UpdatePasswordAsync(Guid userId, string newPassword);
+    Task<CreateUserResponse> Update(Guid userId, UpdateUserRequest request);
 }

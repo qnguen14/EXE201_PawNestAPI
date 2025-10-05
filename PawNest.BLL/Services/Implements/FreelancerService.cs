@@ -8,7 +8,7 @@ using PawNest.DAL.Data.Responses.User;
 using PawNest.DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +33,7 @@ namespace PawNest.BLL.Services.Implements
                 var freelancers = await _unitOfWork.GetRepository<User>()
                     .GetListAsync(
                         predicate: u => u.RoleId == 3,
-                        include: source => (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<User, object>)source
+                        include: source => source
                             .Include(u => u.Services)
                             .Include(u => u.ReviewsReceived),
                         orderBy: u => u.OrderBy(n => n.Name)
@@ -62,7 +62,7 @@ namespace PawNest.BLL.Services.Implements
                 var freelancers = await _unitOfWork.GetRepository<User>()
                     .FirstOrDefaultAsync(
                         predicate: u => u.RoleId == 3,
-                        include: source => (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<User, object>)source
+                        include: source => source
                             .Include(u => u.Services)
                             .Include(u => u.ReviewsReceived),
                         orderBy: u => u.OrderBy(n => n.Name)
