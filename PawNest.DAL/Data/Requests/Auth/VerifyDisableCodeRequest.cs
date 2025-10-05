@@ -16,3 +16,4 @@ namespace PawNest.DAL.Data.Requests.Auth
         [Required(ErrorMessage = "Verification code is required")]
         public string VerificationCode { get; set; }
     }
+}

@@ -112,5 +112,37 @@ namespace PawNest.BLL.Services.Implements
         {
             throw new NotImplementedException();
         }
+
+        public async Task SendDisableAccountCodeAsync(string toEmail, string disableCode, string userName)
+        {
+            var subject = "Account Disable Confirmation Code - Everwell Health";
+            var body = $@"
+                <html>
+                <body style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                    <div style='background-color: #E74C3C; color: white; padding: 20px; text-align: center;'>
+                        <h2>Account Disable Confirmation</h2>
+                    </div>
+                    <div style='padding: 30px; background-color: #f9f9f9;'>
+                        <p>Hi {userName},</p>
+                        <p>We received a request to disable your account. Please use the verification code below to confirm:</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <div style='background-color: #ffffff; border: 2px solid #E74C3C; border-radius: 8px; padding: 20px; display: inline-block;'>
+                                <h1 style='color: #E74C3C; margin: 0; font-size: 32px; letter-spacing: 8px;'>{disableCode}</h1>
+                            </div>
+                        </div>
+                        
+                        <p style='color: #666;'>This code will expire in <strong>15 minutes</strong>.</p>
+                        <p style='color: #666;'>If you didn't request to disable your account, please contact our support team immediately.</p>
+                        
+                        <div style='margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;'>
+                            <p style='color: #888; font-size: 12px;'>Best regards,<br>Everwell Health Team</p>
+                        </div>
+                    </div>
+                </body>
+                </html>";
+
+            await SendEmailAsync(toEmail, subject, body);
+        }
     }
 }

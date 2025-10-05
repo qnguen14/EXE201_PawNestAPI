@@ -205,36 +205,130 @@ namespace Everwell.API.Controllers
 
         [HttpPost(ApiEndpointConstants.Auth.DisableAccountEndpoint)]
         [Authorize]
-        public async Task<IActionResult> Disable()
+        public async Task<IActionResult> Disable([FromBody] DisableAccountRequest request)
         {
             try
             {
-                // Extract JWT token from Authorization header ("Bearer <token>")
-                var authHeader = Request.Headers["Authorization"].FirstOrDefault();
-                if (string.IsNullOrWhiteSpace(authHeader))
+                // Get current user information from claims
+                var userId = User.FindFirst("uid")?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid userGuid))
                 {
-                    return BadRequest("Authorization header is missing.");
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Message = "Invalid user identification in token.",
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
                 }
 
-                // AuthService handles:
-                // 1. Token extraction from "Bearer <token>" format
-                // 2. Adding token to BlacklistedToken table
-                // 3. Database persistence
-                var response = await _authService.Logout(authHeader);
+                if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.UserName))
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Message = "Email and user name are required.",
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
 
-                if (response.Success)
+                // Send verification code to user's email
+                var codeSent = await _authService.DisableAccount(userGuid, request.Email, request.UserName);
+                
+                if (!codeSent)
                 {
-                    return Ok(response);
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Message = "Failed to send verification code. Please try again later.",
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
                 }
-                else
+                
+                return Ok(new ApiResponse<object>
                 {
-                    return BadRequest(response);
-                }
+                    Message = "A verification code has been sent to your email. Please use it to confirm account disabling.",
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { Success = false, Message = "An error occurred during logout." });
+                    new ApiResponse<object> 
+                    { 
+                        Message = "An error occurred while processing your request.", 
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    });
+            }
+        }
+
+        [HttpPost(ApiEndpointConstants.Auth.VerifyDisableCodeEndpoint)]
+        [Authorize]
+        public async Task<IActionResult> VerifyDisableCode([FromBody] VerifyDisableCodeRequest request)
+        {
+            try
+            {
+                // Get current user information from claims
+                var userId = User.FindFirst("uid")?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid userGuid))
+                {
+                    return BadRequest(new ApiResponse<DisableAccountResponse>
+                    {
+                        Message = "Invalid user identification in token.",
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
+
+                if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.VerificationCode))
+                {
+                    return BadRequest(new ApiResponse<DisableAccountResponse>
+                    {
+                        Message = "Email and verification code are required.",
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    });
+                }
+
+                // Verify the code and disable account if valid
+                var response = await _authService.VerifyDisableCode(userGuid, request.Email, request.VerificationCode);
+                
+                if (!response.IsDisabled)
+                {
+                    return BadRequest(new ApiResponse<DisableAccountResponse>
+                    {
+                        Message = response.Message,
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Data = response
+                    });
+                }
+                
+                // If account is disabled, invalidate the current token
+                var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(authHeader))
+                {
+                    await _authService.Logout(authHeader);
+                }
+                
+                return Ok(new ApiResponse<DisableAccountResponse>
+                {
+                    Message = "Account disabled successfully.",
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Data = response
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ApiResponse<DisableAccountResponse> 
+                    { 
+                        Message = "An error occurred while processing your request.", 
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    });
             }
         }
 
