@@ -119,7 +119,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Configure Unit of Work pattern for database transactions
-builder.Services.AddScoped<IUnitOfWork<PawNestDbContext>,UnitOfWork<PawNestDbContext>>();
+builder.Services.AddScoped<IUnitOfWork<PawNestDbContext>, UnitOfWork<PawNestDbContext>>();
 // Generic repository for common CRUD operations
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 // HTTP context access for getting current user information
@@ -127,17 +127,13 @@ builder.Services.AddHttpContextAccessor();
 // Configure AutoMapper with mapping profiles
 // Register application services
 builder.Services.AddScoped<IUserService, UserService>();
-<<<<<<< HEAD
-
 builder.Services.AddScoped<IPetService, PetService>();
-=======
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IFreelancerService, FreelancerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<TokenProvider>();
 
->>>>>>> origin/nguyen/auth
 // Configure 
 
 // Configure database configuration
