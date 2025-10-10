@@ -44,5 +44,7 @@ public class ApiEndpointConstants
         public const string GetFreelancersByServiceEndpoint = FreelancerEndpoint + "/service/{serviceId}";
         public const string GetFreelancerByIdEndpoint = FreelancerEndpoint + "/{id}";
         public const string GetAllFreelancersEndpoint = FreelancerEndpoint + "/getall";
+        public const string SearchFreelancersEndpoint = FreelancerEndpoint + "/search";
+        public const string SortFreelancersEndpoint = FreelancerEndpoint + "/sort";
     }
 }

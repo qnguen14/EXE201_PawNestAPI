@@ -83,5 +83,67 @@ namespace PawNest.BLL.Services.Implements
                 throw;
             }
         }
+
+        public async Task<IEnumerable<GetFreelancerResponse>> SearchFreelancers(string address, string serviceName)
+        {
+            try
+            {
+                var freelancers = await _unitOfWork.GetRepository<User>()
+                    .GetListAsync(
+                        predicate: u => u.RoleId == 3 &&
+                                       (string.IsNullOrEmpty(address) || u.Address.Contains(address)) &&
+                                       (string.IsNullOrEmpty(serviceName) || u.Services.Any(s => s.Type.ToString().Contains(serviceName))),
+                        include: source => source
+                            .Include(u => u.Services)
+                            .Include(u => u.ReviewsReceived),
+                        orderBy: u => u.OrderBy(n => n.Name)
+                    );
+
+                if (freelancers == null || !freelancers.Any())
+                {
+                    return null;
+                }
+
+                var freelancersResponse = _mapper.Map<IEnumerable<GetFreelancerResponse>>(freelancers);
+                return freelancersResponse;
+
+            } catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while searching freelancers: " + ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<GetFreelancerResponse>> SortFreelancers(string serviceName, string minPrice, string maxPrice)
+        {
+            try
+            {
+                var freelancers = await _unitOfWork.GetRepository<User>()
+                .GetListAsync(
+                    predicate: u => u.RoleId == 3 &&
+                                   (string.IsNullOrEmpty(serviceName) || u.Services.Any(s => s.Type.ToString().Contains(serviceName))) &&
+                                   (string.IsNullOrEmpty(minPrice) || u.Services.Any(s => s.Price >= Convert.ToDecimal(minPrice))) &&
+                                   (string.IsNullOrEmpty(maxPrice) || u.Services.Any(s => s.Price <= Convert.ToDecimal(maxPrice))),
+                    include: source => source
+                        .Include(u => u.Services)
+                        .Include(u => u.ReviewsReceived),
+                    orderBy: u => u.OrderBy(n => n.Name)
+                );
+
+                if (freelancers == null || !freelancers.Result.Any())
+                {
+                    return null;
+                }
+
+                var freelancersResponse = _mapper.Map<IEnumerable<GetFreelancerResponse>>(freelancers);
+                return freelancersResponse;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while sorting freelancers: " + ex.Message);
+                throw;
+            }
+        }
     }
 }
