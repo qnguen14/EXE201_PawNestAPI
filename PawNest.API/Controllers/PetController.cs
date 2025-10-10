@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PawNest.BLL.Services.Implements;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Data.Exceptions;
-using static PawNest.BLL.DTO.PetDTO;
+using PawNest.DAL.Data.Metadata;
+using PawNest.DAL.Data.Requests.Pet;
+using PawNest.DAL.Data.Responses.Pet;
+
+
 
 namespace PawNest.API.Controllers
 {
@@ -13,81 +19,76 @@ namespace PawNest.API.Controllers
     public class PetController : ControllerBase
     {
         private readonly IPetService _petService;
+        private readonly IMapper _mapper;
         private readonly ILogger<PetController> _logger;
 
-        public PetController(IPetService petService, ILogger<PetController> logger)
+        public PetController(IPetService petService, IMapper mapper, ILogger<PetController> logger)
         {
             _petService = petService;
+            _mapper = mapper;
             _logger = logger;
         }
 
-        #region GET Methods
-
-        [HttpGet("my-pets")]
-        public async Task<ActionResult<IEnumerable<PetResponse>>> GetMyPets()
+        [HttpGet]
+        public async Task<IActionResult> GetAllPets()
         {
             try
             {
-                var pets = await _petService.GetMyPetsAsync();
-                var response = pets.Select(p => new PetResponse
-                {
-                    PetId = p.PetId,
-                    PetName = p.PetName,
-                    Species = p.Species,
-                    Breed = p.Breed,
-                    OwnerId = p.OwnerId,
-                    OwnerName = p.Owner.Name // Chỉ lấy tên
-                });
-
-                return Ok(response);
+                var pets = await _petService.GetAllPets();
+                return Ok(pets);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting user's pets");
-                return StatusCode(500, new { message = "An error occurred" });
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PetResponse>> GetPetById(Guid id)
+        [HttpGet("{petId:guid}")]
+        public async Task<IActionResult> GetPetById(Guid petId)
         {
             try
             {
-                var pet = await _petService.GetByIdAsync(id);
-
-                if (pet == null)
-                {
-                    return NotFound(new { message = $"Pet not found" });
-                }
-
-                var response = new PetResponse
-                {
-                    PetId = pet.PetId,
-                    PetName = pet.PetName,
-                    Species = pet.Species,
-                    Breed = pet.Breed,
-                    OwnerId = pet.OwnerId,
-                    OwnerName = pet.Owner.Name
-                };
-
-                return Ok(response);
+                var pet = await _petService.GetPetById(petId);
+                return Ok(pet);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting pet");
-                return StatusCode(500, new { message = "An error occurred" });
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
             }
         }
 
-        #endregion
+        [HttpGet("owner/{ownerId:guid}")]
+        public async Task<IActionResult> GetPetByOwnerId(Guid ownerId)
+        {
+            try
+            {
+                var pet = await _petService.GetPetByOwnerId(ownerId);
+                var response = _mapper.Map<CreatePetResponse>(pet);
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
 
-        #region POST Methods
-
-        /// <summary>
-        /// Add a new pet
-        /// </summary>
         [HttpPost]
-        public async Task<ActionResult<PetResponse>> AddPet([FromBody] CreatePetRequest request)
+        public async Task<IActionResult> CreatePet([FromBody] CreatePetRequest request)
         {
             try
             {
@@ -96,139 +97,65 @@ namespace PawNest.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                // Map DTO to Entity
-                var pet = new Pet
-                {
-                    PetName = request.PetName,
-                    Species = request.Species,
-                    Breed = request.Breed
-                    // OwnerId sẽ được set trong Service từ JWT
-                };
+                var pet = _mapper.Map<Pet>(request);
+                var createdPet = await _petService.CreatePet(pet);
+                var response = _mapper.Map<CreatePetResponse>(createdPet);
 
-                var addedPet = await _petService.AddAsync(pet);
-
-                var response = new PetResponse
-                {
-                    PetId = addedPet.PetId,
-                    PetName = addedPet.PetName,
-                    Species = addedPet.Species,
-                    Breed = addedPet.Breed,
-                    OwnerId = addedPet.OwnerId
-                };
-
-                return CreatedAtAction(nameof(GetPetById), new { id = response.PetId }, response);
-            }
-            catch (UnauthorizedException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                return CreatedAtAction(nameof(GetPetById), new { petId = response.PetId }, response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding pet");
-                return StatusCode(500, new { message = "An error occurred" });
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
             }
         }
 
-        #endregion
-
-        #region PUT Methods
-
-        /// <summary>
-        /// Update an existing pet
-        /// </summary>
-        [HttpPut("{id}")]
-        public async Task<ActionResult<PetResponse>> UpdatePet(Guid id, [FromBody] UpdatePetRequest request)
+        [HttpPut("{petId:guid}")]
+        public async Task<IActionResult> UpdatePet(Guid petId, [FromBody] CreatePetRequest request)
         {
             try
             {
-                if (id != request.PetId)
-                {
-                    return BadRequest(new { message = "ID mismatch" });
-                }
-
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
 
-                // Map DTO to Entity
-                var pet = new Pet
-                {
-                    PetId = request.PetId,
-                    PetName = request.PetName,
-                    Species = request.Species,
-                    Breed = request.Breed
-                };
+                var pet = _mapper.Map<Pet>(request);
+                pet.PetId = petId;
 
-                var updatedPet = await _petService.UpdateAsync(pet);
-
-                var response = new PetResponse
-                {
-                    PetId = updatedPet.PetId,
-                    PetName = updatedPet.PetName,
-                    Species = updatedPet.Species,
-                    Breed = updatedPet.Breed,
-                    OwnerId = updatedPet.OwnerId
-                };
+                var updatedPet = await _petService.UpdatePet(pet);
+                var response = _mapper.Map<CreatePetResponse>(updatedPet);
 
                 return Ok(response);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (UnauthorizedException ex)
-            {
-                return Unauthorized(new { message = ex.Message });
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating pet");
-                return StatusCode(500, new { message = "An error occurred" });
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
             }
         }
 
-        #endregion
-
-        #region DELETE Methods
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePet(Guid id)
+        [HttpDelete("{petId:guid}")]
+        public async Task<IActionResult> DeletePet(Guid petId)
         {
             try
             {
-                var result = await _petService.DeleteAsync(id);
-
-                if (!result)
-                {
-                    return NotFound(new { message = "Pet not found" });
-                }
-
-                return NoContent();
+                await _petService.DeletePet(petId);
+                return Ok("Pet deleted successfully");
             }
-            catch (UnauthorizedException ex)
+            catch (NotFoundException ex)
             {
-                return Unauthorized(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting pet");
-                return StatusCode(500, new { message = "An error occurred" });
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
             }
         }
-
-        #endregion
     }
 }
