@@ -386,7 +386,15 @@ namespace PawNest.BLL.Services.Implements
             {
                 if (_tokenService.ValidatePasswordResetCode(verifyCode, email, out Guid verifiedUserId) && verifiedUserId == userId)
                 {
-                    return Task.FromResult(new DisableAccountResponse
+                    // Disable the user account
+                    var user = _unitOfWork.GetRepository<User>()
+                        .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive, null, null).Result;
+                    if (user != null)
+                    {
+                        user.IsActive = false;
+                        _unitOfWork.GetRepository<User>().UpdateAsync(user);
+                    }
+                        return Task.FromResult(new DisableAccountResponse
                     {
                         IsDisabled = true,
                         Message = "Tài khoản đã bị vô hiệu hóa."
