@@ -7,13 +7,21 @@ using System.Threading.Tasks;
 
 namespace PawNest.DAL.Data.Entities
 {
+    public enum BookingStatus
+    {
+        Pending,
+        Confirmed,
+        Completed,
+        Cancelled
+    }
+
     public class Booking
     {
         [Key]
         public Guid BookingId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string Status { get; set; } 
+        public BookingStatus Status { get; set; }
 
         // FK
         public Guid ServiceId { get; set; }
@@ -22,7 +30,7 @@ namespace PawNest.DAL.Data.Entities
         public Guid PetId { get; set; }
         public Pet Pet { get; set; } = null!;
 
-        public Guid OwnerId { get; set; }
-        public User Owner { get; set; } = null!;
+        public Guid CustomerId { get; set; }
+        public User Customer { get; set; } = null!;
     }
 }

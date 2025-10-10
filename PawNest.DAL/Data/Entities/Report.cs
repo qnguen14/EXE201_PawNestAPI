@@ -16,7 +16,7 @@ namespace PawNest.DAL.Data.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // FK
-        public Guid ReporterId { get; set; }
-        public User Reporter { get; set; }
+        public Guid StaffId { get; set; }
+        public User Staff { get; set; }
     }
 }

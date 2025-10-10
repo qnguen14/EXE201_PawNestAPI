@@ -18,8 +18,8 @@ namespace PawNest.DAL.Data.Entities
         public string Species { get; set; }
         public string Breed { get; set; }
 
-        public Guid OwnerId { get; set; }
-        public User Owner { get; set; }
+        public Guid CustomerId { get; set; }
+        public User Customer { get; set; }
 
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }

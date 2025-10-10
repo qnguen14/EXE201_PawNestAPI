@@ -130,7 +130,7 @@ namespace PawNest.BLL.Services.Implements
                     orderBy: u => u.OrderBy(n => n.Name)
                 );
 
-                if (freelancers == null || !freelancers.Result.Any())
+                if (freelancers == null || !freelancers.Any())
                 {
                     return null;
                 }

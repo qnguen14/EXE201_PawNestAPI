@@ -23,17 +23,48 @@ namespace PawNest.DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("PawNest.DAL.Data.Entities.BlacklistedToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("BlacklistedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("blacklistedAt");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expiresAt");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("tokenHash");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("BlacklistedTokens", "PawNestV1");
+                });
+
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Booking", b =>
                 {
                     b.Property<Guid>("BookingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid>("PetId")
                         .HasColumnType("uuid");
@@ -44,13 +75,12 @@ namespace PawNest.DAL.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("BookingId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("PetId");
 
@@ -66,9 +96,10 @@ namespace PawNest.DAL.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Breed")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("OwnerId")
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("PetName")
@@ -82,7 +113,7 @@ namespace PawNest.DAL.Migrations
 
                     b.HasKey("PetId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Pets", "PawNestV1");
                 });
@@ -148,12 +179,12 @@ namespace PawNest.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("ReporterId")
+                    b.Property<Guid>("StaffId")
                         .HasColumnType("uuid");
 
                     b.HasKey("ReportId");
 
-                    b.HasIndex("ReporterId");
+                    b.HasIndex("StaffId");
 
                     b.ToTable("Reports", "PawNestV1");
                 });
@@ -203,7 +234,7 @@ namespace PawNest.DAL.Migrations
 
                     b.HasIndex("FreelancerId");
 
-                    b.ToTable("reviews", "PawNestV1");
+                    b.ToTable("Reviews", "PawNestV1");
                 });
 
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Role", b =>
@@ -317,9 +348,9 @@ namespace PawNest.DAL.Migrations
 
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Booking", b =>
                 {
-                    b.HasOne("PawNest.DAL.Data.Entities.User", "Owner")
+                    b.HasOne("PawNest.DAL.Data.Entities.User", "Customer")
                         .WithMany("Bookings")
-                        .HasForeignKey("OwnerId")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -335,7 +366,7 @@ namespace PawNest.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Owner");
+                    b.Navigation("Customer");
 
                     b.Navigation("Pet");
 
@@ -344,13 +375,13 @@ namespace PawNest.DAL.Migrations
 
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Pet", b =>
                 {
-                    b.HasOne("PawNest.DAL.Data.Entities.User", "Owner")
+                    b.HasOne("PawNest.DAL.Data.Entities.User", "Customer")
                         .WithMany("Pets")
-                        .HasForeignKey("OwnerId")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Owner");
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Post", b =>
@@ -366,13 +397,13 @@ namespace PawNest.DAL.Migrations
 
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Report", b =>
                 {
-                    b.HasOne("PawNest.DAL.Data.Entities.User", "Reporter")
+                    b.HasOne("PawNest.DAL.Data.Entities.User", "Staff")
                         .WithMany("Reports")
-                        .HasForeignKey("ReporterId")
+                        .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Reporter");
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Review", b =>

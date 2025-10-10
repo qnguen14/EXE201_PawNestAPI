@@ -153,7 +153,7 @@ namespace PawNest.BLL.Services.Implements
             {
                 var pet = await _unitOfWork.GetRepository<Pet>()
                     .FirstOrDefaultAsync(
-                        predicate: p => p.OwnerId == ownerId,
+                        predicate: p => p.CustomerId == ownerId,
                         orderBy: null,
                         include: null
                     );

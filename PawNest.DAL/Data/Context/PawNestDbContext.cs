@@ -50,9 +50,9 @@ public class PawNestDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Pet>()
-            .HasOne(p => p.Owner)
+            .HasOne(p => p.Customer)
             .WithMany(u => u.Pets)
-            .HasForeignKey(p => p.OwnerId)
+            .HasForeignKey(p => p.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Booking>()
@@ -68,9 +68,9 @@ public class PawNestDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Booking>()
-            .HasOne(b => b.Owner)
+            .HasOne(b => b.Customer)
             .WithMany(u => u.Bookings)
-            .HasForeignKey(b => b.OwnerId)
+            .HasForeignKey(b => b.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Disambiguate the two Review->User relationships
