@@ -12,8 +12,7 @@ namespace PawNest.DAL.Data.Entities
         Grooming,
         Training,
         Walking,
-        Sitting,
-        Medical
+        Sitting
     }   
 
     public class Service
@@ -25,6 +24,7 @@ namespace PawNest.DAL.Data.Entities
         public ServiceType Type { get; set; }
         public decimal Price { get; set; }
         public DateTime CreatedAt { get; set; } 
+        public DateTime UpdatedAt { get; set; }
 
         // FK
         public Guid FreelancerId { get; set; }

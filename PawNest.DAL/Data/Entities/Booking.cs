@@ -19,18 +19,21 @@ namespace PawNest.DAL.Data.Entities
     {
         [Key]
         public Guid BookingId { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public TimeOnly PickpTime { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public DateOnly BookingDate { get; set; }
         public BookingStatus Status { get; set; }
 
         // FK
         public Guid ServiceId { get; set; }
         public Service Service { get; set; }
 
-        public Guid PetId { get; set; }
-        public Pet Pet { get; set; } = null!;
+        public Guid FreelancerId { get; set; }
+        public User Freelancer { get; set; } = null!;
 
         public Guid CustomerId { get; set; }
         public User Customer { get; set; } = null!;
+
+        public virtual ICollection<Pet> Pets { get; set; } = new List<Pet>();
     }
 }

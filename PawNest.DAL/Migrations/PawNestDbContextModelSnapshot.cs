@@ -23,6 +23,21 @@ namespace PawNest.DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BookingPet", b =>
+                {
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PetId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("BookingId", "PetId");
+
+                    b.HasIndex("PetId");
+
+                    b.ToTable("BookingPet", "PawNestV1");
+                });
+
             modelBuilder.Entity("PawNest.DAL.Data.Entities.BlacklistedToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -60,29 +75,32 @@ namespace PawNest.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateOnly>("BookingDate")
+                        .HasColumnType("date");
+
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("PetId")
+                    b.Property<Guid>("FreelancerId")
                         .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("PickpTime")
+                        .HasColumnType("time without time zone");
 
                     b.Property<Guid>("ServiceId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("Status")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("BookingId");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("PetId");
+                    b.HasIndex("FreelancerId");
 
                     b.HasIndex("ServiceId");
 
@@ -346,6 +364,21 @@ namespace PawNest.DAL.Migrations
                     b.ToTable("Users", "PawNestV1");
                 });
 
+            modelBuilder.Entity("BookingPet", b =>
+                {
+                    b.HasOne("PawNest.DAL.Data.Entities.Booking", null)
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PawNest.DAL.Data.Entities.Pet", null)
+                        .WithMany()
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Booking", b =>
                 {
                     b.HasOne("PawNest.DAL.Data.Entities.User", "Customer")
@@ -354,9 +387,9 @@ namespace PawNest.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PawNest.DAL.Data.Entities.Pet", "Pet")
-                        .WithMany("Bookings")
-                        .HasForeignKey("PetId")
+                    b.HasOne("PawNest.DAL.Data.Entities.User", "Freelancer")
+                        .WithMany()
+                        .HasForeignKey("FreelancerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -368,7 +401,7 @@ namespace PawNest.DAL.Migrations
 
                     b.Navigation("Customer");
 
-                    b.Navigation("Pet");
+                    b.Navigation("Freelancer");
 
                     b.Navigation("Service");
                 });
@@ -453,11 +486,6 @@ namespace PawNest.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("PawNest.DAL.Data.Entities.Pet", b =>
-                {
-                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("PawNest.DAL.Data.Entities.Service", b =>

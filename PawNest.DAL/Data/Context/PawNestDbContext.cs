@@ -61,17 +61,55 @@ public class PawNestDbContext : DbContext
             .HasForeignKey(b => b.ServiceId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Booking>()
-            .HasOne(b => b.Pet)
-            .WithMany(p => p.Bookings)
-            .HasForeignKey(b => b.PetId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+        // Configure Booking-Customer relationship
         modelBuilder.Entity<Booking>()
             .HasOne(b => b.Customer)
             .WithMany(u => u.Bookings)
             .HasForeignKey(b => b.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure Booking-Freelancer relationship
+        modelBuilder.Entity<Booking>()
+            .HasOne(b => b.Freelancer)
+            .WithMany()
+            .HasForeignKey(b => b.FreelancerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure many-to-many relationship between Booking and Pet
+        modelBuilder.Entity<Booking>()
+            .HasMany(b => b.Pets)
+            .WithMany(p => p.Bookings)
+            .UsingEntity<Dictionary<string, object>>(
+                "BookingPet",
+                j => j
+                    .HasOne<Pet>()
+                    .WithMany()
+                    .HasForeignKey("PetId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<Booking>()
+                    .WithMany()
+                    .HasForeignKey("BookingId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j =>
+                {
+                    j.HasKey("BookingId", "PetId");
+                    j.ToTable("BookingPet");
+                });
+
+        // Configure Report-Staff relationship
+        modelBuilder.Entity<Report>()
+            .HasOne(r => r.Staff)
+            .WithMany(u => u.Reports)
+            .HasForeignKey(r => r.StaffId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure Review-Booking relationship
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.Booking)
+            .WithMany()
+            .HasForeignKey(r => r.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Disambiguate the two Review->User relationships
         modelBuilder.Entity<Review>()
@@ -86,9 +124,14 @@ public class PawNestDbContext : DbContext
             .HasForeignKey(r => r.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Example index
+        // Configure unique constraint on User email
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
+
+        // Configure enum conversion for BookingStatus
+        modelBuilder.Entity<Booking>()
+            .Property(b => b.Status)
+            .HasConversion<int>();
     }
 }
