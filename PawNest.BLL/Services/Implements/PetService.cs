@@ -147,20 +147,20 @@ namespace PawNest.BLL.Services.Implements
             }
         }
 
-        public async Task<Pet> GetPetByOwnerId(Guid ownerId)
+        public async Task<Pet> GetPetByCustomerId(Guid customerId)
         {
             try
             {
                 var pet = await _unitOfWork.GetRepository<Pet>()
                     .FirstOrDefaultAsync(
-                        predicate: p => p.CustomerId == ownerId,
+                        predicate: p => p.CustomerId == customerId,
                         orderBy: null,
                         include: null
                     );
 
                 if (pet == null)
                 {
-                    throw new NotFoundException($"Pet with Owner ID {ownerId} not found.");
+                    throw new NotFoundException($"Pet with Customer ID {customerId} not found.");
                 }
 
                 return pet;
