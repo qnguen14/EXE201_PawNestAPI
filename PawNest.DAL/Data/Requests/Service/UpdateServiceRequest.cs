@@ -14,6 +14,5 @@ namespace PawNest.DAL.Data.Requests.Service
         public ServiceType Type { get; set; }
         public decimal Price { get; set; }
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-        public Guid FreelancerId { get; set; }
     }
 }
