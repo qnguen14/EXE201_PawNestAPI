@@ -47,7 +47,7 @@ namespace PawNest.BLL.Services.Implements
             {
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    var existingService = await _unitOfWork.GetRepository<Service>().FirstOrDefaultAsync(predicate: s => s.Title == request.Title && s.FreelancerId == request.FreelancerId);
+                    var existingService = await _unitOfWork.GetRepository<Service>().FirstOrDefaultAsync(predicate: s => s.Title == request.Title);
 
                     if (existingService  != null)
                     {
@@ -56,6 +56,7 @@ namespace PawNest.BLL.Services.Implements
 
                     var service = _mapper.Map<Service>(request);
                     service.FreelancerId = GetCurrentUserId();
+                    service.CreatedAt = DateTime.UtcNow;
                     await _unitOfWork.GetRepository<Service>().InsertAsync(service);
 
                     return _mapper.Map<GetServiceResponse>(service);
@@ -139,6 +140,7 @@ namespace PawNest.BLL.Services.Implements
                     {
                         throw new KeyNotFoundException("Service not found or you do not have permission to update this service.");
                     }
+                    service.UpdatedAt = DateTime.UtcNow;
                     _mapper.Map(request, service);
                     _unitOfWork.GetRepository<Service>().UpdateAsync(service);
                     return _mapper.Map<GetServiceResponse>(service);

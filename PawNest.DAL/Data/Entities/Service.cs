@@ -23,8 +23,8 @@ namespace PawNest.DAL.Data.Entities
         public string? Description { get; set; } 
         public ServiceType Type { get; set; }
         public decimal Price { get; set; }
-        public DateTime CreatedAt { get; set; } 
-        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         // FK
         public Guid FreelancerId { get; set; }

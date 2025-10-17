@@ -299,6 +299,9 @@ namespace PawNest.DAL.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("ServiceId");
 
                     b.HasIndex("FreelancerId");
