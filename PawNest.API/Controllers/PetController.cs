@@ -1,20 +1,22 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PawNest.API.Constants;
 using PawNest.BLL.Services.Implements;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Data.Exceptions;
 using PawNest.DAL.Data.Metadata;
 using PawNest.DAL.Data.Requests.Pet;
+using PawNest.DAL.Data.Responses.Booking;
 using PawNest.DAL.Data.Responses.Pet;
 
 
 
 namespace PawNest.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class PetController : ControllerBase
     {
@@ -29,7 +31,11 @@ namespace PawNest.API.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet(ApiEndpointConstants.Pet.GetAllPetsEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> GetAllPets()
         {
             try
@@ -48,7 +54,11 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpGet("{petId:guid}")]
+        [HttpGet(ApiEndpointConstants.Pet.GetPetByIdEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> GetPetById(Guid petId)
         {
             try
@@ -67,7 +77,11 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpGet("owner/{ownerId:guid}")]
+        [HttpGet(ApiEndpointConstants.Pet.OwnersPetsEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> GetPetByOwnerId(Guid ownerId)
         {
             try
@@ -87,7 +101,11 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost(ApiEndpointConstants.Pet.CreatePetEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> CreatePet([FromBody] CreatePetRequest request)
         {
             try
@@ -110,7 +128,11 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpPut("{petId:guid}")]
+        [HttpPut(ApiEndpointConstants.Pet.UpdatePetEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> UpdatePet(Guid petId, [FromBody] CreatePetRequest request)
         {
             try
@@ -139,7 +161,11 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpDelete("{petId:guid}")]
+        [HttpDelete(ApiEndpointConstants.Pet.DeletePetEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> DeletePet(Guid petId)
         {
             try

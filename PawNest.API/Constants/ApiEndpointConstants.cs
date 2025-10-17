@@ -48,6 +48,17 @@ public class ApiEndpointConstants
         public const string SortFreelancersEndpoint = FreelancerEndpoint + "/sort";
     }
 
+    public static class Pet
+    {
+        public const string PetEndpoint = ApiEndpoint + "/pet";
+        public const string GetPetByIdEndpoint = PetEndpoint + "/{id}";
+        public const string GetAllPetsEndpoint = PetEndpoint + "/getall";
+        public const string CreatePetEndpoint = PetEndpoint + "/create";
+        public const string UpdatePetEndpoint = PetEndpoint + "/update/{id}";
+        public const string DeletePetEndpoint = PetEndpoint + "/delete/{id}";
+        public const string OwnersPetsEndpoint = PetEndpoint + "/user/{userId}/pets";
+    }
+
     public static class Booking
     {
         public const string BookingEndpoint = ApiEndpoint + "/booking";
