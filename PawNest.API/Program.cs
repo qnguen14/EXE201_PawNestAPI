@@ -134,6 +134,7 @@ builder.Services.AddScoped<IFreelancerService, FreelancerService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddScoped<IPostService,  PostService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 // Configure 
 
 // Configure database configuration
