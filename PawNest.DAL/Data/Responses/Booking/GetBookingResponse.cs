@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PawNest.DAL.Data.Responses.Pet;
 
 namespace PawNest.DAL.Data.Responses.Booking
 {
@@ -17,6 +18,6 @@ namespace PawNest.DAL.Data.Responses.Booking
         public Guid ServiceId { get; set; }
         public Guid FreelancerId { get; set; }
         public Guid CustomerId { get; set; }
-        public List<CreatePetRequest> Pets { get; set; } = new List<CreatePetRequest>();
+        public List<GetPetResponse> Pets { get; set; } = new List<GetPetResponse>();
     }
 }

@@ -61,4 +61,23 @@ public class UserController : ControllerBase
         };
         return Ok(apiResponse);
     }
+    
+    [HttpGet(ApiEndpointConstants.User.GetMyProfileEndpoint)]
+    [ProducesResponseType(typeof(ApiResponse<GetUserReponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+    [Authorize]
+    public async Task<ActionResult<GetUserReponse>> GetCurrentUserProfile()
+    {
+        var response = await _userService.GetCurrentUserProfile();
+        var apiResponse = new ApiResponse<GetUserReponse>
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Message = $"User {response.Name} profile retrieved successfully",
+            IsSuccess = true,
+            Data = response // Complete user list for administrative purposes
+        };
+        return Ok(apiResponse);
+    }
+    
 }

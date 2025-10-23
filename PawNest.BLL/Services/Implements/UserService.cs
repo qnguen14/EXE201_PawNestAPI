@@ -240,4 +240,31 @@ public class UserService : BaseService<UserService>, IUserService
             throw new Exception(ex.Message);
         }
     }
+
+    public async Task<GetUserReponse> GetCurrentUserProfile()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var user = await _unitOfWork.GetRepository<User>()
+                .FirstOrDefaultAsync(
+                    predicate: u => u.Id == userId && u.IsActive,
+                    include: u => u
+                        .Include(x => x.Role)
+                        .Include(x => x.Pets)
+                        .Include(x => x.Bookings)
+                        .ThenInclude(b => b.Pets)
+                );
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+            return _mapper.Map<GetUserReponse>(user);
+
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
 }
