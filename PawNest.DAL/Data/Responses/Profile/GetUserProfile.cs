@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PawNest.DAL.Data.Requests.Profile
+namespace PawNest.DAL.Data.Responses.Profile
 {
-    public class UserProfileDto
+    public class GetUserProfile
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -19,5 +19,7 @@ namespace PawNest.DAL.Data.Requests.Profile
         public string RoleName { get; set; }
 
         public bool IsActive { get; set; }
+        
+        //TODO: add user's Bookings, Pets, and ReviewsWritten
     }
 }

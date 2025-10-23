@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.BLL.Services.Interfaces;
 using System.Security.Claims;
+using PawNest.API.Constants;
+using PawNest.DAL.Data.Metadata;
+using PawNest.DAL.Data.Responses.Profile;
+using PawNest.DAL.Data.Responses.User;
 
 namespace PawNest.API.Controllers
 {
@@ -11,47 +15,34 @@ namespace PawNest.API.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly IProfileService _profileService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProfileController(IProfileService profileService)
+        public ProfileController(IProfileService profileService, IHttpContextAccessor httpContextAccessor)
         {
             _profileService = profileService;
-        }
-
-        // ✅ Cách 1: Lấy theo userId (dễ test, dùng khi chưa có token)
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetProfile(Guid userId)
-        {
-            try
-            {
-                var profile = await _profileService.GetProfileAsync(userId);
-                return Ok(profile);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound(new { message = "User not found." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred.", error = ex.Message });
-            }
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // ✅ Cách 2: Lấy profile của chính user (sau khi đăng nhập)
         // Cần token JWT, trong đó có userId
         [Authorize]
-        [HttpGet("me")]
+        [HttpGet(ApiEndpointConstants.User.GetMyProfileEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<GetUserProfile>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetMyProfile()
         {
             try
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userIdClaim == null)
-                    return Unauthorized(new { message = "Invalid token." });
-
-                var userId = Guid.Parse(userIdClaim);
-                var profile = await _profileService.GetProfileAsync(userId);
-
-                return Ok(profile);
+                var profile = await _profileService.GetProfileAsync();
+                var apiResponse = new ApiResponse<GetUserProfile>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Profile retrieved successfully",
+                    IsSuccess = true,
+                    Data = profile //
+                };
+                return Ok(apiResponse);
             }
             catch (KeyNotFoundException)
             {
