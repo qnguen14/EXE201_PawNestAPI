@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PawNest.BLL.Services;
@@ -11,17 +10,19 @@ using PawNest.DAL.Data.Requests.User;
 using PawNest.DAL.Data.Responses.User;
 using PawNest.DAL.Repositories.Interfaces;
 using System.Data;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.BLL.Services.Implements;
 
 public class UserService : BaseService<UserService>, IUserService
 {
-    public UserService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<UserService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor)
-        : base(unitOfWork, logger, mapper, httpContextAccessor)
+    private readonly UserMapper _userMapper;
+    public UserService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<UserService> logger, IHttpContextAccessor httpContextAccessor, UserMapper userMapper)
+        : base(unitOfWork, logger, httpContextAccessor)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
-        _mapper = mapper;
+        _userMapper = userMapper;
     }
 
     public async Task<IEnumerable<CreateUserResponse>> GetAll()
@@ -42,7 +43,10 @@ public class UserService : BaseService<UserService>, IUserService
                 throw new NotFoundException("No users found.");
             }
 
-            return _mapper.Map<IEnumerable<CreateUserResponse>>(users);
+            var result = users.Select(user => _userMapper.MapToCreateUserResponse(user));
+
+            return result;
+
         }
         catch (Exception ex)
         {
@@ -64,7 +68,8 @@ public class UserService : BaseService<UserService>, IUserService
             {
                 throw new NotFoundException("User with email " + email + " not found.");
             }
-            return _mapper.Map<CreateUserResponse>(user);
+
+            return _userMapper.MapToCreateUserResponse(user);
         }
         catch (Exception ex)
         {
@@ -88,7 +93,7 @@ public class UserService : BaseService<UserService>, IUserService
                 throw new NotFoundException("User with ID " + id + " not found.");
             }
 
-            return _mapper.Map<CreateUserResponse>(user);
+            return _userMapper.MapToCreateUserResponse(user);
         }
         catch (Exception ex)
         {
@@ -126,7 +131,7 @@ public class UserService : BaseService<UserService>, IUserService
                 }
 
                 // Map the basic fields
-                var newUser = _mapper.Map<User>(request);
+                var newUser = _userMapper.MapToUser(request);
 
                 // 1. Generate a new ID
                 newUser.Id = Guid.NewGuid();
@@ -155,7 +160,7 @@ public class UserService : BaseService<UserService>, IUserService
                 // Add the new user
                 await _unitOfWork.GetRepository<User>().InsertAsync(newUser);
 
-                return _mapper.Map<CreateUserResponse>(newUser);
+                return _userMapper.MapToCreateUserResponse(newUser);
             });
 
         }
@@ -232,7 +237,7 @@ public class UserService : BaseService<UserService>, IUserService
                     existingUser.Role = role;        // optional: set navigation
                 }
                 _unitOfWork.GetRepository<User>().UpdateAsync(existingUser);
-                return _mapper.Map<CreateUserResponse>(existingUser);
+                return _userMapper.MapToCreateUserResponse(existingUser);
             });
 
         } catch (Exception ex)

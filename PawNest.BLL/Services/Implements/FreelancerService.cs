@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Context;
@@ -12,17 +11,20 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.BLL.Services.Implements
 {
     public class FreelancerService : BaseService<FreelancerService>, IFreelancerService
     {
-        public FreelancerService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<FreelancerService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, mapper, httpContextAccessor)
+        private readonly UserMapper _userMapper;
+        
+        public FreelancerService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<FreelancerService> logger, UserMapper userMapper, IHttpContextAccessor httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
+            _userMapper = userMapper;
         }
 
         // Implement methods related to freelancer operations
@@ -45,7 +47,7 @@ namespace PawNest.BLL.Services.Implements
                     return Enumerable.Empty<GetFreelancerResponse>();
                 }
 
-                var freelancersResponse = _mapper.Map<IEnumerable<GetFreelancerResponse>>(freelancers);
+                var freelancersResponse = freelancers.Select(f => _userMapper.MapToGetFreelancerResponse(f));
                 return freelancersResponse;
             }
             catch (Exception ex)
@@ -74,7 +76,7 @@ namespace PawNest.BLL.Services.Implements
                     return null;
                 }
 
-                var freelancerResponse = _mapper.Map<GetFreelancerResponse>(freelancers);
+                var freelancerResponse = _userMapper.MapToGetFreelancerResponse(freelancers);
                 return freelancerResponse;
             }
             catch (Exception ex)
@@ -104,7 +106,7 @@ namespace PawNest.BLL.Services.Implements
                     return null;
                 }
 
-                var freelancersResponse = _mapper.Map<IEnumerable<GetFreelancerResponse>>(freelancers);
+                var freelancersResponse = freelancers.Select(f => _userMapper.MapToGetFreelancerResponse(f));
                 return freelancersResponse;
 
             } catch (Exception ex)
@@ -135,7 +137,7 @@ namespace PawNest.BLL.Services.Implements
                     return null;
                 }
 
-                var freelancersResponse = _mapper.Map<IEnumerable<GetFreelancerResponse>>(freelancers);
+                var freelancersResponse = freelancers.Select(f => _userMapper.MapToGetFreelancerResponse(f));
                 return freelancersResponse;
 
             }

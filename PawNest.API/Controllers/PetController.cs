@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,23 +12,24 @@ using PawNest.DAL.Data.Metadata;
 using PawNest.DAL.Data.Requests.Pet;
 using PawNest.DAL.Data.Responses.Booking;
 using PawNest.DAL.Data.Responses.Pet;
-
+using PawNest.DAL.Mappers;
 
 
 namespace PawNest.API.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
     public class PetController : ControllerBase
     {
         private readonly IPetService _petService;
-        private readonly IMapper _mapper;
         private readonly ILogger<PetController> _logger;
+        private readonly PetMapper _petMapper;
 
-        public PetController(IPetService petService, IMapper mapper, ILogger<PetController> logger)
+        public PetController(IPetService petService, ILogger<PetController> logger, PetMapper petMapper)
         {
             _petService = petService;
-            _mapper = mapper;
             _logger = logger;
+            _petMapper = petMapper;
         }
 
         [HttpGet(ApiEndpointConstants.Pet.GetAllPetsEndpoint)]
@@ -86,8 +87,8 @@ namespace PawNest.API.Controllers
         {
             try
             {
-                var pet = await _petService.GetPetByOwnerId(ownerId);
-                var response = _mapper.Map<CreatePetResponse>(pet);
+                var pet = await _petService.GetPetByCustomerId(ownerId);
+                var response = _petMapper.MapToCreatePetResponse(pet);
                 return Ok(response);
             }
             catch (NotFoundException ex)
@@ -115,9 +116,9 @@ namespace PawNest.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var pet = _mapper.Map<Pet>(request);
+                var pet = _petMapper.MapToPet(request);
                 var createdPet = await _petService.CreatePet(pet);
-                var response = _mapper.Map<CreatePetResponse>(createdPet);
+                var response = _petMapper.MapToCreatePetResponse(createdPet);
 
                 return CreatedAtAction(nameof(GetPetById), new { petId = response.PetId }, response);
             }
@@ -141,12 +142,11 @@ namespace PawNest.API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-
-                var pet = _mapper.Map<Pet>(request);
+                var pet = _petMapper.MapToPet(request);
                 pet.PetId = petId;
 
                 var updatedPet = await _petService.UpdatePet(pet);
-                var response = _mapper.Map<CreatePetResponse>(updatedPet);
+                var response = _petMapper.MapToCreatePetResponse(updatedPet);
 
                 return Ok(response);
             }

@@ -23,6 +23,7 @@ namespace PawNest.API.Extensions
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<TokenProvider>();
 
             return services;

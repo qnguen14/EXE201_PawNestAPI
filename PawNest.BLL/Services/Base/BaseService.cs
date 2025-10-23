@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-// using PawNest.DAL.Data.Entities;
+﻿// using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,14 +17,12 @@ namespace PawNest.BLL.Services
     {
         protected IUnitOfWork<PawNestDbContext> _unitOfWork;
         protected ILogger<T> _logger;
-        protected IMapper _mapper;
         protected IHttpContextAccessor _httpContextAccessor;
         
-        public BaseService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<T> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public BaseService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
         }
         

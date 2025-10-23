@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿
 using Everwell.BLL.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +21,6 @@ namespace PawNest.BLL.Services.Implements
         private readonly IUnitOfWork _unitOfWork;
         private readonly TokenProvider _tokenProvider;
         private readonly IConfiguration _configuration;
-        private readonly IMapper _mapper;
         private readonly ILogger<AuthService> _logger;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
@@ -31,7 +30,6 @@ namespace PawNest.BLL.Services.Implements
             IUnitOfWork<PawNestDbContext> unitOfWork,
             TokenProvider tokenProvider,
             IConfiguration configuration,
-            IMapper mapper,
             ILogger<AuthService> logger,
             ITokenService tokenService,
             IEmailService emailService,
@@ -40,7 +38,6 @@ namespace PawNest.BLL.Services.Implements
             _unitOfWork = unitOfWork;
             _tokenProvider = tokenProvider;
             _configuration = configuration;
-            _mapper = mapper;
             _logger = logger;
             _tokenService = tokenService;
             _emailService = emailService;

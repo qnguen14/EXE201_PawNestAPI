@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PawNest.BLL.Services.Interfaces;
@@ -9,6 +8,7 @@ using PawNest.DAL.Data.Requests.Service;
 using PawNest.DAL.Data.Responses.Service;
 using PawNest.DAL.Repositories.Implements;
 using PawNest.DAL.Repositories.Interfaces;
+using PawNest.DAL.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,16 +19,18 @@ namespace PawNest.BLL.Services.Implements
 {
     public class ServiceService : BaseService<ServiceService>, IServiceService
     {
+        private readonly ServiceMapper _serviceMapper;
+        
         public ServiceService(
             IUnitOfWork<PawNestDbContext> unitOfWork,
             ILogger<ServiceService> logger,
-            IMapper mapper,
+            ServiceMapper serviceMapper,
             IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, mapper, httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
+            _serviceMapper = serviceMapper;
         }
 
         private void IsFreelancer()
@@ -54,12 +56,12 @@ namespace PawNest.BLL.Services.Implements
                         throw new InvalidOperationException("A service with the same title already exists for this freelancer.");
                     }
 
-                    var service = _mapper.Map<Service>(request);
+                    var service = _serviceMapper.MapToService(request);
                     service.FreelancerId = GetCurrentUserId();
                     service.CreatedAt = DateTime.UtcNow;
                     await _unitOfWork.GetRepository<Service>().InsertAsync(service);
 
-                    return _mapper.Map<GetServiceResponse>(service);
+                    return _serviceMapper.MapToGetServiceResponse(service);
                 });
 
             } catch (Exception ex)
@@ -100,7 +102,7 @@ namespace PawNest.BLL.Services.Implements
                     .GetListAsync(null, 
                                   include: s => s.Include(u => u.Bookings),
                                   orderBy: s => s.OrderBy(u => u.ServiceId));
-                return _mapper.Map<IEnumerable<GetServiceResponse>>(services);
+                return _serviceMapper.MapToGetServiceResponseList(services);
             }
             catch (Exception ex)
             {
@@ -119,7 +121,7 @@ namespace PawNest.BLL.Services.Implements
                     (predicate: s => s.ServiceId == serviceId,
                     include: s => s.Include(u => u.Bookings),
                     orderBy: s => s.OrderBy(u => u.ServiceId));
-                return _mapper.Map<GetServiceResponse>(service);
+                return _serviceMapper.MapToGetServiceResponse(service);
             }
             catch (Exception ex)
             {
@@ -141,9 +143,9 @@ namespace PawNest.BLL.Services.Implements
                         throw new KeyNotFoundException("Service not found or you do not have permission to update this service.");
                     }
                     service.UpdatedAt = DateTime.UtcNow;
-                    _mapper.Map(request, service);
+                    _serviceMapper.UpdateServiceFromRequest(request, service);
                     _unitOfWork.GetRepository<Service>().UpdateAsync(service);
-                    return _mapper.Map<GetServiceResponse>(service);
+                    return _serviceMapper.MapToGetServiceResponse(service);
                 });
 
             } catch (Exception ex)

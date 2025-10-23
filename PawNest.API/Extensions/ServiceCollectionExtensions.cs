@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.API.Extensions
 {
@@ -13,7 +14,13 @@ namespace PawNest.API.Extensions
             // 🧱 Base setup
             services.AddMemoryCache();
             services.AddHttpContextAccessor();
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddSingleton<UserMapper>();
+            services.AddSingleton<BookingMapper>();
+            services.AddSingleton<PetMapper>();
+            services.AddSingleton<PostMapper>();
+            services.AddSingleton<ProfileMapper>();
+            services.AddSingleton<ServiceMapper>();
+            
 
             // 🌐 Modular configuration setup
             services.AddSwaggerDocumentation();

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Context;
@@ -7,6 +6,7 @@ using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Data.Exceptions;
 using PawNest.DAL.Data.Responses.Pet;
 using PawNest.DAL.Repositories.Interfaces;
+using PawNest.DAL.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,16 +16,18 @@ namespace PawNest.BLL.Services.Implements
 {
     public class PetService : BaseService<PetService>, IPetService
     {
+        private readonly PetMapper _petMapper;
+        
         public PetService(
             IUnitOfWork<PawNestDbContext> unitOfWork,
             ILogger<PetService> logger,
-            IMapper mapper,
+            PetMapper petMapper,
             IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, mapper, httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
+            _petMapper = petMapper;
         }
 
         public async Task<IEnumerable<CreatePetResponse>> GetAllPets()
@@ -43,7 +45,7 @@ namespace PawNest.BLL.Services.Implements
                     throw new NotFoundException("No pets found.");
                 }
 
-                return _mapper.Map<IEnumerable<CreatePetResponse>>(pets);
+                return _petMapper.MapToCreatePetResponseList(pets);
             }
             catch (Exception ex)
             {
@@ -66,7 +68,7 @@ namespace PawNest.BLL.Services.Implements
                     throw new NotFoundException($"Pet with ID {petId} not found.");
                 }
 
-                return _mapper.Map<CreatePetResponse>(pet);
+                return _petMapper.MapToCreatePetResponse(pet);
             }
             catch (Exception ex)
             {
@@ -106,7 +108,7 @@ namespace PawNest.BLL.Services.Implements
                     throw new NotFoundException($"Pet with ID {pet.PetId} not found.");
                 }
 
-                _mapper.Map(pet, existingPet);
+                _petMapper.UpdatePetFromRequest(pet, existingPet);
                 _unitOfWork.GetRepository<Pet>().UpdateAsync(existingPet);
                 await _unitOfWork.SaveChangesAsync();
 
@@ -147,20 +149,20 @@ namespace PawNest.BLL.Services.Implements
             }
         }
 
-        public async Task<Pet> GetPetByOwnerId(Guid ownerId)
+        public async Task<Pet> GetPetByCustomerId(Guid customerId)
         {
             try
             {
                 var pet = await _unitOfWork.GetRepository<Pet>()
                     .FirstOrDefaultAsync(
-                        predicate: p => p.CustomerId == ownerId,
+                        predicate: p => p.CustomerId == customerId,
                         orderBy: null,
                         include: null
                     );
 
                 if (pet == null)
                 {
-                    throw new NotFoundException($"Pet with Owner ID {ownerId} not found.");
+                    throw new NotFoundException($"Pet with Customer ID {customerId} not found.");
                 }
 
                 return pet;

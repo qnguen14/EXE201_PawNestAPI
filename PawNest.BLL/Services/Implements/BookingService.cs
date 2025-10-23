@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,17 +13,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.BLL.Services.Implements
 {
     public class BookingService : BaseService<BookingService>, IBookingService
     {
-        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<BookingService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, mapper, httpContextAccessor)
+        private readonly BookingMapper _bookingMapper;
+        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<BookingService> logger, IHttpContextAccessor httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
         }
 
         private bool IsCustomer(string role)
@@ -62,13 +63,13 @@ namespace PawNest.BLL.Services.Implements
                         _logger.LogWarning("A booking already exists for the specified service, freelancer, customer, and date.");
                     }
 
-                    var booking = _mapper.Map<Booking>(request);
+                    var booking = _bookingMapper.MapToBooking(request);
                     booking.CustomerId = GetCurrentUserId();
                     booking.Status = BookingStatus.Pending;
 
                     await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
 
-                    return _mapper.Map<GetBookingResponse>(booking);
+                    return _bookingMapper.MapToGetBookingResponse(booking);
 
 
                 });
@@ -121,7 +122,8 @@ namespace PawNest.BLL.Services.Implements
                     return null;
                 }
 
-                 return _mapper.Map<IEnumerable<GetBookingResponse>>(bookings);
+                var result = bookings.Select(b => _bookingMapper.MapToGetBookingResponse(b));
+                return result;
             }
             catch (Exception ex)
             {
@@ -147,7 +149,7 @@ namespace PawNest.BLL.Services.Implements
                     return null;
                 }
 
-                return _mapper.Map<GetBookingResponse>(booking);
+                return _bookingMapper.MapToGetBookingResponse(booking);
             }
             catch (Exception ex)
             {
@@ -179,7 +181,7 @@ namespace PawNest.BLL.Services.Implements
                     booking.Status = request.Status;
                     booking.UpdatedAt = DateTime.UtcNow;
                     _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
-                    return _mapper.Map<GetBookingUpdateResponse>(booking);
+                    return _bookingMapper.MapToGetBookingUpdateResponse(booking);
                 });
             } catch (Exception ex)
             {
