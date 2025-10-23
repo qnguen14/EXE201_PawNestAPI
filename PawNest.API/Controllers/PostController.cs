@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.BLL.Services.Implements;
@@ -9,6 +9,7 @@ using PawNest.DAL.Data.Requests.Pet;
 using PawNest.DAL.Data.Requests.Post;
 using PawNest.DAL.Data.Responses.Pet;
 using PawNest.DAL.Data.Responses.Post;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.API.Controllers
 {
@@ -17,13 +18,12 @@ namespace PawNest.API.Controllers
     public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
-        private readonly IMapper _mapper;
         private readonly ILogger<PostController> _logger;
+        private readonly PostMapper _postMapper;    
 
-        public PostController(IPostService postService, IMapper mapper, ILogger<PostController> logger)
+        public PostController(IPostService postService, ILogger<PostController> logger)
         {
             _postService = postService;
-            _mapper = mapper;
             _logger = logger;
         }
 
@@ -52,10 +52,10 @@ namespace PawNest.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var post = _mapper.Map<Post>(request);
+                var post = _postMapper.MapToPost(request);
                 var createdPost = await _postService.CreatePost(post);
-                var response = _mapper.Map<CreatePostResponse>(createdPost);
-
+                var response = _postMapper.MapToCreatePostResponse(createdPost);
+                
                 return CreatedAtAction(nameof(GetPostById), new { postId = response.PostId }, response);
             }
             catch (Exception ex)
@@ -113,11 +113,11 @@ namespace PawNest.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var post= _mapper.Map<Post>(request);
+                var post = _postMapper.MapToPost(request);
                 post.Id = postId;
 
                 var updatedPost = await _postService.UpdatePost(post);
-                var response = _mapper.Map<CreatePostResponse>(updatedPost);
+                var response = _postMapper.MapToCreatePostResponse(updatedPost);
 
                 return Ok(response);
             }

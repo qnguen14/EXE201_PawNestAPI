@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Context;
@@ -14,16 +13,18 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.BLL.Services.Implements
 {
     public class PostService : BaseService<PostService>, IPostService
     {
-        public PostService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<PostService> logger, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(unitOfWork, logger, mapper, httpContextAccessor)
+        private readonly PostMapper _postMapper;
+        public PostService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<PostService> logger, IHttpContextAccessor httpContextAccessor, PostMapper postMapper) : base(unitOfWork, logger, httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
+            _postMapper = postMapper;
         }
 
         public async Task<Post> CreatePost(Post post)
@@ -55,7 +56,8 @@ namespace PawNest.BLL.Services.Implements
                 {
                     throw new NotFoundException($"Post with ID {post.Id} not found.");
                 }
-                _mapper.Map(post, existingPost);
+
+                _postMapper.UpdatePostFromRequest(post, existingPost);
                 _unitOfWork.GetRepository<Post>().UpdateAsync(existingPost);
                 await _unitOfWork.SaveChangesAsync();
                 return existingPost;
@@ -109,7 +111,7 @@ namespace PawNest.BLL.Services.Implements
                     throw new NotFoundException("No posts found.");
                 }
 
-                return _mapper.Map<IEnumerable<CreatePostResponse>>(posts);
+                return posts.Select(p => _postMapper.MapToCreatePostResponse(p));
             }
             catch (Exception ex)
             {
@@ -132,7 +134,7 @@ namespace PawNest.BLL.Services.Implements
                     throw new NotFoundException($"Post with ID {postId} not found.");
                 }
 
-                return _mapper.Map<CreatePostResponse>(post);
+                return _postMapper.MapToCreatePostResponse(post);
             }
             catch (Exception ex)
             {

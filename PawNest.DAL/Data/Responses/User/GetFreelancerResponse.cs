@@ -16,7 +16,7 @@ namespace PawNest.DAL.Data.Responses.User
         public string Address { get; set; }
         public string Role { get; set; }
         public string AvatarUrl { get; set; }
-        public List<Service> Services { get; set; } = new List<Service>();
+        public List<Entities.Service> Services { get; set; } = [];
         public List<Review> ReviewsReceived { get; set; } = new List<Review>();
     }
 }

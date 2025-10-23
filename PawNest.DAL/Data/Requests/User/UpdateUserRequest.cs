@@ -12,6 +12,8 @@ namespace PawNest.BLL.Services.Interfaces
         [MaxLength(10, ErrorMessage = "Phone number cannot be more than 10 characters")]
         public string PhoneNumber { get; set; }
 
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
         [Required(ErrorMessage = "Address field is required")]
         public string Address { get; set; }
 
