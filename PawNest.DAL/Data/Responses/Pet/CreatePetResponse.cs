@@ -12,6 +12,6 @@ namespace PawNest.DAL.Data.Responses.Pet
         public string PetName { get; set; }
         public string Species { get; set; }
         public string Breed { get; set; }
-        public Guid OwnerId { get; set; }
+        public Guid CustomerId { get; set; }
     }
 }

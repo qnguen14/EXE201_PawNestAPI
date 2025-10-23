@@ -67,12 +67,12 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpGet("owner/{ownerId:guid}")]
-        public async Task<IActionResult> GetPetByOwnerId(Guid ownerId)
+        [HttpGet("customer/{customerId:guid}")]
+        public async Task<IActionResult> GetPetByCustomerId(Guid customerId)
         {
             try
             {
-                var pet = await _petService.GetPetByOwnerId(ownerId);
+                var pet = await _petService.GetPetByCustomerId(customerId);
                 var response = _mapper.Map<CreatePetResponse>(pet);
                 return Ok(response);
             }

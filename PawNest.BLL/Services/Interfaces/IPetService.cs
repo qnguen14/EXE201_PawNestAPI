@@ -15,6 +15,6 @@ namespace PawNest.BLL.Services.Interfaces
         Task<Pet> CreatePet(Pet pet);
         Task<Pet> UpdatePet(Pet pet);
         Task<bool> DeletePet(Guid petId);
-        Task<Pet> GetPetByOwnerId(Guid ownerId);
+        Task<Pet> GetPetByCustomerId(Guid customerId);
     }
 }
