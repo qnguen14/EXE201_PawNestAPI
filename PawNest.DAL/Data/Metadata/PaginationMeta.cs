@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ClaimRequest.DAL.Data.MetaDatas
+namespace PawNest.DAL.Data.MetaDatas
 {
     public class PaginationMeta
     {

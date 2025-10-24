@@ -14,6 +14,9 @@ namespace PawNest.DAL.Data.Responses.Booking
         public TimeOnly PickUpTime { get; set; }
         public DateOnly BookingDate { get; set; }
         public BookingStatus Status { get; set; }
+        public decimal TotalPrice { get; set; }
+        public bool IsPaid { get; set; }
+        public DateTime CreatedAt { get; set; }
         public Guid ServiceId { get; set; }
         public Guid FreelancerId { get; set; }
         public Guid CustomerId { get; set; }

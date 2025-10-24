@@ -4,7 +4,7 @@ using PawNest.API.Constants;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Metadata;
 using PawNest.DAL.Data.Responses.User;
-using ClaimRequest.DAL.Data.MetaDatas;
+using PawNest.DAL.Data.MetaDatas;
 
 namespace PawNest.API.Controllers
 {

@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PawNest.DAL.Mappers;
-using ClaimRequest.DAL.Data.MetaDatas; // PagingResponse, PaginationMeta
+using PawNest.DAL.Data.MetaDatas; // PagingResponse, PaginationMeta
 
 namespace PawNest.BLL.Services.Implements
 {

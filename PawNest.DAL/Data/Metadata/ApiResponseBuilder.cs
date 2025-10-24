@@ -1,4 +1,6 @@
-﻿namespace PawNest.DAL.Data.Metadata;
+﻿using PawNest.DAL.Data.MetaDatas;
+
+namespace PawNest.DAL.Data.Metadata;
 
 public class ApiResponseBuilder
 {

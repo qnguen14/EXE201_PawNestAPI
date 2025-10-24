@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClaimRequest.DAL.Data.MetaDatas;
+using PawNest.DAL.Data.MetaDatas;
 
 namespace PawNest.BLL.Services.Interfaces
 {

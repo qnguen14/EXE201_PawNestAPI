@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ClaimRequest.DAL.Data.MetaDatas
+namespace PawNest.DAL.Data.MetaDatas
 {
     public static class PaginateExtentions
     {

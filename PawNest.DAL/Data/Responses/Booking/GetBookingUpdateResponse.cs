@@ -10,12 +10,12 @@ namespace PawNest.DAL.Data.Responses.Booking
 {
     public class GetBookingUpdateResponse
     {
-        public Guid BookingId { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public TimeOnly PickUpTime { get; set; }
         public DateOnly BookingDate { get; set; }
-        public DateTime UpdatedAt { get; set; }
         public BookingStatus Status { get; set; }
+        public decimal TotalPrice { get; set; }
+        public bool IsPaid { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public Guid ServiceId { get; set; }
         public Guid FreelancerId { get; set; }
         public Guid CustomerId { get; set; }
