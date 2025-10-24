@@ -30,33 +30,33 @@ public class ApiResponseBuilder
     }
 
     // This method is used to build a response object for list/pagination data
-    // public static ApiResponse<PagingResponse<T>> BuildPageResponse<T>(
-    //     IEnumerable<T> items,
-    //     int totalPages,
-    //     int currentPage,
-    //     int pageSize,
-    //     long totalItems,
-    //     string message)
-    // {
-    //     var pagedResponse = new PagingResponse<T>
-    //     {
-    //         Items = items,
-    //         Meta = new PaginationMeta
-    //         {
-    //             TotalPages = totalPages,
-    //             CurrentPage = currentPage,
-    //             PageSize = pageSize,
-    //             TotalItems = totalItems
-    //         }
-    //     };
-    //
-    //     return new ApiResponse<PagingResponse<T>>
-    //     {
-    //         Data = pagedResponse,
-    //         Message = message,
-    //         StatusCode = 200,
-    //         IsSuccess = true,
-    //         Reason = null
-    //     };
-    // }
+    public static ApiResponse<PagingResponse<T>> BuildPageResponse<T>(
+        IEnumerable<T> items,
+        int totalPages,
+        int currentPage,
+        int pageSize,
+        long totalItems,
+        string message)
+    {
+        var pagedResponse = new PagingResponse<T>
+        {
+            Items = items,
+            Meta = new PaginationMeta
+            {
+                TotalPages = totalPages,
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            }
+        };
+
+        return new ApiResponse<PagingResponse<T>>
+        {
+            Data = pagedResponse,
+            Message = message,
+            StatusCode = 200,
+            IsSuccess = true,
+            Reason = null
+        };
+    }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Query;
+﻿using ClaimRequest.DAL.Data.MetaDatas;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,20 +37,20 @@ namespace PawNest.DAL.Repositories.Interfaces
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
             int? take = null);
 
-        //Task<PagingResponse<T>> GetPagingListAsync(
-        //    Expression<Func<T, bool>> predicate = null,
-        //    Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        //    Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
-        //    int page = 1,
-        //    int size = 10);
+        Task<PagingResponse<T>> GetPagingListAsync(
+            Expression<Func<T, bool>> predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            int page = 1,
+            int size = 10);
 
-        //Task<PagingResponse<TResult>> GetPagingListAsync<TResult>(
-        //    Expression<Func<T, TResult>> selector,
-        //    Expression<Func<T, bool>> predicate = null,
-        //    Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        //    Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
-        //    int page = 1,
-        //    int size = 10);
+        Task<PagingResponse<TResult>> GetPagingListAsync<TResult>(
+            Expression<Func<T, TResult>> selector,
+            Expression<Func<T, bool>> predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
+            int page = 1,
+            int size = 10);
 
         Task<int> CountAsync(Expression<Func<T, bool>> predicate = null);
 

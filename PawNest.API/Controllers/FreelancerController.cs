@@ -4,6 +4,7 @@ using PawNest.API.Constants;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Metadata;
 using PawNest.DAL.Data.Responses.User;
+using ClaimRequest.DAL.Data.MetaDatas;
 
 namespace PawNest.API.Controllers
 {
@@ -20,22 +21,20 @@ namespace PawNest.API.Controllers
         }
 
         [HttpGet(ApiEndpointConstants.User.GetAllFreelancersEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetFreelancerResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<PagingResponse<GetFreelancerResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Staff, Customer, Freelancer")] 
-        public async Task<ActionResult<IEnumerable<GetFreelancerResponse>>> GetFreelancers()
+        [Authorize(Roles = "Admin, Staff, Customer, Freelancer")]
+        public async Task<ActionResult<PagingResponse<GetFreelancerResponse>>> GetFreelancers([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            // Service returns all users with basic profile information
-            // Includes role information and account status
-            var response = await _freelancerService.GetAllFreelancersAsync();
+            var response = await _freelancerService.GetAllFreelancersAsync(page, size);
 
-            var apiResponse = new ApiResponse<IEnumerable<GetFreelancerResponse>>
+            var apiResponse = new ApiResponse<PagingResponse<GetFreelancerResponse>>
             {
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Freelancers retrieved successfully",
                 IsSuccess = true,
-                Data = response // Complete user list for administrative purposes
+                Data = response
             };
             return Ok(apiResponse);
         }
@@ -47,16 +46,14 @@ namespace PawNest.API.Controllers
         [Authorize(Roles = "Admin, Staff, Customer, Freelancer")]
         public async Task<ActionResult<GetFreelancerResponse>> GetById(Guid id)
         {
-            // Service returns all users with basic profile information
-            // Includes role information and account status
             var response = await _freelancerService.GetFreelancerByIdAsync(id);
 
             var apiResponse = new ApiResponse<GetFreelancerResponse>
             {
                 StatusCode = StatusCodes.Status200OK,
-                Message = $"Freelancer {response.Name} retrieved successfully",
+                Message = $"Freelancer {response?.Name} retrieved successfully",
                 IsSuccess = true,
-                Data = response // Complete user list for administrative purposes
+                Data = response
             };
             return Ok(apiResponse);
         }
@@ -68,8 +65,6 @@ namespace PawNest.API.Controllers
         [Authorize(Roles = "Admin, Staff, Customer, Freelancer")]
         public async Task<ActionResult<IEnumerable<GetFreelancerResponse>>> SearchFreelancersById([FromBody] string address, string serviceName)
         {
-            // Service returns all users with basic profile information
-            // Includes role information and account status
             var response = await _freelancerService.SearchFreelancers(address, serviceName);
 
             var apiResponse = new ApiResponse<IEnumerable<GetFreelancerResponse>>
@@ -77,7 +72,7 @@ namespace PawNest.API.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 Message = $"Freelancers retrieved successfully",
                 IsSuccess = true,
-                Data = response // Complete user list for administrative purposes
+                Data = response
             };
             return Ok(apiResponse);
         }
