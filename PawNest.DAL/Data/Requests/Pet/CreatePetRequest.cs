@@ -18,9 +18,6 @@ namespace PawNest.DAL.Data.Requests.Pet
 
         [MaxLength(45, ErrorMessage = "Pet breed cannot contain more than 45 characters")]
         public string Breed { get; set; }
-
-        [Required(ErrorMessage = "Customer ID is required")]
-        public Guid CustomerId { get; set; }
     }
 
     public class UpdatedPetRequest
