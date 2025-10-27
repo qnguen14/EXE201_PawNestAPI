@@ -10,7 +10,8 @@ namespace PawNest.DAL.Data.Responses.Booking
 {
     public class GetBookingUpdateResponse
     {
-        public TimeOnly PickUpTime { get; set; }
+        public PickUpTime PickUpTime { get; set; }
+        public PickUpStatus PickUpStatus { get; set; }
         public DateOnly BookingDate { get; set; }
         public BookingStatus Status { get; set; }
         public decimal TotalPrice { get; set; }

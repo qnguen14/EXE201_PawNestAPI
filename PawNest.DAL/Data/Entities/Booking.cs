@@ -16,12 +16,30 @@ namespace PawNest.DAL.Data.Entities
         Cancelled
     }
 
+    public enum PickUpStatus
+    {
+        NotPickedUp,
+        PickedUp,
+        Delivered
+    }
+
+    public enum PickUpTime
+    {
+        Slot1, // 8:00 AM - 10:00 AM
+        Slot2, // 10:00 AM - 12:00 PM
+        Slot3, // 12:00 PM - 2:00 PM
+        Slot4, // 2:00 PM - 4:00 PM
+        Slot5  // 4:00 PM - 6:00 PM
+    }
+
     public class Booking
     {
         [Key]
         public Guid BookingId { get; set; }
 
-        public TimeOnly PickUpTime { get; set; }
+        public PickUpTime PickUpTime { get; set; }
+
+        public PickUpStatus PickUpStatus { get; set; }
 
         public DateOnly BookingDate { get; set; }
 

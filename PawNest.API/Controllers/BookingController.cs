@@ -98,7 +98,7 @@ namespace PawNest.API.Controllers
                 IsSuccess = true,
                 Data = createdBooking
             };
-            return CreatedAtAction(nameof(GetBookingById), new { bookingId = createdBooking.BookingId }, apiReponse);
+            return Ok(apiReponse);
         }
 
         [HttpPut(ApiEndpointConstants.Booking.UpdateBookingEndpoint)]

@@ -57,6 +57,8 @@ public class ApiEndpointConstants
         public const string UpdatePetEndpoint = PetEndpoint + "/update/{id}";
         public const string DeletePetEndpoint = PetEndpoint + "/delete/{id}";
         public const string OwnersPetsEndpoint = PetEndpoint + "/user/{userId}/pets";
+        public const string AddPetEndpoint = PetEndpoint + "/add/{id}";
+        public const string MyPetsEndpoint = PetEndpoint + "/{userId}";
     }
 
     public static class Booking

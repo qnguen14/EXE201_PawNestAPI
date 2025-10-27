@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PawNest.DAL.Data.Entities;
 
 namespace PawNest.DAL.Data.Context;
@@ -80,7 +81,13 @@ public class PawNestDbContext : DbContext
             entity.HasKey(b => b.BookingId);
 
             entity.Property(b => b.Status)
-                .HasConversion<int>();
+                .HasConversion(new EnumToStringConverter<BookingStatus>());
+
+            entity.Property(b => b.PickUpStatus)
+                .HasConversion(new EnumToStringConverter<PickUpStatus>());
+
+            entity.Property(b => b.PickUpTime)
+                .HasConversion(new EnumToStringConverter<PickUpTime>());
 
             // Booking -> Customer
             entity.HasOne(b => b.Customer)

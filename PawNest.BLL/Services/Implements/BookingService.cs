@@ -117,6 +117,8 @@ namespace PawNest.BLL.Services.Implements
                     booking.CustomerId = GetCurrentUserId();
                     booking.TotalPrice = CalculateTotalPrice(totalServicePrice, request.PetIds.Count);
                     booking.Services = services.ToList();
+                    booking.Status = BookingStatus.Pending;
+                    booking.PickUpStatus = PickUpStatus.NotPickedUp;
                     booking.Pets = pets.ToList();
 
                     await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);

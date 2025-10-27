@@ -108,11 +108,17 @@ namespace PawNest.DAL.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
-                    b.Property<TimeOnly>("PickUpTime")
-                        .HasColumnType("time without time zone");
+                    b.Property<string>("PickUpStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("PickUpTime")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric");
