@@ -10,8 +10,8 @@ namespace PawNest.DAL.Data.Requests.Booking
 {
     public class UpdateBookingRequest
     {
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public PickUpTime PickUpTime { get; set; }
+        public PickUpStatus PickUpStatus { get; set; }
         public DateOnly BookingDate { get; set; }
         public BookingStatus Status { get; set; }
         public Guid ServiceId { get; set; }

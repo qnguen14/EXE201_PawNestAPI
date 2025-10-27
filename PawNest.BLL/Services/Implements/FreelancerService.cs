@@ -12,13 +12,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PawNest.DAL.Mappers;
+using PawNest.DAL.Data.MetaDatas; // PagingResponse, PaginationMeta
 
 namespace PawNest.BLL.Services.Implements
 {
     public class FreelancerService : BaseService<FreelancerService>, IFreelancerService
     {
         private readonly UserMapper _userMapper;
-        
+
         public FreelancerService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<FreelancerService> logger, UserMapper userMapper, IHttpContextAccessor httpContextAccessor)
             : base(unitOfWork, logger, httpContextAccessor)
         {
@@ -28,27 +29,44 @@ namespace PawNest.BLL.Services.Implements
         }
 
         // Implement methods related to freelancer operations
-        public async Task<IEnumerable<GetFreelancerResponse>> GetAllFreelancersAsync()
+        public async Task<PagingResponse<GetFreelancerResponse>> GetAllFreelancersAsync(int page = 1, int size = 10)
         {
             try
             {
-                var freelancers = await _unitOfWork.GetRepository<User>()
-                    .GetListAsync(
-                        predicate: u => u.RoleId == 3,
-                        include: source => source
-                            .Include(u => u.Services)
-                            .Include(u => u.ReviewsReceived),
-                        orderBy: u => u.OrderBy(n => n.Name)
-                    );
+                var pagedUsers = await 
+                    _unitOfWork.GetRepository<User>().GetPagingListAsync(
+                    predicate: u => u.RoleId == 3,
+                    include: source => source
+                        .Include(u => u.Services)
+                        .Include(u => u.ReviewsReceived),
+                    orderBy: q => q.OrderBy(u => u.Name),
+                    page: page,
+                    size: size
+                );
 
-                if (freelancers == null || !freelancers.Any())
+                if (pagedUsers?.Items == null || !pagedUsers.Items.Any())
                 {
                     _logger.LogWarning("No freelancers found.");
-                    return Enumerable.Empty<GetFreelancerResponse>();
+                    return new PagingResponse<GetFreelancerResponse>
+                    {
+                        Items = Enumerable.Empty<GetFreelancerResponse>(),
+                        Meta = new PaginationMeta
+                        {
+                            CurrentPage = page,
+                            PageSize = size,
+                            TotalItems = 0,
+                            TotalPages = 0
+                        }
+                    };
                 }
 
-                var freelancersResponse = freelancers.Select(f => _userMapper.MapToGetFreelancerResponse(f));
-                return freelancersResponse;
+                var items = pagedUsers.Items.Select(u => _userMapper.MapToGetFreelancerResponse(u)).ToList();
+
+                return new PagingResponse<GetFreelancerResponse>
+                {
+                    Items = items,
+                    Meta = pagedUsers.Meta
+                };
             }
             catch (Exception ex)
             {
@@ -109,7 +127,8 @@ namespace PawNest.BLL.Services.Implements
                 var freelancersResponse = freelancers.Select(f => _userMapper.MapToGetFreelancerResponse(f));
                 return freelancersResponse;
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("An error occurred while searching freelancers: " + ex.Message);
                 throw;

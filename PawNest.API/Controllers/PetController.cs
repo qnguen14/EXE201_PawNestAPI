@@ -13,6 +13,7 @@ using PawNest.DAL.Data.Requests.Pet;
 using PawNest.DAL.Data.Responses.Booking;
 using PawNest.DAL.Data.Responses.Pet;
 using PawNest.DAL.Mappers;
+using static PawNest.API.Constants.ApiEndpointConstants;
 
 
 namespace PawNest.API.Controllers
@@ -119,8 +120,15 @@ namespace PawNest.API.Controllers
                 var pet = _petMapper.MapToPet(request);
                 var createdPet = await _petService.CreatePet(pet);
                 var response = _petMapper.MapToCreatePetResponse(createdPet);
+                var apiReponse = new ApiResponse<CreatePetResponse>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pet added successfully.",
+                    IsSuccess = true,
+                    Data = response
+                };
 
-                return CreatedAtAction(nameof(GetPetById), new { petId = response.PetId }, response);
+                return Ok(apiReponse);
             }
             catch (Exception ex)
             {
@@ -172,6 +180,66 @@ namespace PawNest.API.Controllers
             {
                 await _petService.DeletePet(petId);
                 return Ok("Pet deleted successfully");
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
+
+        [HttpPost(ApiEndpointConstants.Pet.AddPetEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<IActionResult> AddPetToCustomer(CreatePetRequest request)
+        {
+            try
+            {
+                var addedPet = _petService.AddPet(request);
+                var apiResponse = new ApiResponse<CreatePetResponse>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pet added to customer successfully.",
+                    IsSuccess = true,
+                    Data = await addedPet
+                };
+                return Ok(apiResponse);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
+
+        [HttpPost(ApiEndpointConstants.Pet.AddPetEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<IActionResult> MyPets()
+        {
+            try
+            {
+                var pets = _petService.GetCustomerPets();
+                var apiResponse = new ApiResponse<IEnumerable<CreatePetResponse>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pet retrieved successfully.",
+                    IsSuccess = true,
+                    Data = await pets
+                };
+                return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {

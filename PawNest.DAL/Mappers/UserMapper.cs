@@ -9,7 +9,6 @@ namespace PawNest.DAL.Mappers;
 public partial class UserMapper
 {
     // CreateUserRequest to User
-    [MapProperty(nameof(CreateUserRequest.Name), nameof(User.Name))]
     [MapProperty(nameof(CreateUserRequest.Email), nameof(User.Email))]
     [MapProperty(nameof(CreateUserRequest.PhoneNumber), nameof(User.PhoneNumber))]
     [MapProperty(nameof(CreateUserRequest.Address), nameof(User.Address))]

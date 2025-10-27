@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
 using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Entities;
+using PawNest.DAL.Data.Requests.User;
 
 namespace PawNest.API.Controllers;
 
@@ -46,7 +47,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin")] // Admin-only access for user management
-    public async Task<ActionResult<IEnumerable<CreateUserResponse>>> GetById(Guid id)
+    public async Task<ActionResult<IEnumerable<CreateUserResponse>>> GetById([FromQuery] Guid id)
     {
         // Service returns all users with basic profile information
         // Includes role information and account status
@@ -61,23 +62,59 @@ public class UserController : ControllerBase
         };
         return Ok(apiResponse);
     }
-    
-    [HttpGet(ApiEndpointConstants.User.GetMyProfileEndpoint)]
+
+    [HttpPut(ApiEndpointConstants.User.UpdateUserEndpoint)]
     [ProducesResponseType(typeof(ApiResponse<GetUserReponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-    [Authorize]
-    public async Task<ActionResult<GetUserReponse>> GetCurrentUserProfile()
+    [Authorize(Roles = "Admin")] // Admin-only access for user management
+    public async Task<ActionResult<CreateUserResponse>> UpdateUser([FromQuery] Guid userId ,[FromBody] UpdateUserRequest request)
     {
-        var response = await _userService.GetCurrentUserProfile();
-        var apiResponse = new ApiResponse<GetUserReponse>
+        var response = await _userService.Update(userId, request);
+
+        var apiResponse = new ApiResponse<CreateUserResponse>
         {
             StatusCode = StatusCodes.Status200OK,
-            Message = $"User {response.Name} profile retrieved successfully",
+            Message = $"User {response.Name} retrieved successfully",
             IsSuccess = true,
             Data = response // Complete user list for administrative purposes
         };
         return Ok(apiResponse);
     }
-    
+
+    [HttpPost(ApiEndpointConstants.User.CreateUserEndpoint)]
+    [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "Admin")] // Admin-only access for user management
+    public async Task<ActionResult<CreateUserResponse>> CreateUser([FromBody] CreateUserRequest request)
+    {
+        var response = await _userService.Create(request);
+        var apiResponse = new ApiResponse<CreateUserResponse>
+        {
+            StatusCode = StatusCodes.Status201Created,
+            Message = $"User {response.Name} created successfully",
+            IsSuccess = true,
+            Data = response // Complete user list for administrative purposes
+        };
+        return Ok(apiResponse);
+    }
+
+    [HttpDelete(ApiEndpointConstants.User.GetUsersByRoleEndpoint)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "Admin, Staff")] // Admin-only access for user management
+    public async Task<ActionResult> GetUsersByRole([FromQuery] string roleName)
+    {
+        var response = await _userService.GetUsersByRole(roleName);
+        var apiResponse = new ApiResponse<object>
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Message = $"User with role: {roleName} retrieved successfully",
+            IsSuccess = true,
+            Data = null
+        };
+        return Ok(apiResponse);
+    }
 }

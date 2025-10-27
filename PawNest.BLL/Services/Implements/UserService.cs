@@ -246,30 +246,27 @@ public class UserService : BaseService<UserService>, IUserService
         }
     }
 
-    public async Task<GetUserReponse> GetCurrentUserProfile()
+    public async Task<IEnumerable<CreateUserResponse>> GetUsersByRole(string roleName)
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var user = await _unitOfWork.GetRepository<User>()
-                .FirstOrDefaultAsync(
-                    predicate: u => u.Id == userId && u.IsActive,
-                    include: u => u
-                        .Include(x => x.Role)
-                        .Include(x => x.Pets)
-                        .Include(x => x.Bookings)
-                        .ThenInclude(b => b.Pets)
+            var users = await _unitOfWork.GetRepository<User>()
+                .GetListAsync(
+                    predicate: u => u.Role.RoleName == roleName && u.IsActive,
+                    include: u => u.Include(x => x.Role),
+                    orderBy: u => u.OrderBy(n => n.Name)
                 );
-            if (user == null)
+            if (users == null || !users.Any())
             {
-                throw new NotFoundException("User not found.");
+                throw new NotFoundException($"No users found with role '{roleName}'.");
             }
-            return _mapper.Map<GetUserReponse>(user);
-
+            var result = users.Select(user => _userMapper.MapToCreateUserResponse(user));
+            return result;
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.Message);
+            _logger.LogError("An error occurred while retrieving users by role: " + ex.Message);
+            throw;
         }
     }
 }

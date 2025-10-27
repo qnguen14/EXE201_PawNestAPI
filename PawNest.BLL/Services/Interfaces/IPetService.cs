@@ -1,4 +1,5 @@
 ﻿using PawNest.DAL.Data.Entities;
+using PawNest.DAL.Data.Requests.Pet;
 using PawNest.DAL.Data.Responses.Pet;
 using System;
 using System.Collections.Generic;
@@ -16,5 +17,7 @@ namespace PawNest.BLL.Services.Interfaces
         Task<Pet> UpdatePet(Pet pet);
         Task<bool> DeletePet(Guid petId);
         Task<Pet> GetPetByCustomerId(Guid customerId);
+        Task<CreatePetResponse> AddPet(CreatePetRequest request);
+        Task<IEnumerable<CreatePetResponse>> GetCustomerPets();
     }
 }

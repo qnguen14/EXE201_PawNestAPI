@@ -20,11 +20,12 @@ namespace PawNest.BLL.Services.Implements
     public class BookingService : BaseService<BookingService>, IBookingService
     {
         private readonly BookingMapper _bookingMapper;
-        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<BookingService> logger, IHttpContextAccessor httpContextAccessor)
+        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<BookingService> logger, IHttpContextAccessor httpContextAccessor, BookingMapper bookingMapper)
             : base(unitOfWork, logger, httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _bookingMapper = bookingMapper;
         }
 
         private bool IsCustomer(string role)
@@ -38,42 +39,94 @@ namespace PawNest.BLL.Services.Implements
             }
         }
 
+        private decimal CalculateTotalPrice(decimal servicePrice, int petCount)
+        {
+            return servicePrice * petCount;
+        }
+
+        // Pseudocode:
+        // - Validate current user role is Customer; else throw
+        // - Validate request, ensure at least one ServiceId and one PetId
+        // - Pick the first ServiceId (since Booking supports a single Service)
+        // - In transaction:
+        //   - Check if a booking exists for (serviceId, freelancerId, bookingDate); log warning if found
+        //   - Load the Service to get its Price; throw if not found
+        //   - Map request to Booking
+        //   - Set CustomerId to current user, ServiceId to selected service
+        //   - Compute TotalPrice = service.Price * number of pets
+        //   - Insert booking
+        //   - Map and return GetBookingResponse
         public async Task<GetBookingResponse> CreateBookingAsync(CreateBookingRequest request)
         {
             try
             {
                 var userRole = GetCurrentUserRole();
-                IsCustomer(userRole);
+                if (!IsCustomer(userRole))
+                {
+                    throw new UnauthorizedAccessException("Only customers can create bookings.");
+                }
+
+                if (request is null) throw new ArgumentNullException(nameof(request));
+                if (request.ServiceIds is null || request.ServiceIds.Count == 0)
+                    throw new ArgumentException("At least one service must be selected.", nameof(request.ServiceIds));
+                if (request.PetIds is null || request.PetIds.Count == 0)
+                    throw new ArgumentException("At least one pet must be selected.", nameof(request.PetIds));
 
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
+                    // Check for existing bookings with any of the requested services
                     var existingBooking = await _unitOfWork.GetRepository<Booking>()
                         .FirstOrDefaultAsync(
-                        predicate: b => b.ServiceId == request.ServiceId && 
-                                   b.FreelancerId == request.FreelancerId && 
-                                   b.BookingDate == request.BookingDate,
-                        null,
-                        include: b => b.Include(booking => booking.Freelancer)
-                                       .Include(booking => booking.Customer)
-                                       .Include(booking => booking.Service)
+                            predicate: b => b.FreelancerId == request.FreelancerId &&
+                                            b.BookingDate == request.BookingDate &&
+                                            b.Services.Any(s => request.ServiceIds.Contains(s.ServiceId)),
+                            orderBy: null,
+                            include: b => b.Include(booking => booking.Freelancer)
+                                           .Include(booking => booking.Customer)
+                                           .Include(booking => booking.Services)
                         );
 
                     if (existingBooking != null)
                     {
-                        _logger.LogWarning("A booking already exists for the specified service, freelancer, customer, and date.");
+                        _logger.LogWarning("A booking already exists for the specified services, freelancer, and date.");
+                        throw new InvalidOperationException("A booking already exists for one or more of the requested services on this date.");
+                    }
+
+                    // Load only the requested services
+                    var services = await _unitOfWork.GetRepository<Service>().GetListAsync(
+                        predicate: s => request.ServiceIds.Contains(s.ServiceId) && s.FreelancerId == request.FreelancerId);
+
+                    if (services == null || services.Count != request.ServiceIds.Count)
+                    {
+                        throw new KeyNotFoundException("One or more requested services were not found or do not belong to the specified freelancer.");
+                    }
+
+                    // Calculate total price for all services
+                    decimal totalServicePrice = services.Sum(s => s.Price);
+
+                    // Load the pets to attach to the booking
+                    var pets = await _unitOfWork.GetRepository<Pet>().GetListAsync(
+                        predicate: p => request.PetIds.Contains(p.PetId));
+
+                    if (pets == null || pets.Count != request.PetIds.Count)
+                    {
+                        throw new KeyNotFoundException("One or more requested pets were not found.");
                     }
 
                     var booking = _bookingMapper.MapToBooking(request);
                     booking.CustomerId = GetCurrentUserId();
+                    booking.TotalPrice = CalculateTotalPrice(totalServicePrice, request.PetIds.Count);
+                    booking.Services = services.ToList();
                     booking.Status = BookingStatus.Pending;
+                    booking.PickUpStatus = PickUpStatus.NotPickedUp;
+                    booking.Pets = pets.ToList();
 
                     await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
 
                     return _bookingMapper.MapToGetBookingResponse(booking);
-
-
                 });
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError("An error occurred while creating the booking: " + ex.Message);
                 throw;
@@ -113,8 +166,7 @@ namespace PawNest.BLL.Services.Implements
             {
                 var bookings = await _unitOfWork.GetRepository<Booking>()
                     .GetListAsync(null,
-                                  include: b => b.Include(u => u.Service)
-                                                 .Include(u => u.Freelancer)
+                                  include: b => b.Include(u => u.Freelancer)
                                                  .Include(u => u.Customer),
                                   orderBy: b => b.OrderBy(u => u.BookingId));
                  if (bookings == null || !bookings.Any())
@@ -139,8 +191,7 @@ namespace PawNest.BLL.Services.Implements
                 var booking = await _unitOfWork.GetRepository<Booking>()
                     .FirstOrDefaultAsync(
                         predicate: b => b.BookingId == bookingId,
-                        include: b => b.Include(u => u.Service)
-                                       .Include(u => u.Freelancer)
+                        include: b => b.Include(u => u.Freelancer)
                                        .Include(u => u.Customer)
                     );
 

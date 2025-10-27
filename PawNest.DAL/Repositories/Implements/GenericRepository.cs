@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using PawNest.DAL.Data.MetaDatas;
 
 namespace PawNest.DAL.Repositories.Implements
 {
@@ -94,25 +95,25 @@ namespace PawNest.DAL.Repositories.Implements
             return await resultQuery.ToListAsync();
         }
 
-        //public Task<PagingResponse<T>> GetPagingListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
-        //    int size = 10)
-        //{
-        //    IQueryable<T> query = _dbSet;
-        //    if (include != null) query = include(query);
-        //    if (predicate != null) query = query.Where(predicate);
-        //    if (orderBy != null) return orderBy(query).ToPagingResponse(page, size, 1);
-        //    return query.ToPagingResponse(page, size, 1);
-        //}
+        public Task<PagingResponse<T>> GetPagingListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
+            int size = 10)
+        {
+            IQueryable<T> query = _dbSet;
+            if (include != null) query = include(query);
+            if (predicate != null) query = query.Where(predicate);
+            if (orderBy != null) return orderBy(query).ToPagingResponse(page, size, 1);
+            return query.ToPagingResponse(page, size, 1);
+        }
 
-        //public Task<PagingResponse<TResult>> GetPagingListAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        //    Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1, int size = 10)
-        //{
-        //    IQueryable<T> query = _dbSet;
-        //    if (include != null) query = include(query);
-        //    if (predicate != null) query = query.Where(predicate);
-        //    if (orderBy != null) return orderBy(query).Select(selector).ToPagingResponse(page, size, 1);
-        //    return query.Select(selector).ToPagingResponse(page, size, 1);
-        //}
+        public Task<PagingResponse<TResult>> GetPagingListAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1, int size = 10)
+        {
+            IQueryable<T> query = _dbSet;
+            if (include != null) query = include(query);
+            if (predicate != null) query = query.Where(predicate);
+            if (orderBy != null) return orderBy(query).Select(selector).ToPagingResponse(page, size, 1);
+            return query.Select(selector).ToPagingResponse(page, size, 1);
+        }
 
         public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate = null)
         {

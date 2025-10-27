@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PawNest.DAL.Data.Entities;
 
 namespace PawNest.DAL.Data.Context;
@@ -15,6 +16,7 @@ public class PawNestDbContext : DbContext
     public DbSet<Pet> Pets { get; set; }
     public DbSet<Service> Services { get; set; }
     public DbSet<Booking> Bookings { get; set; }
+    public DbSet<Payment> Payments { get; set; }
     public DbSet<Report> Reports { get; set; }
     public DbSet<Review> Reviews { get; set; }
 
@@ -23,7 +25,7 @@ public class PawNestDbContext : DbContext
         modelBuilder.HasDefaultSchema("PawNestV1");
         base.OnModelCreating(modelBuilder);
 
-        // Configure blacklisted tokens for logout functionality
+        // ============ BlacklistedToken Configuration ============
         modelBuilder.Entity<BlacklistedToken>(entity =>
         {
             entity.HasKey(bt => bt.Id);
@@ -31,107 +33,161 @@ public class PawNestDbContext : DbContext
             entity.HasIndex(bt => bt.ExpiresAt);
         });
 
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.Posts)
-            .WithOne(p => p.Staff)
-            .HasForeignKey(p => p.StaffId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // ============ User Configuration ============
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.Email).IsUnique();
 
-        modelBuilder.Entity<User>()
-            .HasOne(u => u.Role)
-            .WithMany()
-            .HasForeignKey(u => u.RoleId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(u => u.Role)
+                .WithMany()
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Service>()
-            .HasOne(s => s.Freelancer)
-            .WithMany(u => u.Services)
-            .HasForeignKey(s => s.FreelancerId)
-            .OnDelete(DeleteBehavior.Cascade);
+            entity.HasMany(u => u.Posts)
+                .WithOne(p => p.Staff)
+                .HasForeignKey(p => p.StaffId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        modelBuilder.Entity<Pet>()
-            .HasOne(p => p.Customer)
-            .WithMany(u => u.Pets)
-            .HasForeignKey(p => p.CustomerId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // ============ Service Configuration ============
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.HasKey(s => s.ServiceId);
 
-        modelBuilder.Entity<Booking>()
-            .HasOne(b => b.Service)
-            .WithMany(s => s.Bookings)
-            .HasForeignKey(b => b.ServiceId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(s => s.Type)
+                .HasConversion<int>();
 
-        // Configure Booking-Customer relationship
-        modelBuilder.Entity<Booking>()
-            .HasOne(b => b.Customer)
-            .WithMany(u => u.Bookings)
-            .HasForeignKey(b => b.CustomerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(s => s.Freelancer)
+                .WithMany(u => u.Services)
+                .HasForeignKey(s => s.FreelancerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
-        // Configure Booking-Freelancer relationship
-        modelBuilder.Entity<Booking>()
-            .HasOne(b => b.Freelancer)
-            .WithMany()
-            .HasForeignKey(b => b.FreelancerId)
-            .OnDelete(DeleteBehavior.Restrict);
+        // ============ Pet Configuration ============
+        modelBuilder.Entity<Pet>(entity =>
+        {
+            entity.HasKey(p => p.PetId);
 
-        // Configure many-to-many relationship between Booking and Pet
-        modelBuilder.Entity<Booking>()
-            .HasMany(b => b.Pets)
-            .WithMany(p => p.Bookings)
-            .UsingEntity<Dictionary<string, object>>(
-                "BookingPet",
-                j => j
-                    .HasOne<Pet>()
-                    .WithMany()
-                    .HasForeignKey("PetId")
-                    .OnDelete(DeleteBehavior.Cascade),
-                j => j
-                    .HasOne<Booking>()
-                    .WithMany()
-                    .HasForeignKey("BookingId")
-                    .OnDelete(DeleteBehavior.Cascade),
-                j =>
-                {
-                    j.HasKey("BookingId", "PetId");
-                    j.ToTable("BookingPet");
-                });
+            entity.HasOne(p => p.Customer)
+                .WithMany(u => u.Pets)
+                .HasForeignKey(p => p.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
-        // Configure Report-Staff relationship
-        modelBuilder.Entity<Report>()
-            .HasOne(r => r.Staff)
-            .WithMany(u => u.Reports)
-            .HasForeignKey(r => r.StaffId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // ============ Booking Configuration ============
+        modelBuilder.Entity<Booking>(entity =>
+        {
+            entity.HasKey(b => b.BookingId);
 
-        // Configure Review-Booking relationship
-        modelBuilder.Entity<Review>()
-            .HasOne(r => r.Booking)
-            .WithMany()
-            .HasForeignKey(r => r.BookingId)
-            .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(b => b.Status)
+                .HasConversion(new EnumToStringConverter<BookingStatus>());
 
-        // Disambiguate the two Review->User relationships
-        modelBuilder.Entity<Review>()
-            .HasOne(r => r.Freelancer)
-            .WithMany(u => u.ReviewsReceived)
-            .HasForeignKey(r => r.FreelancerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(b => b.PickUpStatus)
+                .HasConversion(new EnumToStringConverter<PickUpStatus>());
 
-        modelBuilder.Entity<Review>()
-            .HasOne(r => r.Customer)
-            .WithMany(u => u.ReviewsWritten)
-            .HasForeignKey(r => r.CustomerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(b => b.PickUpTime)
+                .HasConversion(new EnumToStringConverter<PickUpTime>());
 
-        // Configure unique constraint on User email
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
+            // Booking -> Customer
+            entity.HasOne(b => b.Customer)
+                .WithMany(u => u.Bookings)
+                .HasForeignKey(b => b.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure enum conversion for BookingStatus
-        modelBuilder.Entity<Booking>()
-            .Property(b => b.Status)
-            .HasConversion<int>();
+            // Booking -> Freelancer
+            entity.HasOne(b => b.Freelancer)
+                .WithMany()
+                .HasForeignKey(b => b.FreelancerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Many-to-Many: Booking <-> Pet
+            entity.HasMany(b => b.Pets)
+                .WithMany(p => p.Bookings)
+                .UsingEntity<Dictionary<string, object>>(
+                    "BookingPet",
+                    j => j
+                        .HasOne<Pet>()
+                        .WithMany()
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j
+                        .HasOne<Booking>()
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey("BookingId", "PetId");
+                        j.ToTable("BookingPet");
+                    });
+
+            // Many-to-Many: Booking <-> Service
+            entity.HasMany(b => b.Services)
+                .WithMany(s => s.Bookings)
+                .UsingEntity<Dictionary<string, object>>(
+                    "BookingService",
+                    j => j
+                        .HasOne<Service>()
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j
+                        .HasOne<Booking>()
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey("BookingId", "ServiceId");
+                        j.ToTable("BookingService");
+                    });
+        });
+
+        // ============ Payment Configuration ============
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(p => p.PaymentId);
+
+            entity.Property(p => p.Status)
+                .HasConversion<int>();
+
+            entity.HasOne(p => p.Booking)
+                .WithOne(b => b.Payment)
+                .HasForeignKey<Payment>(p => p.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ============ Report Configuration ============
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.HasKey(r => r.ReportId);
+
+            entity.HasOne(r => r.Staff)
+                .WithMany(u => u.Reports)
+                .HasForeignKey(r => r.StaffId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ============ Review Configuration ============
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+
+            entity.HasOne(r => r.Booking)
+                .WithMany()
+                .HasForeignKey(r => r.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(r => r.Freelancer)
+                .WithMany(u => u.ReviewsReceived)
+                .HasForeignKey(r => r.FreelancerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.Customer)
+                .WithMany(u => u.ReviewsWritten)
+                .HasForeignKey(r => r.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

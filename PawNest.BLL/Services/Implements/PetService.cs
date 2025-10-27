@@ -4,9 +4,10 @@ using PawNest.BLL.Services.Interfaces;
 using PawNest.DAL.Data.Context;
 using PawNest.DAL.Data.Entities;
 using PawNest.DAL.Data.Exceptions;
+using PawNest.DAL.Data.Requests.Pet;
 using PawNest.DAL.Data.Responses.Pet;
-using PawNest.DAL.Repositories.Interfaces;
 using PawNest.DAL.Mappers;
+using PawNest.DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,6 +171,51 @@ namespace PawNest.BLL.Services.Implements
             catch (Exception ex)
             {
                 _logger.LogError("An error occurred while retrieving the pet by owner ID: " + ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<CreatePetResponse> AddPet(CreatePetRequest request)
+        {
+            try
+            {
+                var repo = _unitOfWork.GetRepository<Pet>();
+                var customerId = GetCurrentUserId();
+                var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.PetName == request.PetName && p.CustomerId == customerId);
+                if (existingPet != null)
+                {
+                    throw new Exception("A pet with the same name already exists for this customer.");
+                }
+
+                var petEntity = _petMapper.MapToPet(request);
+                petEntity.CustomerId = customerId;
+                return _petMapper.MapToCreatePetResponse(await CreatePet(petEntity));
+
+            } catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<CreatePetResponse>> GetCustomerPets()
+        {
+            try
+            {
+                var customerId = GetCurrentUserId();
+                var pets = await _unitOfWork.GetRepository<Pet>()
+                    .GetListAsync(
+                        predicate: p => p.CustomerId == customerId,
+                        orderBy: p => p.OrderBy(n => n.PetName)
+                    );
+                if (pets == null || !pets.Any())
+                {
+                    throw new NotFoundException("No pets found for the current customer.");
+                }
+                return _petMapper.MapToCreatePetResponseList(pets);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while retrieving customer's pets: " + ex.Message);
                 throw;
             }
         }

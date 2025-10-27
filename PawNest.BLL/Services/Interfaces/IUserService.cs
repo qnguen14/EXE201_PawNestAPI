@@ -12,5 +12,5 @@ public interface IUserService
     Task<CreateUserResponse> Create(CreateUserRequest request);
     Task<bool> UpdatePasswordAsync(Guid userId, string newPassword);
     Task<CreateUserResponse> Update(Guid userId, UpdateUserRequest request);
-
+    Task<IEnumerable<CreateUserResponse>> GetUsersByRole(string roleName);
 }
