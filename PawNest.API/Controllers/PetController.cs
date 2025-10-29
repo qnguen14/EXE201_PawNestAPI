@@ -18,7 +18,6 @@ using static PawNest.API.Constants.ApiEndpointConstants;
 
 namespace PawNest.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class PetController : ControllerBase
     {
@@ -222,7 +221,7 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpPost(ApiEndpointConstants.Pet.AddPetEndpoint)]
+        [HttpPost(ApiEndpointConstants.Pet.MyPetsEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
