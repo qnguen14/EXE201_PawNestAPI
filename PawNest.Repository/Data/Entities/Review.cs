@@ -37,13 +37,11 @@ namespace PawNest.Repository.Data.Entities
         public Guid FreelancerId { get; set; }
         public virtual User Freelancer { get; set; }
 
-        [Required]
         [Column("customer_id")]
         [ForeignKey("Customer")]
         public Guid CustomerId { get; set; }
         public virtual User Customer { get; set; }
 
-        [Required]
         [Column("booking_id")]
         [ForeignKey("Booking")]
         public Guid BookingId { get; set; }

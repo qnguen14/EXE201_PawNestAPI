@@ -26,6 +26,8 @@ namespace PawNest.API.Extensions
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<TokenProvider>();
             services.AddHttpClient<MoMoGateway>();
             services.AddScoped<VnPayGateway>();

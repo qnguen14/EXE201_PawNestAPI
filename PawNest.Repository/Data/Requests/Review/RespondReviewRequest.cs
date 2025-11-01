@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace PawNest.Repository.Data.Requests.Review
 {
-    public class CreateReviewRequest
+    public class RespondReviewRequest
     {
-        public string Title { get; set; }
-        public string Comment { get; set; }
-        public double Rating { get; set; }
+        public string Response { get; set; }
     }
 }

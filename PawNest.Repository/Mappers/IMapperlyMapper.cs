@@ -2,12 +2,14 @@
 using PawNest.Repository.Data.Requests.Booking;
 using PawNest.Repository.Data.Requests.Pet;
 using PawNest.Repository.Data.Requests.Post;
+using PawNest.Repository.Data.Requests.Review;
 using PawNest.Repository.Data.Requests.Service;
 using PawNest.Repository.Data.Requests.User;
 using PawNest.Repository.Data.Responses.Booking;
 using PawNest.Repository.Data.Responses.Pet;
 using PawNest.Repository.Data.Responses.Post;
 using PawNest.Repository.Data.Responses.Profile;
+using PawNest.Repository.Data.Responses.Review;
 using PawNest.Repository.Data.Responses.Service;
 using PawNest.Repository.Data.Responses.User;
 using Riok.Mapperly.Abstractions;
@@ -101,5 +103,11 @@ namespace PawNest.Repository.Mappers
         // User to GetFreelancerResponse
         [MapProperty(nameof(User.Role.RoleName), nameof(GetFreelancerResponse.Role))]
         GetFreelancerResponse MapToGetFreelancerResponse(User user);
+
+        // Review Mappers
+
+        Review MapToReview(CreateReviewRequest request);
+        Review RespondMapToReview(RespondReviewRequest request);
+        GetReviewResponse MapToGetReviewResponse(Review review);
     }
 }

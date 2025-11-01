@@ -1,4 +1,6 @@
-﻿namespace PawNest.API.Constants;
+﻿using System.CodeDom;
+
+namespace PawNest.API.Constants;
 
 public class ApiEndpointConstants
 {
@@ -94,5 +96,15 @@ public class ApiEndpointConstants
         public const string UpdateAvatarEndpoint = UserEndpoint + "/avatar/{id}";
         public const string UpdateMyAvatarEndpoint = UserEndpoint + "/avatar/me";
         public const string GetFreelancerProfileEndpoint = UserEndpoint + "/profile/freelancer/me";
+    }
+
+    public static class Review
+    {
+        public const string ReviewEndpoint = ApiEndpoint + "/review";
+        public const string GetReviewByIdEndpoint = ReviewEndpoint + "/{id}";
+        public const string GetAllReviewsEndpoint = ReviewEndpoint + "/getall";
+        public const string CreateReviewEndpoint = ReviewEndpoint + "/create";
+        public const string RespondReviewEndpoint = ReviewEndpoint + "/respond/{id}";
+        public const string DeleteReviewEndpoint = ReviewEndpoint + "/delete/{id}";
     }
 }
