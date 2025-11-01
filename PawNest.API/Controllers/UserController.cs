@@ -1,11 +1,11 @@
-﻿using PawNest.DAL.Data.Metadata;
-using PawNest.DAL.Data.Responses.User;
+﻿using PawNest.Repository.Data.Metadata;
+using PawNest.Repository.Data.Responses.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Data.Entities;
-using PawNest.DAL.Data.Requests.User;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Data.Entities;
+using PawNest.Repository.Data.Requests.User;
 
 namespace PawNest.API.Controllers;
 
@@ -47,7 +47,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin")] // Admin-only access for user management
-    public async Task<ActionResult<IEnumerable<CreateUserResponse>>> GetById([FromQuery] Guid id)
+    public async Task<ActionResult<IEnumerable<CreateUserResponse>>> GetById(Guid id)
     {
         // Service returns all users with basic profile information
         // Includes role information and account status

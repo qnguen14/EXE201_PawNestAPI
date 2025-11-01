@@ -1,15 +1,15 @@
 ﻿
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PawNest.BLL.Services.Implements;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Data.Entities;
-using PawNest.DAL.Data.Exceptions;
-using PawNest.DAL.Data.Requests.Pet;
-using PawNest.DAL.Data.Requests.Post;
-using PawNest.DAL.Data.Responses.Pet;
-using PawNest.DAL.Data.Responses.Post;
-using PawNest.DAL.Mappers;
+using PawNest.Services.Services.Implements;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Data.Entities;
+using PawNest.Repository.Data.Exceptions;
+using PawNest.Repository.Data.Requests.Pet;
+using PawNest.Repository.Data.Requests.Post;
+using PawNest.Repository.Data.Responses.Pet;
+using PawNest.Repository.Data.Responses.Post;
+using PawNest.Repository.Mappers;
 
 namespace PawNest.API.Controllers
 {
@@ -19,12 +19,13 @@ namespace PawNest.API.Controllers
     {
         private readonly IPostService _postService;
         private readonly ILogger<PostController> _logger;
-        private readonly PostMapper _postMapper;    
+        private readonly IMapperlyMapper _postMapper;    
 
-        public PostController(IPostService postService, ILogger<PostController> logger)
+        public PostController(IPostService postService, ILogger<PostController> logger, IMapperlyMapper mapper)
         {
             _postService = postService;
             _logger = logger;
+            _postMapper = mapper;
         }
 
         [HttpGet]

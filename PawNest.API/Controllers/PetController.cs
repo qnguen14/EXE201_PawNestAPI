@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
-using PawNest.BLL.Services.Implements;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Data.Entities;
-using PawNest.DAL.Data.Exceptions;
-using PawNest.DAL.Data.Metadata;
-using PawNest.DAL.Data.Requests.Pet;
-using PawNest.DAL.Data.Responses.Booking;
-using PawNest.DAL.Data.Responses.Pet;
-using PawNest.DAL.Mappers;
+using PawNest.Services.Services.Implements;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Data.Entities;
+using PawNest.Repository.Data.Exceptions;
+using PawNest.Repository.Data.Metadata;
+using PawNest.Repository.Data.Requests.Pet;
+using PawNest.Repository.Data.Responses.Booking;
+using PawNest.Repository.Data.Responses.Pet;
+using PawNest.Repository.Mappers;
 using static PawNest.API.Constants.ApiEndpointConstants;
 
 
@@ -23,13 +23,13 @@ namespace PawNest.API.Controllers
     {
         private readonly IPetService _petService;
         private readonly ILogger<PetController> _logger;
-        private readonly PetMapper _petMapper;
+        private readonly IMapperlyMapper _petMapper;
 
-        public PetController(IPetService petService, ILogger<PetController> logger, PetMapper petMapper)
+        public PetController(IPetService petService, ILogger<PetController> logger, IMapperlyMapper mapper)
         {
             _petService = petService;
             _logger = logger;
-            _petMapper = petMapper;
+            _petMapper = mapper;
         }
 
         [HttpGet(ApiEndpointConstants.Pet.GetAllPetsEndpoint)]

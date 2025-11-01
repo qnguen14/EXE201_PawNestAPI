@@ -1,4 +1,6 @@
-﻿namespace PawNest.API.Constants;
+﻿using System.CodeDom;
+
+namespace PawNest.API.Constants;
 
 public class ApiEndpointConstants
 {
@@ -7,6 +9,7 @@ public class ApiEndpointConstants
     public const string RootEndpoint = "/api";
     public const string ApiVersion = "/v1";
     public const string ApiEndpoint = RootEndpoint + ApiVersion;
+    public const string UserEndpoint = ApiEndpoint + "/user";
 
     public static class Auth
     {
@@ -22,7 +25,6 @@ public class ApiEndpointConstants
 
     public static class User
     {
-        public const string UserEndpoint = ApiEndpoint + "/user";
         public const string GetUserEndpoint = UserEndpoint + "/{id}";
         public const string GetAllUsersEndpoint = UserEndpoint + "/getall";
         public const string GetUsersByRoleEndpoint = GetAllUsersEndpoint + "/{role}";
@@ -30,14 +32,6 @@ public class ApiEndpointConstants
         public const string UpdateUserEndpoint = UserEndpoint + "/update/{id}";
         public const string DeleteUserEndpoint = UserEndpoint + "/delete/{id}";
         public const string ToggleUserStatusEndpoint = UserEndpoint + "/toggle-status/{id}";
-    
-        // Profile endpoints
-        public const string GetMyProfileEndpoint = UserEndpoint + "/profile/me";
-        public const string SetRoleEndpoint = UserEndpoint + "/set-role/{id}";
-        public const string UpdateProfileEndpoint = UserEndpoint + "/profile/{id}";
-        public const string UpdateMyProfileEndpoint = UserEndpoint + "/profile/me";
-        public const string UpdateAvatarEndpoint = UserEndpoint + "/avatar/{id}";
-        public const string UpdateMyAvatarEndpoint = UserEndpoint + "/avatar/me";
 
         // Freelancer endpoints 
         public const string FreelancerEndpoint = ApiEndpoint + "/freelancer";
@@ -79,5 +73,38 @@ public class ApiEndpointConstants
         public const string CreateServiceEndpoint = ServiceEndpoint + "/create";
         public const string UpdateServiceEndpoint = ServiceEndpoint + "/update/{id}";
         public const string DeleteServiceEndpoint = ServiceEndpoint + "/delete/{id}";
+    }
+   public static class Payment
+    {
+        public const string PaymentEndpoint = ApiEndpoint + "/payment";
+        public const string CreatePaymentEndpoint = PaymentEndpoint + "/create";
+        public const string VNPayCallbackEndpoint = PaymentEndpoint + "/vnpay-callback";
+        public const string MoMoCallbackEndpoint = PaymentEndpoint + "/momo-callback";
+        public const string MoMoReturnEndpoint = PaymentEndpoint + "/momo-return";
+        public const string GetPaymentByBookingIdEndpoint = PaymentEndpoint + "/booking/{bookingId}";
+        public const string GetPaymentByIdEndpoint = PaymentEndpoint + "/{paymentId}";
+        public const string CancelPaymentEndpoint = PaymentEndpoint + "/{paymentId}/cancel";
+    }
+
+    public static class Profile
+    {
+        // Profile endpoints
+        public const string GetMyProfileEndpoint = UserEndpoint + "/profile/me";
+        public const string SetRoleEndpoint = UserEndpoint + "/set-role/{id}";
+        public const string UpdateProfileEndpoint = UserEndpoint + "/profile/{id}";
+        public const string UpdateMyProfileEndpoint = UserEndpoint + "/profile/me";
+        public const string UpdateAvatarEndpoint = UserEndpoint + "/avatar/{id}";
+        public const string UpdateMyAvatarEndpoint = UserEndpoint + "/avatar/me";
+        public const string GetFreelancerProfileEndpoint = UserEndpoint + "/profile/freelancer/me";
+    }
+
+    public static class Review
+    {
+        public const string ReviewEndpoint = ApiEndpoint + "/review";
+        public const string GetReviewByIdEndpoint = ReviewEndpoint + "/{id}";
+        public const string GetAllReviewsEndpoint = ReviewEndpoint + "/getall";
+        public const string CreateReviewEndpoint = ReviewEndpoint + "/create";
+        public const string RespondReviewEndpoint = ReviewEndpoint + "/respond/{id}";
+        public const string DeleteReviewEndpoint = ReviewEndpoint + "/delete/{id}";
     }
 }

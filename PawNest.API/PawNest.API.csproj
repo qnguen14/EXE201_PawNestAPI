@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PawNest.BLL\PawNest.BLL.csproj" />
+      <ProjectReference Include="..\PawNest.Services\PawNest.Services.csproj" />
     </ItemGroup>
 
     <ItemGroup>

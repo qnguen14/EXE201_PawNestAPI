@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PawNest.BLL.Services.Implements;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Repositories.Implements;
-using PawNest.DAL.Repositories.Interfaces;
-using PawNest.DAL.Data.Context;
-using Everwell.BLL.Infrastructure;
+using PawNest.Services.Services.Implements;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Repositories.Implements;
+using PawNest.Repository.Repositories.Interfaces;
+using PawNest.Repository.Data.Context;
+using Everwell.Service.Infrastructure;
+using PawNest.Repository.Mappers;
 
 namespace PawNest.API.Extensions
 {
@@ -14,6 +15,7 @@ namespace PawNest.API.Extensions
         {
             services.AddScoped<IUnitOfWork<PawNestDbContext>, UnitOfWork<PawNestDbContext>>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IMapperlyMapper, MapperlyMapper>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPetService, PetService>();
@@ -24,7 +26,15 @@ namespace PawNest.API.Extensions
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<TokenProvider>();
+            services.AddHttpClient<MoMoGateway>();
+            services.AddScoped<VnPayGateway>();
+            services.AddScoped<MoMoGateway>();
+
+            // Payment Service - THÊM DÒNG NÀY
+            services.AddScoped<IPaymentService, PaymentService>();
 
             return services;
         }

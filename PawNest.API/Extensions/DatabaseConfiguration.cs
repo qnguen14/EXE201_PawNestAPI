@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PawNest.DAL.Data.Context;
+using PawNest.Repository.Data.Context;
 
 namespace PawNest.API.Extensions
 {

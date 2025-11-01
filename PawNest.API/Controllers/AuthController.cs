@@ -14,10 +14,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Data.Metadata;
-using PawNest.DAL.Data.Requests.Auth;
-using PawNest.DAL.Data.Responses.Auth;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Data.Metadata;
+using PawNest.Repository.Data.Requests.Auth;
+using PawNest.Repository.Data.Responses.Auth;
 using System.Linq;
 
 namespace Everwell.API.Controllers
@@ -140,8 +140,6 @@ namespace Everwell.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize]
-
         public async Task<IActionResult> SendResetCode([FromBody] ForgotPasswordRequest request)
         {
             // Validate input parameters
@@ -173,7 +171,6 @@ namespace Everwell.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize]
         public async Task<IActionResult> VerifyCodeAndReset([FromBody] VerifyCodeAndResetRequest request)
         {
             // Validate all required parameters are provided
