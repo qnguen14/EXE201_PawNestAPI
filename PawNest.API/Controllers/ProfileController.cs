@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PawNest.BLL.Services.Interfaces;
+using PawNest.Services.Services.Interfaces;
 using System.Security.Claims;
 using PawNest.API.Constants;
-using PawNest.DAL.Data.Metadata;
-using PawNest.DAL.Data.Responses.Profile;
-using PawNest.DAL.Data.Responses.User;
+using PawNest.Repository.Data.Metadata;
+using PawNest.Repository.Data.Responses.Profile;
+using PawNest.Repository.Data.Responses.User;
 
 namespace PawNest.API.Controllers
 {

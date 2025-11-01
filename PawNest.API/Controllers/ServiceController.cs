@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Data.Metadata;
-using PawNest.DAL.Data.Requests.Service;
-using PawNest.DAL.Data.Responses.Service;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Data.Metadata;
+using PawNest.Repository.Data.Requests.Service;
+using PawNest.Repository.Data.Responses.Service;
 
 namespace PawNest.API.Controllers
 {

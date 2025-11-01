@@ -1,4 +1,4 @@
-﻿using PawNest.BLL.Services.Interfaces;
+﻿using PawNest.Services.Services.Interfaces;
 
 namespace PawNest.API.Middleware
 {

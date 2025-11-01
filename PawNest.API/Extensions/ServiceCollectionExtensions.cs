@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PawNest.DAL.Mappers;
+using PawNest.Repository.Mappers;
 
 namespace PawNest.API.Extensions
 {

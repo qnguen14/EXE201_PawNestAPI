@@ -17,6 +17,7 @@ namespace PawNest.API.Extensions
                 {
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "PawNest.API v1");
                     options.InjectStylesheet("/swagger-ui/SwaggerDark.css");
+                    options.RoutePrefix = string.Empty; // Sets Swagger UI at the app's root
                 });
             }
 

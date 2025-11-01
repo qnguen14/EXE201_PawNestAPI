@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PawNest.BLL.Services.Implements;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Repositories.Implements;
-using PawNest.DAL.Repositories.Interfaces;
-using PawNest.DAL.Data.Context;
-using Everwell.BLL.Infrastructure;
-using PawNest.DAL.Mappers;
+using PawNest.Services.Services.Implements;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Repositories.Implements;
+using PawNest.Repository.Repositories.Interfaces;
+using PawNest.Repository.Data.Context;
+using Everwell.Service.Infrastructure;
+using PawNest.Repository.Mappers;
 
 namespace PawNest.API.Extensions
 {

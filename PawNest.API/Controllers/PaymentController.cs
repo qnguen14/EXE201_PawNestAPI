@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
-using PawNest.BLL.Services.Interfaces;
-using PawNest.DAL.Data.Requests.Payment;
+using PawNest.Services.Services.Interfaces;
+using PawNest.Repository.Data.Requests.Payment;
 
 namespace PawNest.API.Controllers
 {
