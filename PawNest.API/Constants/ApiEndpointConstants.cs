@@ -80,4 +80,15 @@ public class ApiEndpointConstants
         public const string UpdateServiceEndpoint = ServiceEndpoint + "/update/{id}";
         public const string DeleteServiceEndpoint = ServiceEndpoint + "/delete/{id}";
     }
+   public static class Payment
+    {
+        public const string PaymentEndpoint = ApiEndpoint + "/payment";
+        public const string CreatePaymentEndpoint = PaymentEndpoint + "/create";
+        public const string VNPayCallbackEndpoint = PaymentEndpoint + "/vnpay-callback";
+        public const string MoMoCallbackEndpoint = PaymentEndpoint + "/momo-callback";
+        public const string MoMoReturnEndpoint = PaymentEndpoint + "/momo-return";
+        public const string GetPaymentByBookingIdEndpoint = PaymentEndpoint + "/booking/{bookingId}";
+        public const string GetPaymentByIdEndpoint = PaymentEndpoint + "/{paymentId}";
+        public const string CancelPaymentEndpoint = PaymentEndpoint + "/{paymentId}/cancel";
+    }
 }
