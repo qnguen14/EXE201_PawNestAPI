@@ -18,14 +18,14 @@ namespace PawNest.BLL.Services.Implements
 {
     public class FreelancerService : BaseService<FreelancerService>, IFreelancerService
     {
-        private readonly UserMapper _userMapper;
+        private readonly IMapperlyMapper _userMapper;
 
-        public FreelancerService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<FreelancerService> logger, UserMapper userMapper, IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, httpContextAccessor)
+        public FreelancerService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<FreelancerService> logger, IMapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor, mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _userMapper = userMapper;
+            _userMapper = mapper;
         }
 
         // Implement methods related to freelancer operations

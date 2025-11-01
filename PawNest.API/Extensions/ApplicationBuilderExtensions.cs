@@ -8,12 +8,15 @@ namespace PawNest.API.Extensions
     {
         public static WebApplication UsePawNestPipeline(this WebApplication app, IHostEnvironment env)
         {
+            app.UseStaticFiles();
+
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "PawNest.API v1");
+                    options.InjectStylesheet("/swagger-ui/SwaggerDark.css");
                 });
             }
 
@@ -24,6 +27,8 @@ namespace PawNest.API.Extensions
                     .AllowAnyHeader()
                     .AllowCredentials();
             });
+
+
 
             app.UseHttpsRedirection();
             app.UseAuthentication();

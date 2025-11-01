@@ -14,12 +14,6 @@ namespace PawNest.API.Extensions
             // 🧱 Base setup
             services.AddMemoryCache();
             services.AddHttpContextAccessor();
-            services.AddSingleton<UserMapper>();
-            services.AddSingleton<BookingMapper>();
-            services.AddSingleton<PetMapper>();
-            services.AddSingleton<PostMapper>();
-            services.AddSingleton<ProfileMapper>();
-            services.AddSingleton<ServiceMapper>();
             
 
             // 🌐 Modular configuration setup

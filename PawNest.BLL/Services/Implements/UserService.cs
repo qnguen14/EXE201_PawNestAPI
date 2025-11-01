@@ -16,13 +16,13 @@ namespace PawNest.BLL.Services.Implements;
 
 public class UserService : BaseService<UserService>, IUserService
 {
-    private readonly UserMapper _userMapper;
-    public UserService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<UserService> logger, IHttpContextAccessor httpContextAccessor, UserMapper userMapper)
-        : base(unitOfWork, logger, httpContextAccessor)
+    private readonly IMapperlyMapper _userMapper;
+    public UserService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<UserService> logger, IHttpContextAccessor httpContextAccessor, IMapperlyMapper mapper)
+        : base(unitOfWork, logger, httpContextAccessor, mapper)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
-        _userMapper = userMapper;
+        _userMapper = mapper;
     }
 
     public async Task<IEnumerable<CreateUserResponse>> GetAll()

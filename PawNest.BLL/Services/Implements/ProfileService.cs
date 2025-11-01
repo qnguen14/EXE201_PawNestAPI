@@ -14,16 +14,16 @@ namespace PawNest.BLL.Services.Implements
     public class ProfileService : BaseService<ProfileService>, IProfileService
     {
         private readonly IUnitOfWork<PawNestDbContext> _unitOfWork;
-        private readonly ProfileMapper _profileMapper;
+        private readonly IMapperlyMapper _profileMapper;
         private readonly ILogger<ProfileService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProfileService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<ProfileService> logger, ProfileMapper profileMapper, IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, httpContextAccessor)
+        public ProfileService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<ProfileService> logger, IMapperlyMapper mapper, IHttpContextAccessor httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor, mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _profileMapper = profileMapper;
+            _profileMapper = mapper;
             _httpContextAccessor = httpContextAccessor;
         }
         

@@ -19,18 +19,18 @@ namespace PawNest.BLL.Services.Implements
 {
     public class ServiceService : BaseService<ServiceService>, IServiceService
     {
-        private readonly ServiceMapper _serviceMapper;
+        private readonly IMapperlyMapper _serviceMapper;
         
         public ServiceService(
             IUnitOfWork<PawNestDbContext> unitOfWork,
             ILogger<ServiceService> logger,
-            ServiceMapper serviceMapper,
+            IMapperlyMapper mapper,
             IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor, mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _serviceMapper = serviceMapper;
+            _serviceMapper = mapper;
         }
 
         private void IsFreelancer()

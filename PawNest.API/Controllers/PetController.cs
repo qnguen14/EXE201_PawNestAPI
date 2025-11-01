@@ -23,13 +23,13 @@ namespace PawNest.API.Controllers
     {
         private readonly IPetService _petService;
         private readonly ILogger<PetController> _logger;
-        private readonly PetMapper _petMapper;
+        private readonly IMapperlyMapper _petMapper;
 
-        public PetController(IPetService petService, ILogger<PetController> logger, PetMapper petMapper)
+        public PetController(IPetService petService, ILogger<PetController> logger, IMapperlyMapper mapper)
         {
             _petService = petService;
             _logger = logger;
-            _petMapper = petMapper;
+            _petMapper = mapper;
         }
 
         [HttpGet(ApiEndpointConstants.Pet.GetAllPetsEndpoint)]

@@ -17,18 +17,18 @@ namespace PawNest.BLL.Services.Implements
 {
     public class PetService : BaseService<PetService>, IPetService
     {
-        private readonly PetMapper _petMapper;
+        private readonly IMapperlyMapper _petMapper;
         
         public PetService(
             IUnitOfWork<PawNestDbContext> unitOfWork,
             ILogger<PetService> logger,
-            PetMapper petMapper,
+            IMapperlyMapper mapper,
             IHttpContextAccessor httpContextAccessor)
-            : base(unitOfWork, logger, httpContextAccessor)
+            : base(unitOfWork, logger, httpContextAccessor, mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _petMapper = petMapper;
+            _petMapper = mapper;
         }
 
         public async Task<IEnumerable<CreatePetResponse>> GetAllPets()

@@ -140,8 +140,6 @@ namespace Everwell.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize]
-
         public async Task<IActionResult> SendResetCode([FromBody] ForgotPasswordRequest request)
         {
             // Validate input parameters
@@ -173,7 +171,6 @@ namespace Everwell.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize]
         public async Task<IActionResult> VerifyCodeAndReset([FromBody] VerifyCodeAndResetRequest request)
         {
             // Validate all required parameters are provided

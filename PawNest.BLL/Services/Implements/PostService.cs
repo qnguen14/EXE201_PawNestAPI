@@ -19,12 +19,12 @@ namespace PawNest.BLL.Services.Implements
 {
     public class PostService : BaseService<PostService>, IPostService
     {
-        private readonly PostMapper _postMapper;
-        public PostService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<PostService> logger, IHttpContextAccessor httpContextAccessor, PostMapper postMapper) : base(unitOfWork, logger, httpContextAccessor)
+        private readonly IMapperlyMapper _postMapper;
+        public PostService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<PostService> logger, IHttpContextAccessor httpContextAccessor, IMapperlyMapper mapper) : base(unitOfWork, logger, httpContextAccessor, mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _postMapper = postMapper;
+            _postMapper = mapper;
         }
 
         public async Task<Post> CreatePost(Post post)

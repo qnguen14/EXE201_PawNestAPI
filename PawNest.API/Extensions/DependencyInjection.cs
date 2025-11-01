@@ -5,6 +5,7 @@ using PawNest.DAL.Repositories.Implements;
 using PawNest.DAL.Repositories.Interfaces;
 using PawNest.DAL.Data.Context;
 using Everwell.BLL.Infrastructure;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.API.Extensions
 {
@@ -14,6 +15,7 @@ namespace PawNest.API.Extensions
         {
             services.AddScoped<IUnitOfWork<PawNestDbContext>, UnitOfWork<PawNestDbContext>>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IMapperlyMapper, MapperlyMapper>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPetService, PetService>();

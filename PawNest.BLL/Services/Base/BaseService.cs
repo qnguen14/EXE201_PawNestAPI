@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using PawNest.DAL.Data.Exceptions;
 using Microsoft.AspNetCore.Http;
 using PawNest.DAL.Data.Context;
+using PawNest.DAL.Mappers;
 
 namespace PawNest.BLL.Services
 {
@@ -18,12 +19,14 @@ namespace PawNest.BLL.Services
         protected IUnitOfWork<PawNestDbContext> _unitOfWork;
         protected ILogger<T> _logger;
         protected IHttpContextAccessor _httpContextAccessor;
+        protected IMapperlyMapper _mapper;
         
-        public BaseService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<T> logger, IHttpContextAccessor httpContextAccessor)
+        public BaseService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<T> logger, IHttpContextAccessor httpContextAccessor, IMapperlyMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
         
         protected Guid GetCurrentUserId()

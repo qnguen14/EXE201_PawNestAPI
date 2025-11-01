@@ -19,13 +19,13 @@ namespace PawNest.BLL.Services.Implements
 {
     public class BookingService : BaseService<BookingService>, IBookingService
     {
-        private readonly BookingMapper _bookingMapper;
-        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<BookingService> logger, IHttpContextAccessor httpContextAccessor, BookingMapper bookingMapper)
-            : base(unitOfWork, logger, httpContextAccessor)
+        private readonly IMapperlyMapper _bookingMapper;
+        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<BookingService> logger, IHttpContextAccessor httpContextAccessor, IMapperlyMapper mapper)
+            : base(unitOfWork, logger, httpContextAccessor, mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _bookingMapper = bookingMapper;
+            _bookingMapper = mapper;
         }
 
         private bool IsCustomer(string role)
