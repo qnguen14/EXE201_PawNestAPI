@@ -1,4 +1,5 @@
-﻿using PawNest.DAL.Data.Requests.Payment;
+﻿using PawNest.DAL.Data.Entities;
+using PawNest.DAL.Data.Requests.Payment;
 using PawNest.DAL.Data.Responses.Payment;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,11 @@ namespace PawNest.BLL.Services.Interfaces
 {
     public interface IPaymentService
     {
-        Task<PaymentResponse> CreatePaymentAsync(PaymentRequest request);
-        Task<bool> HandleProviderCallbackAsync(string provider, IDictionary<string, string> payload);
+        Task<PaymentGatewayResponse> CreatePaymentAsync(PaymentRequest request, string ipAddress);
+        Task<PaymentCallbackResponse> ProcessPaymentCallbackAsync(PaymentMethod method, Dictionary<string, string> queryParams);
+        Task<bool> UpdatePaymentStatusAsync(Guid bookingId, PaymentCallbackResponse callbackResponse);
+        Task<Payment?> GetPaymentByBookingIdAsync(Guid bookingId);
+        Task<Payment?> GetPaymentByIdAsync(Guid paymentId);
+        Task<bool> CancelPaymentAsync(Guid paymentId);
     }
 }

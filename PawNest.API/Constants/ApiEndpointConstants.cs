@@ -80,20 +80,15 @@ public class ApiEndpointConstants
         public const string UpdateServiceEndpoint = ServiceEndpoint + "/update/{id}";
         public const string DeleteServiceEndpoint = ServiceEndpoint + "/delete/{id}";
     }
-    public static class Payment
+   public static class Payment
     {
         public const string PaymentEndpoint = ApiEndpoint + "/payment";
-
-        // Create payment (VNPay / MoMo)
         public const string CreatePaymentEndpoint = PaymentEndpoint + "/create";
-
-        // VNPay return URL (user redirect)
-        public const string VNPayReturnEndpoint = PaymentEndpoint + "/vnpay/return";
-
-        // MoMo IPN (server-to-server)
-        public const string MoMoIpnEndpoint = PaymentEndpoint + "/momo/ipn";
-
-        // Optional – check payment status
-        public const string GetPaymentStatusEndpoint = PaymentEndpoint + "/status/{paymentId}";
+        public const string VNPayCallbackEndpoint = PaymentEndpoint + "/vnpay-callback";
+        public const string MoMoCallbackEndpoint = PaymentEndpoint + "/momo-callback";
+        public const string MoMoReturnEndpoint = PaymentEndpoint + "/momo-return";
+        public const string GetPaymentByBookingIdEndpoint = PaymentEndpoint + "/booking/{bookingId}";
+        public const string GetPaymentByIdEndpoint = PaymentEndpoint + "/{paymentId}";
+        public const string CancelPaymentEndpoint = PaymentEndpoint + "/{paymentId}/cancel";
     }
 }
