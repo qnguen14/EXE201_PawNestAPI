@@ -80,6 +80,9 @@ namespace PawNest.Repository.Mappers
         [MapProperty(nameof(User.Role.RoleName), nameof(GetUserProfile.Role))]
         public partial GetUserProfile MapToGetUserProfile(User user);
 
+        [MapProperty(nameof(User.Role.RoleName), nameof(GetFreelancerProfile.Role))]
+        public partial GetFreelancerProfile MapToGetFreelancerProfile(User user);
+
         // Service Mappers
 
 

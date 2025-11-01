@@ -24,6 +24,9 @@ namespace PawNest.Repository.Data.Entities
         [Column("comment")]
         public string Comment { get; set; }
 
+        [Column("response")]
+        public string Response { get; set; }
+
         [Required]
         [Column("rating")]
         public double Rating { get; set; }
@@ -48,6 +51,9 @@ namespace PawNest.Repository.Data.Entities
 
         [Required]
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("reponsed_at")]
+        public DateTime? RepondedAt { get; set; }
     }
 }

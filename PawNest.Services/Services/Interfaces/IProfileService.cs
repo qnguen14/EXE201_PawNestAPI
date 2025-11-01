@@ -10,5 +10,8 @@ namespace PawNest.Services.Services.Interfaces
     public interface IProfileService
     {
         Task<GetUserProfile> GetProfileAsync();
+        Task<GetFreelancerProfile> GetFreelancerProfileAsync();
+
+        // TODO Update profile, upload profile picture, etc.
     }
 }

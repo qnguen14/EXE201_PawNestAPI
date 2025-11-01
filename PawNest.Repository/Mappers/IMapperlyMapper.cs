@@ -70,6 +70,8 @@ namespace PawNest.Repository.Mappers
 
         GetUserProfile MapToGetUserProfile(User user);
 
+        GetFreelancerProfile MapToGetFreelancerProfile(User user);
+
         // Service Mappers
 
 

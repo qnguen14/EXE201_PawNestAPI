@@ -84,7 +84,7 @@ public class UserService : BaseService<UserService>, IUserService
         {
             var user = await _unitOfWork.GetRepository<User>()
                 .FirstOrDefaultAsync(
-                    predicate: null, // Get all users (both active and inactive)
+                    predicate: u => u.Id == id, 
                     include: u => u.Include(x => x.Role)
                 );
 
