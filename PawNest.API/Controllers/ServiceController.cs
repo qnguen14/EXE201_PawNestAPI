@@ -25,7 +25,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetServiceResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Freelancer")] // Only Admins and Freelancers can create services
+        [Authorize] // Only Admins and Freelancers can create services
         public async Task<ActionResult<IEnumerable<GetServiceResponse>>> GetAllServices()
         {
             var services = await _serviceService.GetAllServicesAsync();
@@ -43,7 +43,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<GetServiceResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Freelancer")] // Only Admins and Freelancers can create services
+        [Authorize] // Only Admins and Freelancers can create services
         public async Task<ActionResult<GetServiceResponse>> GetServiceById(Guid id)
         {
             var service = await _serviceService.GetServiceByIdAsync(id);
