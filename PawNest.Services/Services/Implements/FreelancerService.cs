@@ -37,6 +37,7 @@ namespace PawNest.Services.Services.Implements
                     _unitOfWork.GetRepository<User>().GetPagingListAsync(
                     predicate: u => u.RoleId == 3,
                     include: source => source
+                        .Include(u => u.Role)
                         .Include(u => u.Services)
                         .Include(u => u.ReviewsReceived),
                     orderBy: q => q.OrderBy(u => u.Name),
@@ -83,6 +84,7 @@ namespace PawNest.Services.Services.Implements
                     .FirstOrDefaultAsync(
                         predicate: u => u.RoleId == 3,
                         include: source => source
+                            .Include(u => u.Role)
                             .Include(u => u.Services)
                             .Include(u => u.ReviewsReceived),
                         orderBy: u => u.OrderBy(n => n.Name)

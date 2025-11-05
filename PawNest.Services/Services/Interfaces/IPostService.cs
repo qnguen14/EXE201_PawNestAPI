@@ -1,4 +1,5 @@
 ﻿using PawNest.Repository.Data.Entities;
+using PawNest.Repository.Data.Requests.Post;
 using PawNest.Repository.Data.Responses.Pet;
 using PawNest.Repository.Data.Responses.Post;
 using System;
@@ -13,9 +14,13 @@ namespace PawNest.Services.Services.Interfaces
     {
         Task<IEnumerable<CreatePostResponse>> GetAllPosts();
         Task<CreatePostResponse> GetPostById(Guid postId);
-        Task<Post> CreatePost(Post post);
-        Task<Post> UpdatePost(Post post);
+        Task<CreatePostResponse> CreatePost(CreatePostRequest request);
+        Task<CreatePostResponse> UpdatePost(UpdatePostRequest request, Guid id);
         Task<bool> DeletePost(Guid postId);
-        Task<Pet> GetPostByStaffId(Guid staffId);
+        Task<IEnumerable<CreatePostResponse>> GetPostByStaffId();
+        Task<IEnumerable<CreatePostResponse>> GetAllPendingPosts();
+        //Task<IEnumerable<CreatePostResponse>> GetFilteredPosts(string filter); // TODO: use poststatus enum filter
+
+        // TODO: add paging to posts
     }
 }
