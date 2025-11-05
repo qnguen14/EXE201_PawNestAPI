@@ -82,7 +82,7 @@ namespace PawNest.Services.Services.Implements
             {
                 var freelancers = await _unitOfWork.GetRepository<User>()
                     .FirstOrDefaultAsync(
-                        predicate: u => u.RoleId == 3,
+                        predicate: u => u.Id == id && u.Role.RoleName == "Freelancer",
                         include: source => source
                             .Include(u => u.Role)
                             .Include(u => u.Services)
