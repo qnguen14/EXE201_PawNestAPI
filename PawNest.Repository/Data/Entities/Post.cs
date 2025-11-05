@@ -36,7 +36,6 @@ public class Post
     [Column("content")]
     public string Content { get; set; }
     
-    [Required]
     [Column("image_url")]
     public string ImageUrl { get; set; }
     
@@ -50,7 +49,6 @@ public class Post
     [EnumDataType(typeof(PostCategory))]
     public PostCategory Category { get; set; } 
 
-    [Required]
     [Column("staff_id")]
     [ForeignKey("Staff")]
     public Guid StaffId { get; set; }
@@ -59,4 +57,8 @@ public class Post
     [Required]
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
+
+    [Required]
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; }
 }

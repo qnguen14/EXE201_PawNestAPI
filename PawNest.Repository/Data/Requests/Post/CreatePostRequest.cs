@@ -17,13 +17,11 @@ namespace PawNest.Repository.Data.Requests.Post
         [Required(ErrorMessage = "Content for post is required")]
         [MaxLength(200,ErrorMessage ="Content cannot exceed 200 characters")]
         public string Content { get; set; }
-        [Required(ErrorMessage = "Image URL for post is required")]
+
         public string ImageUrl { get; set; }
         [Required(ErrorMessage ="Post status is required")]
         public PostStatus Status { get; set; } = PostStatus.Pending;
         [Required(ErrorMessage = "Post category is required")]
         public PostCategory Category { get; set; }
-        [Required(ErrorMessage ="Staff id is required")]
-        public Guid StaffId { get; set; }
     }
 }
