@@ -76,5 +76,24 @@ namespace PawNest.API.Controllers
             };
             return Ok(apiResponse);
         }
+
+        [HttpGet(ApiEndpointConstants.User.SortFreelancersEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<GetFreelancerResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Staff, Customer, Freelancer")]
+        public async Task<ActionResult<IEnumerable<GetFreelancerResponse>>> SortFreelancers([FromBody] string serviceName, string minPrice, string maxPrice)
+        {
+            var response = await _freelancerService.SortFreelancers(serviceName, minPrice, maxPrice);
+
+            var apiResponse = new ApiResponse<IEnumerable<GetFreelancerResponse>>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Message = $"Freelancers retrieved successfully",
+                IsSuccess = true,
+                Data = response
+            };
+            return Ok(apiResponse);
+        }
     }
 }
