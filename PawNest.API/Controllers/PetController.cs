@@ -367,7 +367,7 @@ namespace PawNest.API.Controllers
             }
         }
 
-        [HttpPost(ApiEndpointConstants.Pet.EditPetEndpoint)]
+        [HttpPut(ApiEndpointConstants.Pet.EditPetEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
