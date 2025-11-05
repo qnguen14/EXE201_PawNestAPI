@@ -43,11 +43,13 @@ namespace PawNest.Repository.Mappers
 
         // Pet Mappers
 
+        public partial GetPetResponse MapToGetPetResponse(Pet pet);
+
         // CreatePetRequest to Pet
         public partial Pet MapToPet(CreatePetRequest request);
 
-        // UpdatedPetRequest to Pet (for updating)
-        public partial Pet MapToPetFromUpdate(UpdatedPetRequest request);
+        // AddPetRequest to Pet
+        public partial Pet AddRequestMapToPet(AddPetRequest request);
 
         // Pet to CreatePetResponse
         public partial CreatePetResponse MapToCreatePetResponse(Pet pet);

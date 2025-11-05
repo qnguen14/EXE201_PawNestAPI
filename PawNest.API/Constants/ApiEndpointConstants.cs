@@ -52,6 +52,7 @@ public class ApiEndpointConstants
         public const string DeletePetEndpoint = PetEndpoint + "/delete/{id}";
         public const string OwnersPetsEndpoint = PetEndpoint + "/user/{userId}/pets";
         public const string AddPetEndpoint = PetEndpoint + "/add/{id}";
+        public const string EditPetEndpoint = PetEndpoint + "/edit/{id}";
         public const string MyPetsEndpoint = PetEndpoint + "/{userId}";
     }
 

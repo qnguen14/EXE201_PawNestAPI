@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,112 +23,198 @@ namespace PawNest.API.Controllers
     {
         private readonly IPetService _petService;
         private readonly ILogger<PetController> _logger;
-        private readonly IMapperlyMapper _petMapper;
 
-        public PetController(IPetService petService, ILogger<PetController> logger, IMapperlyMapper mapper)
+        public PetController(IPetService petService, ILogger<PetController> logger)
         {
             _petService = petService;
             _logger = logger;
-            _petMapper = mapper;
         }
 
         [HttpGet(ApiEndpointConstants.Pet.GetAllPetsEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetPetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllPets()
         {
             try
             {
                 var pets = await _petService.GetAllPets();
-                return Ok(pets);
+                if (pets == null || !pets.Any())
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = "No pets found.",
+                        IsSuccess = false
+                    });
+                }
+
+                var apiResponse = new ApiResponse<IEnumerable<GetPetResponse>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pets retrieved successfully.",
+                    IsSuccess = true,
+                    Data = pets
+                };
+                return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving pets.",
+                    IsSuccess = false
+                });
             }
         }
 
         [HttpGet(ApiEndpointConstants.Pet.GetPetByIdEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<GetPetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPetById(Guid petId)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPetById([FromRoute] Guid petId)
         {
             try
             {
                 var pet = await _petService.GetPetById(petId);
-                return Ok(pet);
+                if (pet == null)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = $"Pet with ID {petId} not found.",
+                        IsSuccess = false
+                    });
+                }
+
+                var apiResponse = new ApiResponse<GetPetResponse>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pet retrieved successfully.",
+                    IsSuccess = true,
+                    Data = pet
+                };
+                return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving the pet.",
+                    IsSuccess = false
+                });
             }
         }
 
         [HttpGet(ApiEndpointConstants.Pet.OwnersPetsEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetPetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPetByOwnerId(Guid ownerId)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPetsByCustomerId([FromRoute] Guid customerId)
         {
             try
             {
-                var pet = await _petService.GetPetByCustomerId(ownerId);
-                var response = _petMapper.MapToCreatePetResponse(pet);
-                return Ok(response);
+                var pets = await _petService.GetPetsByCustomerId(customerId);
+                if (pets == null || !pets.Any())
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = $"No pets found for customer ID {customerId}.",
+                        IsSuccess = false
+                    });
+                }
+
+                var apiResponse = new ApiResponse<IEnumerable<GetPetResponse>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pets retrieved successfully.",
+                    IsSuccess = true,
+                    Data = pets
+                };
+                return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving pets.",
+                    IsSuccess = false
+                });
             }
         }
 
         [HttpPost(ApiEndpointConstants.Pet.CreatePetEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreatePet([FromBody] CreatePetRequest request)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Invalid pet data.",
+                        IsSuccess = false
+                    });
                 }
 
-                var pet = _petMapper.MapToPet(request);
-                var createdPet = await _petService.CreatePet(pet);
-                var response = _petMapper.MapToCreatePetResponse(createdPet);
-                var apiReponse = new ApiResponse<CreatePetResponse>
+                var createdPet = await _petService.CreatePet(request);
+                var apiResponse = new ApiResponse<CreatePetResponse>
                 {
-                    StatusCode = StatusCodes.Status200OK,
-                    Message = "Pet added successfully.",
+                    StatusCode = StatusCodes.Status201Created,
+                    Message = "Pet created successfully.",
                     IsSuccess = true,
-                    Data = response
+                    Data = createdPet
                 };
 
-                return Ok(apiReponse);
+                return Ok(apiResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while creating the pet.",
+                    IsSuccess = false
+                });
             }
         }
 
@@ -137,110 +222,246 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdatePet(Guid petId, [FromBody] CreatePetRequest request)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdatePet([FromRoute] Guid id, [FromBody] CreatePetRequest request)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Invalid pet data.",
+                        IsSuccess = false
+                    });
                 }
-                var pet = _petMapper.MapToPet(request);
-                pet.PetId = petId;
 
-                var updatedPet = await _petService.UpdatePet(pet);
-                var response = _petMapper.MapToCreatePetResponse(updatedPet);
+                var updatedPet = await _petService.UpdatePet(request, id);
+                var apiResponse = new ApiResponse<CreatePetResponse>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pet updated successfully.",
+                    IsSuccess = true,
+                    Data = updatedPet
+                };
 
-                return Ok(response);
+                return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while updating the pet.",
+                    IsSuccess = false
+                });
             }
         }
 
         [HttpDelete(ApiEndpointConstants.Pet.DeletePetEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeletePet(Guid petId)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeletePet([FromRoute] Guid petId)
         {
             try
             {
-                await _petService.DeletePet(petId);
-                return Ok("Pet deleted successfully");
+                var result = await _petService.DeletePet(petId);
+                if (!result)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = $"Pet with ID {petId} not found.",
+                        IsSuccess = false
+                    });
+                }
+
+                var apiResponse = new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Pet deleted successfully.",
+                    IsSuccess = true,
+                    Data = null
+                };
+                return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while deleting the pet.",
+                    IsSuccess = false
+                });
             }
         }
 
         [HttpPost(ApiEndpointConstants.Pet.AddPetEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddPetToCustomer(CreatePetRequest request)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddPetToCustomer([FromBody] AddPetRequest request)
         {
             try
             {
-                var addedPet = _petService.AddPet(request);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Invalid pet data.",
+                        IsSuccess = false
+                    });
+                }
+
+                var addedPet = await _petService.AddPet(request);
                 var apiResponse = new ApiResponse<CreatePetResponse>
                 {
-                    StatusCode = StatusCodes.Status200OK,
+                    StatusCode = StatusCodes.Status201Created,
                     Message = "Pet added to customer successfully.",
                     IsSuccess = true,
-                    Data = await addedPet
+                    Data = addedPet
                 };
                 return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while adding the pet.",
+                    IsSuccess = false
+                });
             }
         }
 
-        [HttpPost(ApiEndpointConstants.Pet.MyPetsEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
+        [HttpPost(ApiEndpointConstants.Pet.EditPetEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditCustomerPet([FromBody] AddPetRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Invalid pet data.",
+                        IsSuccess = false
+                    });
+                }
+
+                var addedPet = await _petService.UpdateCustomerPet(request);
+                var apiResponse = new ApiResponse<CreatePetResponse>
+                {
+                    StatusCode = StatusCodes.Status201Created,
+                    Message = "Pet updated successfully.",
+                    IsSuccess = true,
+                    Data = addedPet
+                };
+                return Ok(apiResponse);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while adding the pet.",
+                    IsSuccess = false
+                });
+            }
+        }
+
+        [HttpGet(ApiEndpointConstants.Pet.MyPetsEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetPetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> MyPets()
         {
             try
             {
-                var pets = _petService.GetCustomerPets();
-                var apiResponse = new ApiResponse<IEnumerable<CreatePetResponse>>
+                var pets = await _petService.GetCustomerPets();
+                if (pets == null || !pets.Any())
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = "No pets found for the current customer.",
+                        IsSuccess = false
+                    });
+                }
+
+                var apiResponse = new ApiResponse<IEnumerable<GetPetResponse>>
                 {
                     StatusCode = StatusCodes.Status200OK,
-                    Message = "Pet retrieved successfully.",
+                    Message = "Pets retrieved successfully.",
                     IsSuccess = true,
-                    Data = await pets
+                    Data = pets
                 };
                 return Ok(apiResponse);
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while retrieving pets.",
+                    IsSuccess = false
+                });
             }
         }
     }
