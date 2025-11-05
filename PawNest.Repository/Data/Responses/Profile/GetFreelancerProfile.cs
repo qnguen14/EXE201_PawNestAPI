@@ -1,5 +1,6 @@
 ﻿using PawNest.Repository.Data.Responses.Booking;
 using PawNest.Repository.Data.Responses.Pet;
+using PawNest.Repository.Data.Responses.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace PawNest.Repository.Data.Responses.Profile
         public string Role { get; set; }
 
         public List<GetBookingResponse> Bookings { get; set; } = new List<GetBookingResponse>();
+        public List<GetServiceResponse> Services { get; set; } = new List<GetServiceResponse>();
 
         // TODO: ReviewsRecevied
     }

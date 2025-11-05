@@ -19,6 +19,7 @@ using static PawNest.API.Constants.ApiEndpointConstants;
 namespace PawNest.API.Controllers
 {
     [ApiController]
+    [Authorize]
     public class PetController : ControllerBase
     {
         private readonly IPetService _petService;
@@ -36,7 +37,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> GetAllPets()
         {
             try
@@ -59,7 +59,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> GetPetById(Guid petId)
         {
             try
@@ -82,7 +81,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> GetPetByOwnerId(Guid ownerId)
         {
             try
@@ -106,7 +104,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> CreatePet([FromBody] CreatePetRequest request)
         {
             try
@@ -140,7 +137,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> UpdatePet(Guid petId, [FromBody] CreatePetRequest request)
         {
             try
@@ -172,7 +168,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> DeletePet(Guid petId)
         {
             try
@@ -195,7 +190,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize]
         public async Task<IActionResult> AddPetToCustomer(CreatePetRequest request)
         {
             try
@@ -225,7 +219,6 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<CreatePetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize]
         public async Task<IActionResult> MyPets()
         {
             try

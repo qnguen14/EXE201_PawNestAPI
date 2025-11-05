@@ -1,15 +1,17 @@
 ﻿
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PawNest.Services.Services.Implements;
-using PawNest.Services.Services.Interfaces;
 using PawNest.Repository.Data.Entities;
 using PawNest.Repository.Data.Exceptions;
+using PawNest.Repository.Data.Metadata;
 using PawNest.Repository.Data.Requests.Pet;
 using PawNest.Repository.Data.Requests.Post;
+using PawNest.Repository.Data.Responses.Auth;
 using PawNest.Repository.Data.Responses.Pet;
 using PawNest.Repository.Data.Responses.Post;
 using PawNest.Repository.Mappers;
+using PawNest.Services.Services.Implements;
+using PawNest.Services.Services.Interfaces;
 
 namespace PawNest.API.Controllers
 {
@@ -53,11 +55,17 @@ namespace PawNest.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var post = _postMapper.MapToPost(request);
-                var createdPost = await _postService.CreatePost(post);
-                var response = _postMapper.MapToCreatePostResponse(createdPost);
-                
-                return CreatedAtAction(nameof(GetPostById), new { postId = response.PostId }, response);
+                var createdPost = await _postService.CreatePost(request);
+
+                var apiResponse = new ApiResponse<CreatePostResponse>
+                {
+                    Message = "Posts retrieved successfully.", // "Login successful"
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Data = createdPost 
+                };
+
+                return Ok(apiResponse);
             }
             catch (Exception ex)
             {
@@ -105,7 +113,7 @@ namespace PawNest.API.Controllers
         }
 
         [HttpPut("{postId:guid}")]
-        public async Task<IActionResult> UpdatePost(Guid postId, [FromBody] CreatePostRequest request)
+        public async Task<IActionResult> UpdatePost(Guid postId, [FromBody] UpdatePostRequest request)
         {
             try
             {
@@ -114,13 +122,9 @@ namespace PawNest.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var post = _postMapper.MapToPost(request);
-                post.Id = postId;
+                var updatedPost = await _postService.UpdatePost(request, postId);
 
-                var updatedPost = await _postService.UpdatePost(post);
-                var response = _postMapper.MapToCreatePostResponse(updatedPost);
-
-                return Ok(response);
+                return Ok(updatedPost);
             }
             catch (NotFoundException ex)
             {
