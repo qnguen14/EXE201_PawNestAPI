@@ -18,21 +18,19 @@ namespace PawNest.Repository.Data.Requests.Pet
 
         [MaxLength(45, ErrorMessage = "Pet breed cannot contain more than 45 characters")]
         public string Breed { get; set; }
+
+        [Required]
+        public string CustomerId { get; set; } 
     }
 
-    public class UpdatedPetRequest
+    public class AddPetRequest
     {
         [Required(ErrorMessage = "Pet name is required")]
         [MaxLength(30, ErrorMessage = "Pet name cannot contain more than 30 characters")]
         public string PetName { get; set; }
-
         [MaxLength(45, ErrorMessage = "Pet species cannot contain more than 45 characters")]
         public string Species { get; set; }
-
         [MaxLength(45, ErrorMessage = "Pet breed cannot contain more than 45 characters")]
         public string Breed { get; set; }
-
-        [Required(ErrorMessage = "Owner ID is required")]
-        public Guid CustomerId { get; set; }
     }
 }

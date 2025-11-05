@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using PawNest.Services.Services.Interfaces;
 using PawNest.Repository.Data.Context;
 using PawNest.Repository.Data.Entities;
 using PawNest.Repository.Data.Exceptions;
 using PawNest.Repository.Data.Requests.Pet;
+using PawNest.Repository.Data.Requests.Post;
 using PawNest.Repository.Data.Responses.Pet;
 using PawNest.Repository.Mappers;
 using PawNest.Repository.Repositories.Interfaces;
+using PawNest.Services.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,22 +32,21 @@ namespace PawNest.Services.Services.Implements
             _petMapper = mapper;
         }
 
-        public async Task<IEnumerable<CreatePetResponse>> GetAllPets()
+        public async Task<IEnumerable<GetPetResponse>> GetAllPets()
         {
             try
             {
-                var pets = await _unitOfWork.GetRepository<Pet>()
-                    .GetListAsync(
-                        predicate: null, // Get all pets (both active and inactive)
-                        orderBy: p => p.OrderBy(n => n.PetName)
-                    );
-
-                if (pets == null || !pets.Any())
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    throw new NotFoundException("No pets found.");
-                }
-
-                return _petMapper.MapToCreatePetResponseList(pets);
+                    var petRepo = _unitOfWork.GetRepository<Pet>();
+                    var existingPets = await petRepo.GetListAsync();
+                    if (existingPets == null || !existingPets.Any())
+                    {
+                        throw new NotFoundException("No pets found.");
+                    }
+                    var petList = existingPets.ToList();
+                    return petList.Select(p => _petMapper.MapToGetPetResponse(p));
+                });
             }
             catch (Exception ex)
             {
@@ -55,21 +55,20 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<CreatePetResponse> GetPetById(Guid petId)
+        public async Task<GetPetResponse> GetPetById(Guid petId)
         {
             try
             {
-                var pet = await _unitOfWork.GetRepository<Pet>()
-                    .FirstOrDefaultAsync(
-                        predicate: p => p.PetId == petId
-                    );
-
-                if (pet == null)
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    throw new NotFoundException($"Pet with ID {petId} not found.");
-                }
-
-                return _petMapper.MapToCreatePetResponse(pet);
+                    var petRepo = _unitOfWork.GetRepository<Pet>();
+                    var existingPet = await petRepo.FirstOrDefaultAsync(predicate: p => p.PetId == petId);
+                    if (existingPet == null)
+                    {
+                        throw new NotFoundException($"Pet with ID {petId} not found.");
+                    }
+                    return _petMapper.MapToGetPetResponse(existingPet);
+                });
             }
             catch (Exception ex)
             {
@@ -78,13 +77,20 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<Pet> CreatePet(Pet pet)
+        public async Task<CreatePetResponse> CreatePet(CreatePetRequest request)
         {
             try
             {
-                await _unitOfWork.GetRepository<Pet>().InsertAsync(pet);
-                await _unitOfWork.SaveChangesAsync();
-                return pet;
+                return await _unitOfWork.ExecuteInTransactionAsync(async() =>
+                {
+                    var petRepo = _unitOfWork.GetRepository<Pet>();
+
+                    var pet = _petMapper.MapToPet(request);
+                    await petRepo.InsertAsync(pet);
+
+                    return _mapper.MapToCreatePetResponse(pet);
+
+                });
             }
             catch (Exception ex)
             {
@@ -93,27 +99,25 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<Pet> UpdatePet(Pet pet)
+        public async Task<CreatePetResponse> UpdatePet(CreatePetRequest pet, Guid id)
         {
             try
             {
-                var existingPet = await _unitOfWork.GetRepository<Pet>()
-                    .FirstOrDefaultAsync(
-                        predicate: p => p.PetId == pet.PetId,
-                        orderBy: null,
-                        include: null
-                    );
-
-                if (existingPet == null)
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    throw new NotFoundException($"Pet with ID {pet.PetId} not found.");
-                }
+                    var petRepo = _unitOfWork.GetRepository<Pet>();
+                    var existingPet = await petRepo.FirstOrDefaultAsync(predicate: p => p.PetId == id);
+                    if (existingPet == null)
+                    {
+                        throw new NotFoundException($"Pet with ID {id} not found.");
+                    }
+                    // Update fields
 
-                _petMapper.UpdatePetFromRequest(pet, existingPet);
-                _unitOfWork.GetRepository<Pet>().UpdateAsync(existingPet);
-                await _unitOfWork.SaveChangesAsync();
+                    var updatedPet = _petMapper.MapToPet(pet);
+                    petRepo.UpdateAsync(updatedPet);
 
-                return existingPet;
+                    return _mapper.MapToCreatePetResponse(existingPet);
+                });
             }
             catch (Exception ex)
             {
@@ -126,22 +130,17 @@ namespace PawNest.Services.Services.Implements
         {
             try
             {
-                var pet = await _unitOfWork.GetRepository<Pet>()
-                    .FirstOrDefaultAsync(
-                        predicate: p => p.PetId == petId,
-                        orderBy: null,
-                        include: null
-                    );
-
-                if (pet == null)
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    throw new NotFoundException($"Pet with ID {petId} not found.");
-                }
-
-                _unitOfWork.GetRepository<Pet>().DeleteAsync(pet);
-                await _unitOfWork.SaveChangesAsync();
-
-                return true;
+                    var petRepo = _unitOfWork.GetRepository<Pet>();
+                    var existingPet = await petRepo.FirstOrDefaultAsync(predicate: p => p.PetId == petId);
+                    if (existingPet == null)
+                    {
+                        throw new NotFoundException($"Pet with ID {petId} not found.");
+                    }
+                    petRepo.DeleteAsync(existingPet);
+                    return true;
+                });
             }
             catch (Exception ex)
             {
@@ -150,23 +149,23 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<Pet> GetPetByCustomerId(Guid customerId)
+        public async Task<IEnumerable<GetPetResponse>> GetPetsByCustomerId(Guid customerId)
         {
             try
             {
-                var pet = await _unitOfWork.GetRepository<Pet>()
-                    .FirstOrDefaultAsync(
-                        predicate: p => p.CustomerId == customerId,
-                        orderBy: null,
-                        include: null
-                    );
-
-                if (pet == null)
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    throw new NotFoundException($"Pet with Customer ID {customerId} not found.");
-                }
+                    var petRepo = _unitOfWork.GetRepository<Pet>();
+                    var existingPet = await petRepo.GetListAsync(predicate: p => p.CustomerId == customerId);
+                    if (existingPet == null || !existingPet.Any())
+                    {
+                        throw new NotFoundException($"Pet for Customer ID {customerId} not found.");
+                    }
 
-                return pet;
+                    var petList = existingPet.ToList();
+
+                    return petList.Select(p => _petMapper.MapToGetPetResponse(p));
+                });
             }
             catch (Exception ex)
             {
@@ -175,21 +174,25 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<CreatePetResponse> AddPet(CreatePetRequest request)
+        public async Task<CreatePetResponse> AddPet(AddPetRequest request)
         {
             try
             {
-                var repo = _unitOfWork.GetRepository<Pet>();
-                var customerId = GetCurrentUserId();
-                var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.PetName == request.PetName && p.CustomerId == customerId);
-                if (existingPet != null)
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    throw new Exception("A pet with the same name already exists for this customer.");
-                }
+                    var repo = _unitOfWork.GetRepository<Pet>();
+                    var customerId = GetCurrentUserId();
+                    var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.PetName == request.PetName && p.CustomerId == customerId);
+                    if (existingPet != null)
+                    {
+                        throw new Exception("A pet with the same name already exists for this customer.");
+                    }
 
-                var petEntity = _petMapper.MapToPet(request);
-                petEntity.CustomerId = customerId;
-                return _petMapper.MapToCreatePetResponse(await CreatePet(petEntity));
+                    var petEntity = _petMapper.AddRequestMapToPet(request);
+                    petEntity.CustomerId = customerId;
+                    await repo.InsertAsync(petEntity);
+                    return _petMapper.MapToCreatePetResponse(petEntity);
+                });
 
             } catch (Exception ex)
             {
@@ -197,21 +200,49 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<IEnumerable<CreatePetResponse>> GetCustomerPets()
+        public async Task<CreatePetResponse> UpdateCustomerPet(AddPetRequest request)
         {
             try
             {
-                var customerId = GetCurrentUserId();
-                var pets = await _unitOfWork.GetRepository<Pet>()
-                    .GetListAsync(
-                        predicate: p => p.CustomerId == customerId,
-                        orderBy: p => p.OrderBy(n => n.PetName)
-                    );
-                if (pets == null || !pets.Any())
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    throw new NotFoundException("No pets found for the current customer.");
-                }
-                return _petMapper.MapToCreatePetResponseList(pets);
+                    var repo = _unitOfWork.GetRepository<Pet>();
+                    var customerId = GetCurrentUserId();
+                    var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.PetName == request.PetName && p.CustomerId == customerId);
+                    if (existingPet != null)
+                    {
+                        throw new Exception("A pet with the same name already exists for this customer.");
+                    }
+
+                    var petEntity = _petMapper.AddRequestMapToPet(request);
+                    petEntity.CustomerId = customerId;
+                    repo.UpdateAsync(petEntity);
+                    return _petMapper.MapToCreatePetResponse(petEntity);
+                });
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<GetPetResponse>> GetCustomerPets()
+        {
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async() =>
+                {
+                    var petRepo = _unitOfWork.GetRepository<Pet>();
+                    var customerId = GetCurrentUserId();
+                    var existingPets = await petRepo.GetListAsync(predicate: p => p.CustomerId == customerId);
+                    if (existingPets == null || !existingPets.Any())
+                    {
+                        throw new NotFoundException("No pets found for the current customer.");
+                    }
+                    var petList = existingPets.ToList();
+                    return petList.Select(p => _petMapper.MapToGetPetResponse(p));
+                });
             }
             catch (Exception ex)
             {
