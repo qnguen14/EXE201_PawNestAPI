@@ -84,6 +84,7 @@ namespace PawNest.Services.Services.Implements
                             include: b => b.Include(booking => booking.Freelancer)
                                            .Include(booking => booking.Customer)
                                            .Include(booking => booking.Services)
+                                           .Include(booking => booking.Pets)
                         );
 
                     if (existingBooking != null)
@@ -140,7 +141,14 @@ namespace PawNest.Services.Services.Implements
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
                     var booking = await _unitOfWork.GetRepository<Booking>()
-                        .FirstOrDefaultAsync(predicate: b => b.BookingId == bookingId, include: b => b.Include(u => u.Freelancer).Include(u => u.Customer));
+                        .FirstOrDefaultAsync(
+                        predicate: b => b.BookingId == bookingId, 
+                        include: b => b
+                        .Include(u => u.Freelancer)
+                        .Include(u => u.Customer)
+                        .Include(u => u.Services)
+                        .Include(u => u.Pets)
+                        );
                     if (booking == null)
                     {
                         throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
@@ -167,7 +175,9 @@ namespace PawNest.Services.Services.Implements
                 var bookings = await _unitOfWork.GetRepository<Booking>()
                     .GetListAsync(null,
                                   include: b => b.Include(u => u.Freelancer)
-                                                 .Include(u => u.Customer),
+                                                 .Include(u => u.Customer)
+                                                 .Include(u => u.Services)
+                                                 .Include(u => u.Pets),
                                   orderBy: b => b.OrderBy(u => u.BookingId));
                  if (bookings == null || !bookings.Any())
                 {
@@ -193,6 +203,8 @@ namespace PawNest.Services.Services.Implements
                         predicate: b => b.BookingId == bookingId,
                         include: b => b.Include(u => u.Freelancer)
                                        .Include(u => u.Customer)
+                                       .Include(u => u.Services)
+                                       .Include(u => u.Pets)
                     );
 
                 if (booking == null)

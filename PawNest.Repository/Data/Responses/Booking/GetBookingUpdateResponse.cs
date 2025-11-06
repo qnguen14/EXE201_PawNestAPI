@@ -17,9 +17,9 @@ namespace PawNest.Repository.Data.Responses.Booking
         public decimal TotalPrice { get; set; }
         public bool IsPaid { get; set; }
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public Guid ServiceId { get; set; }
         public Guid FreelancerId { get; set; }
         public Guid CustomerId { get; set; }
-        public List<CreatePetRequest> Pets { get; set; } = new List<CreatePetRequest>();
+        public List<BookingServiceResponse> Services = new List<BookingServiceResponse>();
+        public List<BookingPetResponse> Pets { get; set; } = new List<BookingPetResponse>();
     }
 }
