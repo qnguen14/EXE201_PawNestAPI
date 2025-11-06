@@ -1,5 +1,6 @@
 ﻿using PawNest.Repository.Data.Entities;
 using PawNest.Repository.Data.Responses.Review;
+using PawNest.Repository.Data.Responses.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace PawNest.Repository.Data.Responses.User
         public string Address { get; set; }
         public string Role { get; set; }
         public string AvatarUrl { get; set; }
-        public List<Entities.Service> Services { get; set; } = [];
-        public List<GetReviewResponse> ReviewsReceived { get; set; } = new List<GetReviewResponse>();
+        public List<GetServiceResponse> Services { get; set; } = [];
+        public List<GetReviewResponse> ReviewsReceived { get; set; } = [];
     }
 }

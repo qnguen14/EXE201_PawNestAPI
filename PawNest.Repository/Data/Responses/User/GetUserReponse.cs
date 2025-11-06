@@ -12,6 +12,6 @@ public class GetUserReponse
     public string Address { get; set; }
     public string Role { get; set; }
     public string AvatarUrl { get; set; }
-    public List<GetPetResponse> Pets { get; set; } 
-    public List<GetBookingResponse> Bookings { get; set; }
+    public List<GetPetResponse> Pets { get; set; } = [];
+    public List<GetBookingResponse> Bookings { get; set; } = [];
 }

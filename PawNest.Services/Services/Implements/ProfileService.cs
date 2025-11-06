@@ -69,7 +69,9 @@ namespace PawNest.Services.Services.Implements
                         predicate: u => u.Id == userId && u.IsActive,
                         orderBy: null,
                         include: q => q.Include(u => u.Role)
+                                       .Include(u => u.ReviewsReceived)
                                        .Include(u => u.Bookings.Where(q => q.FreelancerId.Equals(userId)))
+                                       .Include(u => u.Services.OrderBy(x => x.ServiceId).Where(x => x.FreelancerId.Equals(userId)))
                     );
 
                     if (user == null)
@@ -106,6 +108,7 @@ namespace PawNest.Services.Services.Implements
                         orderBy: null,
                         include: q => q.Include(u => u.Role)
                                        .Include(u => u.Pets)
+                                       .Include(u => u.ReviewsWritten)
                                        .Include(u => u.Bookings.Where(q => q.CustomerId.Equals(userId)))
                     );
 
