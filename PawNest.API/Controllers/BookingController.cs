@@ -23,7 +23,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetBookingResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Staff, Customer, Freelancer")]
+        [Authorize(Roles = "Admin, Staff, Freelancer")]
         public async Task<IActionResult> GetAllBookings()
         {
             var bookings = await _bookingService.GetAllBookingsAsync();
@@ -52,7 +52,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<GetBookingResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Staff, Customer, Freelancer")]
+        [Authorize]
         public async Task<IActionResult> GetBookingById([FromRoute] Guid bookingId)
         {
             var booking = await _bookingService.GetBookingByIdAsync(bookingId);
@@ -141,7 +141,7 @@ namespace PawNest.API.Controllers
         [HttpPut(ApiEndpointConstants.Booking.CancelBookingEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Admin, Staff, Customer")]
+        [Authorize]
         public async Task<IActionResult> CancelBooking([FromRoute] Guid bookingId)
         {
             try
