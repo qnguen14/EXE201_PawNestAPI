@@ -208,7 +208,7 @@ namespace PawNest.Services.Services.Implements
                 {
                     var repo = _unitOfWork.GetRepository<Pet>();
                     var customerId = GetCurrentUserId();
-                    var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.PetName == request.PetName && p.CustomerId == customerId);
+                    var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.CustomerId == customerId);
                     if (existingPet != null)
                     {
                         throw new Exception("A pet with the same name already exists for this customer.");
