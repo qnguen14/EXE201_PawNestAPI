@@ -323,5 +323,52 @@ namespace PawNest.API.Controllers
                 });
             }
         }
+        /// <summary>
+        /// Check current payment status by booking ID
+        /// GET /api/v1/payment/check-status?bookingId=xxx
+        /// </summary>
+        [HttpGet("check-status")]
+        [Authorize]
+        public async Task<IActionResult> CheckPaymentStatus([FromQuery] Guid bookingId)
+        {
+            try
+            {
+                var payment = await _paymentService.GetPaymentByBookingIdAsync(bookingId);
+
+                if (payment == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "No payment found for this booking",
+                        status = "NotFound"
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        paymentId = payment.PaymentId,
+                        bookingId = payment.BookingId,
+                        status = payment.Status.ToString(),
+                        amount = payment.Amount,
+                        method = payment.Method,
+                        createdAt = payment.CreatedAt
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking payment status for Booking: {BookingId}", bookingId);
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while checking payment status"
+                });
+            }
+        }
     }
 }

@@ -93,10 +93,36 @@ namespace PawNest.Services.Services.Implements
             });
         }
 
-        public Task<PaymentQueryResponse> QueryPayment(string transactionId)
+        public async Task<PaymentQueryResponse> QueryPayment(string transactionId)
         {
             // Implement VNPay query transaction API
-            throw new NotImplementedException("VNPay query not implemented");
+            var vnpay = new VNPayLibrary();
+
+            vnpay.AddRequestData("vnp_Version", _vnpVersion);
+            vnpay.AddRequestData("vnp_Command", "querydr");
+            vnpay.AddRequestData("vnp_TmnCode", _vnpTmnCode);
+            vnpay.AddRequestData("vnp_TxnRef", orderId);
+            vnpay.AddRequestData("vnp_OrderInfo", $"Query transaction {orderId}");
+            vnpay.AddRequestData("vnp_TransactionDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+            vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+
+            var apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+            string requestUrl = vnpay.CreateRequestUrl(apiUrl, _vnpHashSecret);
+
+            using var client = new HttpClient();
+            var response = await client.GetStringAsync(requestUrl);
+
+            var data = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(response);
+
+            string responseCode = data["vnp_ResponseCode"];
+
+            return new PaymentQueryResponse
+            {
+                Success = responseCode == "00",
+                Status = responseCode == "00" ? PaymentStatus.Success : PaymentStatus.Failed,
+                Message = GetVNPayResponseMessage(responseCode)
+            };
         }
 
         private string GetVNPayResponseMessage(string responseCode)
