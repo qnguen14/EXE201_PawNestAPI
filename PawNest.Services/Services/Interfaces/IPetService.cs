@@ -24,6 +24,7 @@ namespace PawNest.Services.Services.Interfaces
         Task<IEnumerable<GetPetResponse>> GetPetsByCustomerId(Guid customerId);
         Task<CreatePetResponse> AddPet(AddPetRequest request);
         Task<CreatePetResponse> UpdateCustomerPet(AddPetRequest request);
+        Task<CreatePetResponse> RemoveCustomerPet(Guid petId);
         Task<IEnumerable<GetPetResponse>> GetCustomerPets();
     }
 }

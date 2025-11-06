@@ -227,6 +227,29 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
+        public async Task<CreatePetResponse> RemoveCustomerPet(Guid petId)
+        {
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var repo = _unitOfWork.GetRepository<Pet>();
+                    var customerId = GetCurrentUserId();
+                    var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.PetId == petId && p.CustomerId == customerId);
+                    if (existingPet == null)
+                    {
+                        throw new Exception("Pet not found for this customer.");
+                    }
+                    repo.DeleteAsync(existingPet);
+                    return _petMapper.MapToCreatePetResponse(existingPet);
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<IEnumerable<GetPetResponse>> GetCustomerPets()
         {
             try
