@@ -2,6 +2,7 @@
 using PawNest.Repository.Data.Requests.Booking;
 using PawNest.Repository.Data.Requests.Pet;
 using PawNest.Repository.Data.Requests.Post;
+using PawNest.Repository.Data.Requests.Profile;
 using PawNest.Repository.Data.Requests.Review;
 using PawNest.Repository.Data.Requests.Service;
 using PawNest.Repository.Data.Requests.User;
@@ -79,6 +80,8 @@ namespace PawNest.Repository.Mappers
         GetUserProfile MapToGetUserProfile(User user);
 
         GetFreelancerProfile MapToGetFreelancerProfile(User user);
+        void UpdateUserProfileFromRequest(UpdateUserProfileRequest request, User target);
+        void UpdateFreelancerProfileFromRequest(UpdateFreelancerProfileRequest request, User target);
 
         // Service Mappers
 

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using PawNest.Repository.Data.Requests.Profile;
+using PawNest.Repository.Data.Responses.Profile;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PawNest.Repository.Data.Responses.Profile;
 
 namespace PawNest.Services.Services.Interfaces
 {
@@ -13,5 +14,7 @@ namespace PawNest.Services.Services.Interfaces
         Task<GetFreelancerProfile> GetFreelancerProfileAsync();
 
         // TODO Update profile, upload profile picture, etc.
+        Task<GetUserProfile> UpdateUserProfileAsync(UpdateUserProfileRequest request);
+        Task<GetFreelancerProfile> UpdateFreelancerProfileAsync(UpdateFreelancerProfileRequest request);
     }
 }

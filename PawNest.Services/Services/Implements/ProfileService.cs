@@ -1,13 +1,14 @@
-﻿using PawNest.Services.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PawNest.Repository.Data.Context;
 using PawNest.Repository.Data.Entities;
-using PawNest.Repository.Repositories.Interfaces;
 using PawNest.Repository.Data.Exceptions;
+using PawNest.Repository.Data.Requests.Profile;
 using PawNest.Repository.Data.Responses.Profile;
 using PawNest.Repository.Mappers;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
+using PawNest.Repository.Repositories.Interfaces;
+using PawNest.Services.Services.Interfaces;
 
 namespace PawNest.Services.Services.Implements
 {
@@ -127,6 +128,98 @@ namespace PawNest.Services.Services.Implements
             {
                 _logger.LogError(ex, ex.Message);
                 throw new Exception(ex.Message);
+            }
+        }
+        public async Task<GetUserProfile> UpdateUserProfileAsync(UpdateUserProfileRequest request)
+        {
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var userId = GetCurrentUserId();
+                    bool verify = await IsCustomer(userId);
+
+                    if (!verify)
+                    {
+                        throw new UnauthorizedAccessException("User is not a customer.");
+                    }
+
+                    var userRepo = _unitOfWork.GetRepository<User>();
+
+                    var user = await userRepo.FirstOrDefaultAsync(
+                        predicate: u => u.Id == userId && u.IsActive,
+                        include: q => q.Include(u => u.Role)
+                                       .Include(u => u.Pets)
+                                       .Include(u => u.ReviewsWritten)
+                                       .Include(u => u.Bookings.Where(q => q.CustomerId.Equals(userId)))
+                    );
+
+                    if (user == null)
+                    {
+                        throw new NotFoundException("User not found.");
+                    }
+
+                    // Update user profile
+                    _profileMapper.UpdateUserProfileFromRequest(request, user);
+
+                    // Update in DbContext
+                    userRepo.UpdateAsync(user);
+
+                    // Return updated profile
+                    return _profileMapper.MapToGetUserProfile(user);
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user profile: {Message}", ex.Message);
+                throw;
+            }
+        }
+
+        // THÊM PHƯƠNG THỨC UPDATE FREELANCER PROFILE
+        public async Task<GetFreelancerProfile> UpdateFreelancerProfileAsync(UpdateFreelancerProfileRequest request)
+        {
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var userId = GetCurrentUserId();
+                    bool verify = await IsFreelancer(userId);
+
+                    if (!verify)
+                    {
+                        throw new UnauthorizedAccessException("User is not a freelancer.");
+                    }
+
+                    var userRepo = _unitOfWork.GetRepository<User>();
+
+                    var user = await userRepo.FirstOrDefaultAsync(
+                        predicate: u => u.Id == userId && u.IsActive,
+                        include: q => q.Include(u => u.Role)
+                                       .Include(u => u.ReviewsReceived)
+                                       .Include(u => u.Bookings.Where(q => q.FreelancerId.Equals(userId)))
+                                       .Include(u => u.Services.OrderBy(x => x.ServiceId).Where(x => x.FreelancerId.Equals(userId)))
+                    );
+
+                    if (user == null)
+                    {
+                        throw new NotFoundException("User not found.");
+                    }
+
+                    // Update freelancer profile
+                    _profileMapper.UpdateFreelancerProfileFromRequest(request, user);
+
+                    // Update in DbContext
+                    userRepo.UpdateAsync(user);
+
+                    // Return updated profile
+                    return _profileMapper.MapToGetFreelancerProfile(user);
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating freelancer profile: {Message}", ex.Message);
+                throw;
             }
         }
     }

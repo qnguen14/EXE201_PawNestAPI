@@ -20,6 +20,12 @@ namespace PawNest.API.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Lấy tất cả các freelancer với phân trang
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
         [HttpGet(ApiEndpointConstants.User.GetAllFreelancersEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<PagingResponse<GetFreelancerResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -39,6 +45,11 @@ namespace PawNest.API.Controllers
             return Ok(apiResponse);
         }
 
+        /// <summary>
+        /// Lấy freelancer theo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet(ApiEndpointConstants.User.GetFreelancerByIdEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetFreelancerResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -58,6 +69,12 @@ namespace PawNest.API.Controllers
             return Ok(apiResponse);
         }
 
+        /// <summary>
+        /// Tìm kiếm freelance theo địa chỉ và dịch vụ
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="serviceName"></param>
+        /// <returns></returns>
         [HttpGet(ApiEndpointConstants.User.SearchFreelancersEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetFreelancerResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -77,6 +94,13 @@ namespace PawNest.API.Controllers
             return Ok(apiResponse);
         }
 
+        /// <summary>
+        /// Lọc freelancer theo mức giá dịch vụ
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <param name="minPrice"></param>
+        /// <param name="maxPrice"></param>
+        /// <returns></returns>
         [HttpGet(ApiEndpointConstants.User.SortFreelancersEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetFreelancerResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
