@@ -34,6 +34,7 @@ namespace PawNest.Repository.Mappers
         public partial Booking UpdateBookingToBooking(UpdateBookingRequest request, Booking booking);
 
         // Booking to GetBookingResponse
+
         public partial GetBookingResponse MapToGetBookingResponse(Booking booking);
 
         // Booking to GetBookingUpdateResponse
@@ -131,5 +132,46 @@ namespace PawNest.Repository.Mappers
         public partial Review MapToReview(CreateReviewRequest request);
         public partial Review RespondMapToReview(RespondReviewRequest request);
         public partial GetReviewResponse MapToGetReviewResponse(Review review);
+        public GetUserProfile MapToGetUserProfileWithBookings(User user)
+        {
+            var profile = MapToGetUserProfile(user);
+
+            if (user.Bookings != null && user.Bookings.Any())
+            {
+                profile.Bookings = user.Bookings
+                    .Select(b => MapToGetBookingResponse(b))
+                    .ToList();
+            }
+
+            if (user.Pets != null && user.Pets.Any())
+            {
+                profile.Pets = user.Pets
+                    .Select(p => MapToGetPetResponse(p))
+                    .ToList();
+            }
+
+            return profile;
+        }
+
+        public GetFreelancerProfile MapToGetFreelancerProfileWithBookings(User user)
+        {
+            var profile = MapToGetFreelancerProfile(user);
+
+            if (user.Bookings != null && user.Bookings.Any())
+            {
+                profile.Bookings = user.Bookings
+                    .Select(b => MapToGetBookingResponse(b))
+                    .ToList();
+            }
+
+            if (user.Services != null && user.Services.Any())
+            {
+                profile.Services = user.Services
+                    .Select(s => MapToGetServiceResponse(s))
+                    .ToList();
+            }
+
+            return profile;
+        }
     }
 }

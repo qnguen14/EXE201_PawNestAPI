@@ -118,5 +118,8 @@ namespace PawNest.Repository.Mappers
         Review MapToReview(CreateReviewRequest request);
         Review RespondMapToReview(RespondReviewRequest request);
         GetReviewResponse MapToGetReviewResponse(Review review);
+        GetUserProfile MapToGetUserProfileWithBookings(User user);
+        GetFreelancerProfile MapToGetFreelancerProfileWithBookings(User user);
+
     }
 }

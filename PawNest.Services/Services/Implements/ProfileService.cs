@@ -59,36 +59,41 @@ namespace PawNest.Services.Services.Implements
             try
             {
                 var userId = GetCurrentUserId();
-                User? user = null;
                 bool verify = await IsFreelancer(userId);
 
-                if (verify)
+                if (!verify)
                 {
-                    var userRepo = _unitOfWork.GetRepository<User>();
-
-                    user = await userRepo.FirstOrDefaultAsync(
-                        predicate: u => u.Id == userId && u.IsActive,
-                        orderBy: null,
-                        include: q => q.Include(u => u.Role)
-                                       .Include(u => u.ReviewsReceived)
-                                       .Include(u => u.Bookings.Where(q => q.FreelancerId.Equals(userId)))
-                                       .Include(u => u.Services.OrderBy(x => x.ServiceId).Where(x => x.FreelancerId.Equals(userId)))
-                    );
-
-                    if (user == null)
-                    {
-                        throw new NotFoundException("User not found.");
-                    }
-
-                    return _profileMapper.MapToGetFreelancerProfile(user);
+                    throw new UnauthorizedAccessException("User is not a freelancer.");
                 }
 
-                throw new UnauthorizedAccessException("User is not a freelancer.");
+                var userRepo = _unitOfWork.GetRepository<User>();
+
+                var user = await userRepo.FirstOrDefaultAsync(
+                    predicate: u => u.Id == userId && u.IsActive,
+                    orderBy: null,
+                    include: q => q.Include(u => u.Role)
+                                   .Include(u => u.ReviewsReceived)
+                                   .Include(u => u.Bookings.Where(b => b.FreelancerId == userId))
+                                       .ThenInclude(b => b.Customer)
+                                   .Include(u => u.Bookings.Where(b => b.FreelancerId == userId))
+                                       .ThenInclude(b => b.Pets)
+                                   .Include(u => u.Bookings.Where(b => b.FreelancerId == userId))
+                                       .ThenInclude(b => b.Services)
+                                   .Include(u => u.Services.Where(s => s.FreelancerId == userId))
+                );
+
+                if (user == null)
+                {
+                    throw new NotFoundException("User not found.");
+                }
+
+                // THAY ĐỔI: Dùng helper method
+                return _profileMapper.MapToGetFreelancerProfileWithBookings(user);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
-                throw new Exception(ex.Message);
+                _logger.LogError(ex, "Error getting freelancer profile: {Message}", ex.Message);
+                throw;
             }
         }
 
@@ -97,39 +102,44 @@ namespace PawNest.Services.Services.Implements
             try
             {
                 var userId = GetCurrentUserId();
-                User? user = null;
                 bool verify = await IsCustomer(userId);
 
-                if (verify)
-                {
-                    var userRepo = _unitOfWork.GetRepository<User>();
-
-                    user = await userRepo.FirstOrDefaultAsync(
-                        predicate: u => u.Id == userId && u.IsActive,
-                        orderBy: null,
-                        include: q => q.Include(u => u.Role)
-                                       .Include(u => u.Pets)
-                                       .Include(u => u.ReviewsWritten)
-                                       .Include(u => u.Bookings.Where(q => q.CustomerId.Equals(userId)))
-                    );
-
-                    if (user == null)
-                    {
-                        throw new NotFoundException("User not found.");
-                    }
-
-                    return _profileMapper.MapToGetUserProfile(user!);
-                } else
+                if (!verify)
                 {
                     throw new UnauthorizedAccessException("User is not a customer.");
                 }
+
+                var userRepo = _unitOfWork.GetRepository<User>();
+
+                var user = await userRepo.FirstOrDefaultAsync(
+                    predicate: u => u.Id == userId && u.IsActive,
+                    orderBy: null,
+                    include: q => q.Include(u => u.Role)
+                                   .Include(u => u.Pets)
+                                   .Include(u => u.ReviewsWritten)
+                                   .Include(u => u.Bookings.Where(b => b.CustomerId == userId))
+                                       .ThenInclude(b => b.Freelancer)
+                                   .Include(u => u.Bookings.Where(b => b.CustomerId == userId))
+                                       .ThenInclude(b => b.Pets)
+                                   .Include(u => u.Bookings.Where(b => b.CustomerId == userId))
+                                       .ThenInclude(b => b.Services)
+                );
+
+                if (user == null)
+                {
+                    throw new NotFoundException("User not found.");
+                }
+
+                // THAY ĐỔI: Dùng helper method
+                return _profileMapper.MapToGetUserProfileWithBookings(user);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
-                throw new Exception(ex.Message);
+                _logger.LogError(ex, "Error getting user profile: {Message}", ex.Message);
+                throw;
             }
         }
+
         public async Task<GetUserProfile> UpdateUserProfileAsync(UpdateUserProfileRequest request)
         {
             try
@@ -151,7 +161,12 @@ namespace PawNest.Services.Services.Implements
                         include: q => q.Include(u => u.Role)
                                        .Include(u => u.Pets)
                                        .Include(u => u.ReviewsWritten)
-                                       .Include(u => u.Bookings.Where(q => q.CustomerId.Equals(userId)))
+                                       .Include(u => u.Bookings.Where(b => b.CustomerId == userId))
+                                           .ThenInclude(b => b.Freelancer)
+                                       .Include(u => u.Bookings.Where(b => b.CustomerId == userId))
+                                           .ThenInclude(b => b.Pets)
+                                       .Include(u => u.Bookings.Where(b => b.CustomerId == userId))
+                                           .ThenInclude(b => b.Services)
                     );
 
                     if (user == null)
@@ -159,14 +174,11 @@ namespace PawNest.Services.Services.Implements
                         throw new NotFoundException("User not found.");
                     }
 
-                    // Update user profile
                     _profileMapper.UpdateUserProfileFromRequest(request, user);
-
-                    // Update in DbContext
                     userRepo.UpdateAsync(user);
 
-                    // Return updated profile
-                    return _profileMapper.MapToGetUserProfile(user);
+                    // THAY ĐỔI: Dùng helper method
+                    return _profileMapper.MapToGetUserProfileWithBookings(user);
                 });
             }
             catch (Exception ex)
@@ -176,7 +188,6 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        // THÊM PHƯƠNG THỨC UPDATE FREELANCER PROFILE
         public async Task<GetFreelancerProfile> UpdateFreelancerProfileAsync(UpdateFreelancerProfileRequest request)
         {
             try
@@ -197,8 +208,13 @@ namespace PawNest.Services.Services.Implements
                         predicate: u => u.Id == userId && u.IsActive,
                         include: q => q.Include(u => u.Role)
                                        .Include(u => u.ReviewsReceived)
-                                       .Include(u => u.Bookings.Where(q => q.FreelancerId.Equals(userId)))
-                                       .Include(u => u.Services.OrderBy(x => x.ServiceId).Where(x => x.FreelancerId.Equals(userId)))
+                                       .Include(u => u.Bookings.Where(b => b.FreelancerId == userId))
+                                           .ThenInclude(b => b.Customer)
+                                       .Include(u => u.Bookings.Where(b => b.FreelancerId == userId))
+                                           .ThenInclude(b => b.Pets)
+                                       .Include(u => u.Bookings.Where(b => b.FreelancerId == userId))
+                                           .ThenInclude(b => b.Services)
+                                       .Include(u => u.Services.Where(s => s.FreelancerId == userId))
                     );
 
                     if (user == null)
@@ -206,14 +222,11 @@ namespace PawNest.Services.Services.Implements
                         throw new NotFoundException("User not found.");
                     }
 
-                    // Update freelancer profile
                     _profileMapper.UpdateFreelancerProfileFromRequest(request, user);
-
-                    // Update in DbContext
                     userRepo.UpdateAsync(user);
 
-                    // Return updated profile
-                    return _profileMapper.MapToGetFreelancerProfile(user);
+                    // THAY ĐỔI: Dùng helper method
+                    return _profileMapper.MapToGetFreelancerProfileWithBookings(user);
                 });
             }
             catch (Exception ex)

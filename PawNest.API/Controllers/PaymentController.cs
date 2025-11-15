@@ -27,7 +27,7 @@ namespace PawNest.API.Controllers
         /// Tạo yêu cầu thanh toán mới 
         /// </summary>
         [HttpPost("create")]
-        [Authorize]
+        [Authorize(Roles = "Customer,Freelancer")]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentRequest request)
         {
             if (!ModelState.IsValid)
@@ -110,7 +110,7 @@ namespace PawNest.API.Controllers
         /// Lấy thông tin thanh toán theo booking ID
         /// </summary>
         [HttpGet("booking/{bookingId}")]
-        [Authorize]
+        [Authorize(Roles = "Customer,Freelancer,Admin")]
         public async Task<IActionResult> GetPaymentByBookingId(Guid bookingId)
         {
             try
@@ -157,6 +157,8 @@ namespace PawNest.API.Controllers
         /// </summary>
         [HttpGet("{paymentId}")]
         [Authorize]
+        [Authorize(Roles = "Customer,Freelancer,Admin")]
+
         public async Task<IActionResult> GetPaymentById(Guid paymentId)
         {
             try
@@ -202,7 +204,9 @@ namespace PawNest.API.Controllers
         /// Hủy thanh toán
         /// </summary>
         [HttpPost("{paymentId}/cancel")]
-        [Authorize]
+        [Authorize(Roles = "Customer")]
+
+
         public async Task<IActionResult> CancelPayment(Guid paymentId)
         {
             try
@@ -238,7 +242,7 @@ namespace PawNest.API.Controllers
         /// Kiểm tra trạng thái thanh toán theo booking ID
         /// </summary>
         [HttpGet("check-status")]
-        [Authorize]
+        [Authorize(Roles = "Customer,Freelancer,Admin")]
         public async Task<IActionResult> CheckPaymentStatus([FromQuery] Guid bookingId)
         {
             try

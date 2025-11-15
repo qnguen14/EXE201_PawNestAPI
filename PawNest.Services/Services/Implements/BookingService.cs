@@ -167,6 +167,8 @@ namespace PawNest.Services.Services.Implements
                 var bookings = await _unitOfWork.GetRepository<Booking>()
                     .GetListAsync(null,
                                   include: b => b.Include(u => u.Freelancer)
+                                      .Include(u => u.Pets)        
+                                      .Include(u => u.Services)
                                                  .Include(u => u.Customer),
                                   orderBy: b => b.OrderBy(u => u.BookingId));
                  if (bookings == null || !bookings.Any())
@@ -192,6 +194,8 @@ namespace PawNest.Services.Services.Implements
                     .FirstOrDefaultAsync(
                         predicate: b => b.BookingId == bookingId,
                         include: b => b.Include(u => u.Freelancer)
+                         .              Include(u => u.Pets)     
+                                      .Include(u => u.Services)
                                        .Include(u => u.Customer)
                     );
 
@@ -214,7 +218,7 @@ namespace PawNest.Services.Services.Implements
             try
             {
                 var booking = await _unitOfWork.GetRepository<Booking>()
-                    .FirstOrDefaultAsync(predicate: b => b.BookingId == bookingId, include: b => b.Include(u => u.Freelancer).Include(u => u.Customer));
+                    .FirstOrDefaultAsync(predicate: b => b.BookingId == bookingId, include: b => b.Include(u => u.Freelancer).Include(u => u.Customer).Include(u => u.Pets).Include(u => u.Services));
                 if (booking == null)
                 {
                     throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
