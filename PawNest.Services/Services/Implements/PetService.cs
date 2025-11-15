@@ -214,7 +214,7 @@ namespace PawNest.Services.Services.Implements
                     var repo = _unitOfWork.GetRepository<Pet>();
                     var customerId = GetCurrentUserId();
 
-                    // Tìm pet theo petId và customerId để đảm bảo user chỉ update pet của mình
+                    
                     var existingPet = await repo.FirstOrDefaultAsync(
                         predicate: p => p.PetId == petId && p.CustomerId == customerId
                     );
