@@ -101,8 +101,8 @@ namespace PawNest.Services.Services.Implements
             vnpay.AddRequestData("vnp_Version", _vnpVersion);
             vnpay.AddRequestData("vnp_Command", "querydr");
             vnpay.AddRequestData("vnp_TmnCode", _vnpTmnCode);
-            vnpay.AddRequestData("vnp_TxnRef", orderId);
-            vnpay.AddRequestData("vnp_OrderInfo", $"Query transaction {orderId}");
+            //vnpay.AddRequestData("vnp_TxnRef", orderId);
+            //vnpay.AddRequestData("vnp_OrderInfo", $"Query transaction {orderId}");
             vnpay.AddRequestData("vnp_TransactionDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
 

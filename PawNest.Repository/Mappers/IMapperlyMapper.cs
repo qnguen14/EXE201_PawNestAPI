@@ -53,9 +53,12 @@ namespace PawNest.Repository.Mappers
 
         // IEnumerable mapping
         IEnumerable<CreatePetResponse> MapToCreatePetResponseList(IEnumerable<Pet> pets);
+        // UpdatePetRequest to Pet (for updating existing pet)
+        void UpdatePetFromRequest(UpdatePetRequest request, Pet target);
 
-        // For update scenario - map request to existing pet
-        void UpdatePetFromRequest(Pet source, Pet target);
+        // EditPetRequest to Pet (if you need this one too)
+        void UpdatePetFromEditRequest(EditPetRequest request, Pet target);
+
 
         // Post Mappers
 
