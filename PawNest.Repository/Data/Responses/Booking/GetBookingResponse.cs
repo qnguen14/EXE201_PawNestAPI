@@ -1,5 +1,5 @@
 ﻿using PawNest.Repository.Data.Entities;
-using PawNest.Repository.Data.Requests.Pet;
+using PawNest.Repository.Data.Responses.Pet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +21,6 @@ namespace PawNest.Repository.Data.Responses.Booking
         public Guid ServiceId { get; set; }
         public Guid FreelancerId { get; set; }
         public Guid CustomerId { get; set; }
-        public List<CreatePetRequest> Pets { get; set; } = new List<CreatePetRequest>();
+        public List<GetPetResponse> Pets { get; set; } = new List<GetPetResponse>();
     }
 }
