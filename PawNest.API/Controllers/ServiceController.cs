@@ -20,7 +20,9 @@ namespace PawNest.API.Controllers
             _logger = logger;
             _serviceService = serviceService;
         }
-
+        /// <summary>
+        /// Lấy tất cả các dịch vụ
+        /// </summary>
         [HttpGet(ApiEndpointConstants.Service.GetAllServicesEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetServiceResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -38,7 +40,11 @@ namespace PawNest.API.Controllers
             };
             return Ok(apiResponse);
         }
-
+        /// <summary>
+        /// Lấy dịch vụ theo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet(ApiEndpointConstants.Service.GetServiceByIdEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetServiceResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -68,6 +74,11 @@ namespace PawNest.API.Controllers
             return Ok(apiResponse);
         }
 
+        /// <summary>
+        /// Tạo dịch vụ mới
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost(ApiEndpointConstants.Service.CreateServiceEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetServiceResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -86,6 +97,9 @@ namespace PawNest.API.Controllers
             return Ok(apiResponse);
         }
 
+        /// <summary>
+        /// Cập nhât dịch vụ
+        /// </summary>
         [HttpPut(ApiEndpointConstants.Service.UpdateServiceEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetServiceResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -104,6 +118,9 @@ namespace PawNest.API.Controllers
             return Ok(apiResponse);
         }
 
+        /// <summary>
+        /// Xóa dịch vụ
+        /// </summary>
         [HttpDelete(ApiEndpointConstants.Service.DeleteServiceEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

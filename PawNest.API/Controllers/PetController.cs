@@ -29,7 +29,9 @@ namespace PawNest.API.Controllers
             _petService = petService;
             _logger = logger;
         }
-
+        /// <summary>
+        /// Lấy danh sách tất cả thú cưng
+        /// </summary>
         [HttpGet(ApiEndpointConstants.Pet.GetAllPetsEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetPetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -79,6 +81,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Lấy thú cưng thông qua ID
+        /// </summary>
         [HttpGet(ApiEndpointConstants.Pet.GetPetByIdEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetPetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -128,6 +133,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Lấy danh sách tất cả thú cưng theo ID khách hàng    
+        /// </summary>
         [HttpGet(ApiEndpointConstants.Pet.OwnersPetsEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetPetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -178,6 +186,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Admin tạo mới thú cưng
+        /// </summary>
         [HttpPost(ApiEndpointConstants.Pet.CreatePetEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -220,13 +231,15 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Admin cập nhật thông tin thú cưng
+        /// </summary>
         [HttpPut(ApiEndpointConstants.Pet.UpdatePetEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdatePet([FromRoute] Guid id, [FromBody] CreatePetRequest request)
+        public async Task<IActionResult> UpdatePet([FromRoute] Guid id, [FromBody] UpdatePetRequest request)
         {
             try
             {
@@ -272,6 +285,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Admin xóa thú cưng
+        /// </summary>
         [HttpDelete(ApiEndpointConstants.Pet.DeletePetEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -322,6 +338,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Thêm thú cưng cho khách hàng
+        /// </summary>
         [HttpPost(ApiEndpointConstants.Pet.AddPetEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -372,12 +391,15 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Chỉnh sửa thông tin thú cưng của khách hàng
+        /// </summary>
         [HttpPut(ApiEndpointConstants.Pet.EditPetEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Admin, Customer")]
-        public async Task<IActionResult> EditCustomerPet([FromBody] AddPetRequest request)
+        public async Task<IActionResult> EditCustomerPet([FromRoute] Guid petId, EditPetRequest request)
         {
             try
             {
@@ -391,7 +413,7 @@ namespace PawNest.API.Controllers
                     });
                 }
 
-                var addedPet = await _petService.UpdateCustomerPet(request);
+                var addedPet = await _petService.UpdateCustomerPet(petId, request);
                 var apiResponse = new ApiResponse<CreatePetResponse>
                 {
                     StatusCode = StatusCodes.Status201Created,
@@ -421,6 +443,7 @@ namespace PawNest.API.Controllers
                 });
             }
         }
+
 
         [HttpDelete(ApiEndpointConstants.Pet.RemovePetEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]

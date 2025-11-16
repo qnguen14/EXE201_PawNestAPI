@@ -19,6 +19,10 @@ namespace PawNest.API.Controllers
             _reviewService = reviewService;
         }
 
+        /// <summary>
+        /// Lấy tất cả các đánh giá
+        /// </summary>
+        /// <returns></returns>
         [HttpGet(ApiEndpointConstants.Review.GetAllReviewsEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<object>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
@@ -42,6 +46,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Lấy đánh giá theo ID
+        /// </summary>
         [HttpGet(ApiEndpointConstants.Review.GetReviewByIdEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
@@ -65,6 +72,11 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Tạo đánh giá mới
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost(ApiEndpointConstants.Review.CreateReviewEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
@@ -88,6 +100,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Trả lời đánh giá
+        /// </summary>
         [HttpPut(ApiEndpointConstants.Review.RespondReviewEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
@@ -111,6 +126,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Xóa đánh giá
+        /// </summary>
         [HttpPut(ApiEndpointConstants.Review.DeleteReviewEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]

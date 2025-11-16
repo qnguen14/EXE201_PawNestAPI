@@ -57,7 +57,7 @@ public class ApiEndpointConstants
         // Customer
         public const string OwnersPetsEndpoint = PetEndpoint + "/user/{userId}/pets";
         public const string AddPetEndpoint = PetEndpoint + "/add/{id}";
-        public const string EditPetEndpoint = PetEndpoint + "/edit/{id}";
+        public const string EditPetEndpoint = PetEndpoint + "/edit/{petId}";
         public const string RemovePetEndpoint = PetEndpoint + "/remove/{id}";
         public const string MyPetsEndpoint = PetEndpoint + "/{userId}";
     }

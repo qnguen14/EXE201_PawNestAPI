@@ -33,23 +33,7 @@ namespace Everwell.API.Controllers
         }
 
         /// <summary>
-        /// USER LOGIN ENDPOINT
-        /// ==================
-        /// Authenticates user credentials and returns JWT token for API access
-        /// 
-        /// AUTHENTICATION FLOW:
-        /// 1. Receive login request with email and password
-        /// 2. AuthService validates credentials against database
-        /// 3. If user exists and password matches (BCrypt verification):
-        ///    - Generate JWT token with user claims (ID, role, email)
-        ///    - Return token with user profile information
-        /// 4. If credentials invalid, return appropriate error
-        /// 
-        /// SECURITY FEATURES:
-        /// - Password hashing with BCrypt
-        /// - JWT token with expiration
-        /// - Role-based claims for authorization
-        /// - Account status validation (active/inactive)
+        /// Đăng nhập, trả về token và thông tin người dùng nếu thành công
         /// </summary>
         [HttpPost(ApiEndpointConstants.Auth.LoginEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
@@ -93,8 +77,11 @@ namespace Everwell.API.Controllers
 
             return Ok(apiResponse);
         }
-
+        /// <summary>
+        /// Đăng kí tài khoản mới
+        /// </summary>
         [HttpPost(ApiEndpointConstants.Auth.RegisterEndpoint)]
+
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             // Basic null check for request object
@@ -136,6 +123,10 @@ namespace Everwell.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Gửi mã xác nhận đặt lại mật khẩu
+        /// </summary>
+
         [HttpPost(ApiEndpointConstants.Auth.SendResetCodeEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -166,6 +157,10 @@ namespace Everwell.API.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+
+        /// <summary>
+        /// Kiểm tra mã xác nhận và đặt lại mật khẩu
+        /// </summary>
 
         [HttpPost(ApiEndpointConstants.Auth.VerifyResetCodeEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
@@ -202,6 +197,10 @@ namespace Everwell.API.Controllers
                 return StatusCode(500, "An error occurred while resetting your password.");
             }
         }
+
+        /// <summary>
+        /// Tạm ngừng tài khoản người dùng
+        /// </summary>
 
         [HttpPost(ApiEndpointConstants.Auth.DisableAccountEndpoint)]
         [Authorize]
@@ -262,6 +261,10 @@ namespace Everwell.API.Controllers
                     });
             }
         }
+
+        /// <summary>
+        /// Kiểm tra mã xác nhận và tạm ngừng tài khoản người dùng
+        /// </summary>
 
         [HttpPost(ApiEndpointConstants.Auth.VerifyDisableCodeEndpoint)]
         [Authorize]
@@ -332,6 +335,9 @@ namespace Everwell.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Đăng xuất 
+        /// </summary>
         [HttpPost(ApiEndpointConstants.Auth.LogoutEndpoint)]
         [Authorize]
         public async Task<IActionResult> Logout()

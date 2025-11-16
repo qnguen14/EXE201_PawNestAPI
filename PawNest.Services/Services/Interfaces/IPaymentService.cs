@@ -17,5 +17,6 @@ namespace PawNest.Services.Services.Interfaces
         Task<Payment?> GetPaymentByBookingIdAsync(Guid bookingId);
         Task<Payment?> GetPaymentByIdAsync(Guid paymentId);
         Task<bool> CancelPaymentAsync(Guid paymentId);
+        Task<PaymentStatus> CheckPaymentStatus(Guid bookingId);
     }
 }

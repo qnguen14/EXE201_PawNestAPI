@@ -19,6 +19,9 @@ namespace PawNest.API.Controllers
             _bookingService = bookingService;
         }
 
+        /// <summary>
+        /// Lấy tất cả các booking 
+        /// </summary>
         [HttpGet(ApiEndpointConstants.Booking.GetAllBookingsEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetBookingResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -47,6 +50,9 @@ namespace PawNest.API.Controllers
             return Ok(apiReponse);
         }
 
+        /// <summary>
+        /// Lấy booking theo ID
+        /// </summary>
 
         [HttpGet(ApiEndpointConstants.Booking.GetBookingByIdEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetBookingResponse>), StatusCodes.Status200OK)]
@@ -74,7 +80,9 @@ namespace PawNest.API.Controllers
             return Ok(apiReponse);
         }
 
-
+        /// <summary>
+        /// Tạo booking mới
+        /// </summary>
         [HttpPost(ApiEndpointConstants.Booking.CreateBookingEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetBookingResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -101,6 +109,9 @@ namespace PawNest.API.Controllers
             return Ok(apiReponse);
         }
 
+        /// <summary>
+        /// Cập nhật booking theo ID
+        /// </summary>
         [HttpPut(ApiEndpointConstants.Booking.UpdateBookingEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetBookingUpdateResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -138,6 +149,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Hủy booking theo ID
+        /// </summary>
         [HttpPut(ApiEndpointConstants.Booking.CancelBookingEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

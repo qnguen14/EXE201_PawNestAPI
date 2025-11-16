@@ -37,20 +37,21 @@ namespace PawNest.Services.Services.Implements
             long amount = (long)request.Amount;
             string orderInfo = request.OrderInfo;
             string returnUrl = request.ReturnUrl;
-            string notifyUrl = request.ReturnUrl; // You might want a separate notify URL
+            string notifyUrl = request.NotifyUrl;  // You might want a separate notify URL
             string extraData = "";
 
             // Create raw signature
             string rawSignature = $"accessKey={_momoAccessKey}" +
-                                $"&amount={amount}" +
-                                $"&extraData={extraData}" +
-                                $"&ipnUrl={notifyUrl}" +
-                                $"&orderId={orderId}" +
-                                $"&orderInfo={orderInfo}" +
-                                $"&partnerCode={_momoPartnerCode}" +
-                                $"&redirectUrl={returnUrl}" +
-                                $"&requestId={requestId}" +
-                                $"&requestType=captureWallet";
+                       $"&amount={amount}" +
+                       $"&extraData={extraData}" +
+                       $"&ipnUrl={notifyUrl}" +
+                       $"&orderId={orderId}" +
+                       $"&orderInfo={orderInfo}" +
+                       $"&partnerCode={_momoPartnerCode}" +
+                       $"&redirectUrl={returnUrl}" +
+                       $"&requestId={requestId}" +
+                       $"&requestType=captureWallet";
+
 
             string signature = HmacSHA256(rawSignature, _momoSecretKey);
 

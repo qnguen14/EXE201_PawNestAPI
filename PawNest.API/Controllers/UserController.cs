@@ -19,8 +19,10 @@ public class UserController : ControllerBase
     {
         _userService = userService;
         _logger = logger;
-    } 
-    
+    }
+    /// <summary>
+    /// Lấy tất cả người dùng
+    /// </summary>
     [HttpGet(ApiEndpointConstants.User.GetAllUsersEndpoint)]
     [ProducesResponseType(typeof(ApiResponse<IEnumerable<User>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -41,7 +43,10 @@ public class UserController : ControllerBase
         };
         return Ok(apiResponse);
     }
-    
+
+    /// <summary>
+    /// Lấy người dùng theo ID
+    /// </summary>
     [HttpGet(ApiEndpointConstants.User.GetUserEndpoint)]
     [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -63,6 +68,9 @@ public class UserController : ControllerBase
         return Ok(apiResponse);
     }
 
+    /// <summary>
+    /// Cập nhật nguời dùng
+    /// </summary>
     [HttpPut(ApiEndpointConstants.User.UpdateUserEndpoint)]
     [ProducesResponseType(typeof(ApiResponse<GetUserReponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -82,6 +90,9 @@ public class UserController : ControllerBase
         return Ok(apiResponse);
     }
 
+    /// <summary>
+    /// Tạo người dùng mới
+    /// </summary>
     [HttpPost(ApiEndpointConstants.User.CreateUserEndpoint)]
     [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -99,7 +110,11 @@ public class UserController : ControllerBase
         };
         return Ok(apiResponse);
     }
-
+    /// <summary>
+    /// Lấy nguời dùng theo vai trò
+    /// </summary>
+    /// <param name="roleName"></param>
+    /// <returns></returns>
     [HttpDelete(ApiEndpointConstants.User.GetUsersByRoleEndpoint)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

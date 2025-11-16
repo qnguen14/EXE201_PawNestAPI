@@ -2,6 +2,7 @@
 using PawNest.Repository.Data.Requests.Booking;
 using PawNest.Repository.Data.Requests.Pet;
 using PawNest.Repository.Data.Requests.Post;
+using PawNest.Repository.Data.Requests.Profile;
 using PawNest.Repository.Data.Requests.Review;
 using PawNest.Repository.Data.Requests.Service;
 using PawNest.Repository.Data.Requests.User;
@@ -56,9 +57,12 @@ namespace PawNest.Repository.Mappers
 
         // IEnumerable mapping
         IEnumerable<CreatePetResponse> MapToCreatePetResponseList(IEnumerable<Pet> pets);
+        // UpdatePetRequest to Pet (for updating existing pet)
+        void UpdatePetFromRequest(UpdatePetRequest request, Pet target);
 
-        // For update scenario - map request to existing pet
-        void UpdatePetFromRequest(Pet source, Pet target);
+        // EditPetRequest to Pet (if you need this one too)
+        void UpdatePetFromEditRequest(EditPetRequest request, Pet target);
+
 
         // Post Mappers
 
@@ -79,6 +83,8 @@ namespace PawNest.Repository.Mappers
         GetUserProfile MapToGetUserProfile(User user);
 
         GetFreelancerProfile MapToGetFreelancerProfile(User user);
+        void UpdateUserProfileFromRequest(UpdateUserProfileRequest request, User target);
+        void UpdateFreelancerProfileFromRequest(UpdateFreelancerProfileRequest request, User target);
 
         // Service Mappers
 
@@ -115,5 +121,8 @@ namespace PawNest.Repository.Mappers
         Review MapToReview(CreateReviewRequest request);
         Review RespondMapToReview(RespondReviewRequest request);
         GetReviewResponse MapToGetReviewResponse(Review review);
+        GetUserProfile MapToGetUserProfileWithBookings(User user);
+        GetFreelancerProfile MapToGetFreelancerProfileWithBookings(User user);
+
     }
 }
