@@ -18,7 +18,6 @@ namespace PawNest.Repository.Data.Responses.Booking
         public decimal TotalPrice { get; set; }
         public bool IsPaid { get; set; }
         public DateTime CreatedAt { get; set; }
-        public Guid ServiceId { get; set; }
         public Guid FreelancerId { get; set; }
         public Guid CustomerId { get; set; }
         public List<GetPetResponse> Pets { get; set; } = new List<GetPetResponse>();

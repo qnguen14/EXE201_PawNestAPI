@@ -140,6 +140,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetPetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Customer")]
         public async Task<IActionResult> GetPetsByCustomerId([FromRoute] Guid customerId)
         {
             try
@@ -192,6 +193,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreatePet([FromBody] CreatePetRequest request)
         {
             try
@@ -290,6 +292,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePet([FromRoute] Guid petId)
         {
             try
@@ -342,6 +345,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Customer")]
         public async Task<IActionResult> AddPetToCustomer([FromBody] AddPetRequest request)
         {
             try
@@ -394,6 +398,7 @@ namespace PawNest.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Customer")]
         public async Task<IActionResult> EditCustomerPet([FromRoute] Guid petId, EditPetRequest request)
         {
             try
@@ -439,13 +444,62 @@ namespace PawNest.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Lấy danh sách thú cưng của khách hàng hiện tại
-        /// </summary>
+
+        [HttpDelete(ApiEndpointConstants.Pet.RemovePetEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<CreatePetResponse>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Customer")]
+        public async Task<IActionResult> RemoveCustomerPet(Guid id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Invalid pet data.",
+                        IsSuccess = false
+                    });
+                }
+
+                var removedPet = await _petService.RemoveCustomerPet(id);
+                var apiResponse = new ApiResponse<CreatePetResponse>
+                {
+                    StatusCode = StatusCodes.Status201Created,
+                    Message = "Pet removed successfully.",
+                    IsSuccess = true,
+                    Data = removedPet
+                };
+                return Ok(apiResponse);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = ex.Message,
+                    IsSuccess = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while adding the pet.",
+                    IsSuccess = false
+                });
+            }
+        }
+
         [HttpGet(ApiEndpointConstants.Pet.MyPetsEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<GetPetResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Customer")]
         public async Task<IActionResult> MyPets()
         {
             try

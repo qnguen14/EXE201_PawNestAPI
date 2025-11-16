@@ -40,6 +40,13 @@ namespace PawNest.Repository.Mappers
         // Booking to GetBookingUpdateResponse
         public partial GetBookingUpdateResponse MapToGetBookingUpdateResponse(Booking booking);
 
+        // Service to BookingServiceResponse
+        [MapProperty(nameof(Service.ServiceId), nameof(BookingServiceResponse.Id))]
+        public partial BookingServiceResponse MapToBookingServiceResponse(Service service);
+
+        // Pet to BookingPetResponse
+        public partial BookingPetResponse MapToBookingPetResponse(Pet pet);
+
         // Pet to CreatePetRequest for response
         public partial CreatePetRequest MapToCreatePetRequest(Pet pet);
 

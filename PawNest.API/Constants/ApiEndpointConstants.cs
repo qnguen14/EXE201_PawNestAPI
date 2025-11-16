@@ -44,15 +44,21 @@ public class ApiEndpointConstants
 
     public static class Pet
     {
+        // General use
         public const string PetEndpoint = ApiEndpoint + "/pet";
         public const string GetPetByIdEndpoint = PetEndpoint + "/{id}";
         public const string GetAllPetsEndpoint = PetEndpoint + "/getall";
+
+        // Admin
         public const string CreatePetEndpoint = PetEndpoint + "/create";
         public const string UpdatePetEndpoint = PetEndpoint + "/update/{id}";
         public const string DeletePetEndpoint = PetEndpoint + "/delete/{id}";
+
+        // Customer
         public const string OwnersPetsEndpoint = PetEndpoint + "/user/{userId}/pets";
         public const string AddPetEndpoint = PetEndpoint + "/add/{id}";
         public const string EditPetEndpoint = PetEndpoint + "/edit/{petId}";
+        public const string RemovePetEndpoint = PetEndpoint + "/remove/{id}";
         public const string MyPetsEndpoint = PetEndpoint + "/{userId}";
     }
 
