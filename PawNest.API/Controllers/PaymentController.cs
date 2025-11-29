@@ -24,11 +24,10 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// Create payment for a booking
-        /// POST /api/v1/payment/create
+        /// Tạo yêu cầu thanh toán mới 
         /// </summary>
         [HttpPost("create")]
-        [Authorize]
+        [Authorize(Roles = "Customer,Freelancer")]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentRequest request)
         {
             if (!ModelState.IsValid)
@@ -62,8 +61,7 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// VNPay callback endpoint
-        /// GET /api/v1/payment/vnpay-callback
+        /// VNPay callback 
         /// </summary>
         [HttpGet("vnpay-callback")]
         [AllowAnonymous]
@@ -109,95 +107,10 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// MoMo callback endpoint (IPN - Instant Payment Notification)
-        /// POST /api/v1/payment/momo-callback
-        /// </summary>
-        [HttpPost("momo-callback")]
-        [AllowAnonymous]
-        public async Task<IActionResult> MoMoCallback()
-        {
-            try
-            {
-                var formData = Request.Form.ToDictionary(
-                    x => x.Key,
-                    x => x.Value.ToString()
-                );
-
-                _logger.LogInformation("MoMo IPN callback received");
-
-                var callbackResponse = await _paymentService.ProcessPaymentCallbackAsync(
-                    PaymentMethod.MoMo,
-                    formData
-                );
-
-                if (formData.ContainsKey("orderId"))
-                {
-                    var bookingId = Guid.Parse(formData["orderId"]);
-                    await _paymentService.UpdatePaymentStatusAsync(bookingId, callbackResponse);
-                }
-
-                // MoMo expects this response format for IPN
-                return Ok(new
-                {
-                    partnerCode = formData.GetValueOrDefault("partnerCode"),
-                    orderId = formData.GetValueOrDefault("orderId"),
-                    requestId = formData.GetValueOrDefault("requestId"),
-                    resultCode = callbackResponse.Success ? 0 : 1,
-                    message = callbackResponse.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing MoMo callback");
-                return Ok(new { resultCode = 1, message = "System error" });
-            }
-        }
-
-        /// <summary>
-        /// MoMo return URL endpoint (user redirect after payment)
-        /// GET /api/v1/payment/momo-return
-        /// </summary>
-        [HttpGet("momo-return")]
-        [AllowAnonymous]
-        public async Task<IActionResult> MoMoReturn()
-        {
-            try
-            {
-                var queryParams = Request.Query.ToDictionary(
-                    x => x.Key,
-                    x => x.Value.ToString()
-                );
-
-                _logger.LogInformation("MoMo return URL accessed");
-
-                if (queryParams.ContainsKey("orderId"))
-                {
-                    var bookingId = queryParams["orderId"];
-                    var resultCode = queryParams.GetValueOrDefault("resultCode", "1");
-
-                    if (resultCode == "0")
-                    {
-                        var transactionId = queryParams.GetValueOrDefault("transId", "");
-                        return Redirect($"/payment-success?bookingId={bookingId}&transactionId={transactionId}");
-                    }
-                }
-
-                var message = queryParams.GetValueOrDefault("message", "Payment failed");
-                return Redirect($"/payment-failed?message={Uri.EscapeDataString(message)}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing MoMo return");
-                return Redirect("/payment-failed?message=System+error");
-            }
-        }
-
-        /// <summary>
-        /// Get payment details by booking ID
-        /// GET /api/v1/payment/booking/{bookingId}
+        /// Lấy thông tin thanh toán theo booking ID
         /// </summary>
         [HttpGet("booking/{bookingId}")]
-        [Authorize]
+        [Authorize(Roles = "Customer,Freelancer,Admin")]
         public async Task<IActionResult> GetPaymentByBookingId(Guid bookingId)
         {
             try
@@ -240,11 +153,12 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// Get payment details by payment ID
-        /// GET /api/v1/payment/{paymentId}
+        /// Lấy thông tin thanh toán theo payment ID
         /// </summary>
         [HttpGet("{paymentId}")]
         [Authorize]
+        [Authorize(Roles = "Customer,Freelancer,Admin")]
+
         public async Task<IActionResult> GetPaymentById(Guid paymentId)
         {
             try
@@ -287,11 +201,12 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// Cancel a pending payment
-        /// POST /api/v1/payment/{paymentId}/cancel
+        /// Hủy thanh toán
         /// </summary>
         [HttpPost("{paymentId}/cancel")]
-        [Authorize]
+        [Authorize(Roles = "Customer")]
+
+
         public async Task<IActionResult> CancelPayment(Guid paymentId)
         {
             try
@@ -320,6 +235,52 @@ namespace PawNest.API.Controllers
                 {
                     success = false,
                     message = "An error occurred while cancelling payment"
+                });
+            }
+        }
+        /// <summary>
+        /// Kiểm tra trạng thái thanh toán theo booking ID
+        /// </summary>
+        [HttpGet("check-status")]
+        [Authorize(Roles = "Customer,Freelancer,Admin")]
+        public async Task<IActionResult> CheckPaymentStatus([FromQuery] Guid bookingId)
+        {
+            try
+            {
+                var payment = await _paymentService.GetPaymentByBookingIdAsync(bookingId);
+
+                if (payment == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "No payment found for this booking",
+                        status = "NotFound"
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        paymentId = payment.PaymentId,
+                        bookingId = payment.BookingId,
+                        status = payment.Status.ToString(),
+                        amount = payment.Amount,
+                        method = payment.Method,
+                        createdAt = payment.CreatedAt
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking payment status for Booking: {BookingId}", bookingId);
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while checking payment status"
                 });
             }
         }

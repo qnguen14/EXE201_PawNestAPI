@@ -30,6 +30,10 @@ namespace PawNest.API.Controllers
             _postMapper = mapper;
         }
 
+        /// <summary>
+        /// Lấy tất cả các bài đăng
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAllPosts()
         {
@@ -44,7 +48,9 @@ namespace PawNest.API.Controllers
                 return StatusCode(500, "An error occurred");
             }
         }
-
+        /// <summary>
+        /// Tạo bài đăng mới
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
         {
@@ -74,6 +80,9 @@ namespace PawNest.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Xóa bài đăng theo ID
+        /// </summary>
         [HttpDelete("{postId:guid}")]
         public async Task<IActionResult> DeletePost(Guid postId)
         {
@@ -92,7 +101,11 @@ namespace PawNest.API.Controllers
                 return StatusCode(500, "An error occurred");
             }
         }
-
+        /// <summary>
+        /// Lấy thông tin bài đăng theo ID
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
         [HttpGet("{postId:guid}")]
         public async Task<IActionResult> GetPostById(Guid postId)
         {
@@ -111,7 +124,12 @@ namespace PawNest.API.Controllers
                 return StatusCode(500, "An error occurred");
             }
         }
-
+        /// <summary>
+        /// Cập nhật bài đăng theo ID
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPut("{postId:guid}")]
         public async Task<IActionResult> UpdatePost(Guid postId, [FromBody] UpdatePostRequest request)
         {

@@ -17,13 +17,13 @@ namespace PawNest.Services.Services.Interfaces
 
         // Admin
         Task<CreatePetResponse> CreatePet(CreatePetRequest request);
-        Task<CreatePetResponse> UpdatePet(CreatePetRequest request, Guid id);
+        Task<CreatePetResponse> UpdatePet(UpdatePetRequest request, Guid id);
         Task<bool> DeletePet(Guid petId);
-
+      
         // Customer
         Task<IEnumerable<GetPetResponse>> GetPetsByCustomerId(Guid customerId);
         Task<CreatePetResponse> AddPet(AddPetRequest request);
-        Task<CreatePetResponse> UpdateCustomerPet(AddPetRequest request);
+        Task<CreatePetResponse> UpdateCustomerPet(Guid petId,EditPetRequest request);
         Task<CreatePetResponse> RemoveCustomerPet(Guid petId);
         Task<IEnumerable<GetPetResponse>> GetCustomerPets();
     }

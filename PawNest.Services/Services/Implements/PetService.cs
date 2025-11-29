@@ -99,23 +99,28 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<CreatePetResponse> UpdatePet(CreatePetRequest pet, Guid id)
+        public async Task<CreatePetResponse> UpdatePet(UpdatePetRequest request, Guid id)
         {
             try
             {
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
                     var petRepo = _unitOfWork.GetRepository<Pet>();
+
+                    // Lấy pet hiện tại từ database
                     var existingPet = await petRepo.FirstOrDefaultAsync(predicate: p => p.PetId == id);
                     if (existingPet == null)
                     {
                         throw new NotFoundException($"Pet with ID {id} not found.");
                     }
-                    // Update fields
 
-                    var updatedPet = _petMapper.MapToPet(pet);
-                    petRepo.UpdateAsync(updatedPet);
+                    // Update các fields từ request vào existingPet
+                    _petMapper.UpdatePetFromRequest(request, existingPet);
 
+                    // Update entity trong DbContext
+                    petRepo.UpdateAsync(existingPet);
+
+                    // Return response với dữ liệu đã update
                     return _mapper.MapToCreatePetResponse(existingPet);
                 });
             }
@@ -200,7 +205,7 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
-        public async Task<CreatePetResponse> UpdateCustomerPet(AddPetRequest request)
+        public async Task<CreatePetResponse> UpdateCustomerPet(Guid petId, EditPetRequest request)
         {
             try
             {
@@ -208,22 +213,45 @@ namespace PawNest.Services.Services.Implements
                 {
                     var repo = _unitOfWork.GetRepository<Pet>();
                     var customerId = GetCurrentUserId();
-                    var existingPet = await repo.FirstOrDefaultAsync(predicate: p => p.CustomerId == customerId);
-                    if (existingPet != null)
+
+                    
+                    var existingPet = await repo.FirstOrDefaultAsync(
+                        predicate: p => p.PetId == petId && p.CustomerId == customerId
+                    );
+
+                    if (existingPet == null)
                     {
-                        throw new Exception("A pet with the same name already exists for this customer.");
+                        throw new NotFoundException($"Pet with ID {petId} not found for current customer.");
                     }
 
-                    var petEntity = _petMapper.AddRequestMapToPet(request);
-                    petEntity.CustomerId = customerId;
-                    repo.UpdateAsync(petEntity);
-                    return _petMapper.MapToCreatePetResponse(petEntity);
-                });
+                    // Check trùng tên (nếu tên thay đổi)
+                    if (existingPet.PetName != request.PetName)
+                    {
+                        var duplicatePet = await repo.FirstOrDefaultAsync(
+                            predicate: p => p.PetName == request.PetName &&
+                                           p.CustomerId == customerId &&
+                                           p.PetId != petId
+                        );
 
+                        if (duplicatePet != null)
+                        {
+                            throw new Exception("A pet with the same name already exists for this customer.");
+                        }
+                    }
+
+                    // Update fields
+                    _petMapper.UpdatePetFromEditRequest(request, existingPet);
+
+                    // Update trong DbContext
+                    repo.UpdateAsync(existingPet);
+
+                    return _petMapper.MapToCreatePetResponse(existingPet);
+                });
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                _logger.LogError($"An error occurred while updating customer's pet: {ex.Message}");
+                throw;
             }
         }
 

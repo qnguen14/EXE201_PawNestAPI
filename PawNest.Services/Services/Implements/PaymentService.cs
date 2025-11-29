@@ -136,6 +136,7 @@ namespace PawNest.Services.Services.Implements
                         ? $"Thanh toan booking #{booking.BookingId}"
                         : request.Description,
                     ReturnUrl = request.ReturnUrl ?? GetDefaultReturnUrl(request.Method),
+                    NotifyUrl = GetDefaultNotifyUrl(request.Method),
                     IpAddress = ipAddress
                 };
 
@@ -217,6 +218,7 @@ namespace PawNest.Services.Services.Implements
                     _logger.LogInformation("Payment status updated: {PaymentId}, Status: {Status}",
                         payment.PaymentId, callbackResponse.Status);
 
+                 
                     // If payment successful, update booking
                     if (callbackResponse.Success)
                     {
@@ -243,6 +245,11 @@ namespace PawNest.Services.Services.Implements
                 _logger.LogError(ex, "Error updating payment status for Booking: {BookingId}", bookingId);
                 return false;
             }
+        }
+        public async Task<PaymentStatus> CheckPaymentStatus(Guid bookingId)
+        {
+            var payment = await GetPaymentByBookingIdAsync(bookingId);
+            return payment?.Status ?? PaymentStatus.Pending;
         }
 
         public async Task<Payment?> GetPaymentByBookingIdAsync(Guid bookingId)
@@ -331,6 +338,15 @@ namespace PawNest.Services.Services.Implements
                 PaymentMethod.VNPay => "https://yoursite.com/payment/vnpay-callback",
                 PaymentMethod.MoMo => "https://yoursite.com/payment/momo-callback",
                 _ => "https://yoursite.com/payment/callback"
+            };
+        }
+        private string GetDefaultNotifyUrl(PaymentMethod method)
+        {
+            return method switch
+            {
+                PaymentMethod.VNPay => "https://your-backend.com/api/payment/vnpay-ipn",
+                PaymentMethod.MoMo => "https://your-backend.com/api/payment/momo-ipn",
+                _ => "https://your-backend.com/api/payment/ipn"
             };
         }
     }

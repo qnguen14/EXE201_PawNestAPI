@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PawNest.Services.Services.Interfaces;
-using System.Security.Claims;
 using PawNest.API.Constants;
 using PawNest.Repository.Data.Metadata;
+using PawNest.Repository.Data.Requests.Profile;
 using PawNest.Repository.Data.Responses.Profile;
 using PawNest.Repository.Data.Responses.User;
+using PawNest.Services.Services.Interfaces;
+using System.Security.Claims;
 
 namespace PawNest.API.Controllers
 {
@@ -23,8 +24,10 @@ namespace PawNest.API.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        // ✅ Cách 2: Lấy profile của chính user (sau khi đăng nhập)
-        // Cần token JWT, trong đó có userId
+
+        /// <summary>
+        /// Lấy thông tin hồ sơ của người dùng hiện tại
+        /// </summary>
         [Authorize]
         [HttpGet(ApiEndpointConstants.Profile.GetMyProfileEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetUserProfile>), StatusCodes.Status200OK)]
@@ -53,7 +56,9 @@ namespace PawNest.API.Controllers
                 return StatusCode(500, new { message = "An error occurred.", error = ex.Message });
             }
         }
-
+        /// <summary>
+        /// Lấy thông tin hồ sơ freelancer của người dùng hiện tại
+        /// </summary>
         [Authorize]
         [HttpGet(ApiEndpointConstants.Profile.GetFreelancerProfileEndpoint)]
         [ProducesResponseType(typeof(ApiResponse<GetFreelancerProfile>), StatusCodes.Status200OK)]
@@ -82,6 +87,70 @@ namespace PawNest.API.Controllers
                 return StatusCode(500, new { message = "An error occurred.", error = ex.Message });
             }
         }
+        /// <summary>
+        /// Cập nhật thông tin profile của khách hàng hiện tại
+        /// </summary>
+        /// <param name="request">Thông tin cập nhật</param>
+        [HttpPut("customer")]
+        [ProducesResponseType(typeof(GetUserProfile), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateCustomerProfile([FromBody] UpdateUserProfileRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
+                var profile = await _profileService.UpdateUserProfileAsync(request);
+                return Ok(profile);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin profile của freelancer hiện tại
+        /// </summary>
+        /// <param name="request">Thông tin cập nhật</param>
+        [HttpPut("freelancer")]
+        [ProducesResponseType(typeof(GetFreelancerProfile), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateFreelancerProfile([FromBody] UpdateFreelancerProfileRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var profile = await _profileService.UpdateFreelancerProfileAsync(request);
+                return Ok(profile);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
 }

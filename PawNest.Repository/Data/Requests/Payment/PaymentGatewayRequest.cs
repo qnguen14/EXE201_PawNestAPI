@@ -12,6 +12,7 @@ namespace PawNest.Repository.Data.Requests.Payment
         public decimal Amount { get; set; }
         public string OrderInfo { get; set; }
         public string ReturnUrl { get; set; }
+        public string NotifyUrl { get; set; }
         public string IpAddress { get; set; }
     }
 }
