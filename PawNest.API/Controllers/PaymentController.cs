@@ -41,6 +41,7 @@ namespace PawNest.API.Controllers
             }
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            _logger.LogInformation("Creating payment with ReturnUrl: {ReturnUrl}", request.ReturnUrl);
             var result = await _paymentService.CreatePaymentAsync(request, ipAddress);
 
             if (!result.Success)
@@ -51,6 +52,7 @@ namespace PawNest.API.Controllers
                     message = result.Message
                 });
             }
+            _logger.LogInformation("Generated VNPay URL: {PaymentUrl}", result.PaymentUrl);
 
             return Ok(new
             {
@@ -64,11 +66,16 @@ namespace PawNest.API.Controllers
         /// VNPay callback 
         /// </summary>
         [HttpGet("vnpay-callback")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Customer,Freelancer,Admin")]
         public async Task<IActionResult> VNPayCallback()
         {
             try
             {
+                if (!Request.Query.Any())
+                {
+                    _logger.LogWarning("No query parameters received in callback");
+                    return BadRequest("No parameters received");
+                }
                 var queryParams = Request.Query.ToDictionary(
                     x => x.Key,
                     x => x.Value.ToString()
