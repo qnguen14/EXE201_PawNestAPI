@@ -22,13 +22,10 @@ namespace PawNest.Repository.Data.Requests.Post
         [Column("image_url")]
         public string ImageUrl { get; set; }
 
-        [Required]
+        [Required] 
         [Column("PostCategory")]
         [EnumDataType(typeof(PostCategory))]
         public PostCategory Category { get; set; }
 
-        [Required]
-        [Column("created_at")]
-        public DateTime UpdatedAt { get; set; }
     }
 }
