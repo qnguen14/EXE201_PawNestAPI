@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
+using PawNest.Repository.Data.Entities;
 using PawNest.Services.Services.Interfaces;
 using PawNest.Repository.Data.Metadata;
 using PawNest.Repository.Data.Requests.Booking;
@@ -184,6 +185,84 @@ namespace PawNest.API.Controllers
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "An error occurred while canceling the booking: " + ex.Message
+                });
+            }
+        }
+        
+        /// <summary>
+        /// Cập nhật trạng thái booking theo ID
+        /// </summary>
+        [HttpPut(ApiEndpointConstants.Booking.UpdateBookingStatusEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<IActionResult> UpdateBookingStatus([FromRoute] Guid id, [FromQuery] BookingStatus status)
+        {
+            try
+            {
+                var result = await _bookingService.UpdateBookingStatusAsync(id, status);
+                if (!result)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = $"Booking with ID {id} not found."
+                    });
+                }
+                var apiReponse = new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = $"Booking status updated to {status} successfully.",
+                    IsSuccess = true,
+                    Data = null
+                };
+                return Ok(apiReponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while updating the booking: " + ex.Message
+                });
+            }
+        }
+        
+        /// <summary>
+        /// Cập nhật trạng thái lấy pet của booking theo ID
+        /// </summary>
+        [HttpPut(ApiEndpointConstants.Booking.UpdateBookingPickUpStatusEndpoint)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<IActionResult> UpdateBookingStatus([FromRoute] Guid id, [FromQuery] PickUpStatus status)
+        {
+            try
+            {
+                var result = await _bookingService.UpdateBookingPickUpStatusAsync(id, status);
+                if (!result)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = $"Booking with ID {id} not found."
+                    });
+                }
+                var apiReponse = new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = $"Booking's pick up status updated to {status} successfully.",
+                    IsSuccess = true,
+                    Data = null
+                };
+                return Ok(apiReponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while updating the booking: " + ex.Message
                 });
             }
         }

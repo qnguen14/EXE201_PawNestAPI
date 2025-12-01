@@ -167,6 +167,78 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
+        public async Task<bool> UpdateBookingStatusAsync(Guid bookingId, BookingStatus status)
+        {
+            try
+            {
+                var booking = await _unitOfWork.GetRepository<Booking>()
+                    .FirstOrDefaultAsync(
+                        predicate: b => b.BookingId == bookingId, 
+                        include: b => b.Include(u => u.Freelancer)
+                                                        .Include(u => u.Customer)
+                                                        .Include(u => u.Pets)
+                                                        .Include(u => u.Services));
+                if (booking == null)
+                {
+                    throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
+                }
+
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var booking = await _unitOfWork.GetRepository<Booking>()
+                        .FirstOrDefaultAsync(predicate: b => b.BookingId == bookingId, include: b => b.Include(u => u.Freelancer).Include(u => u.Customer));
+                    if (booking == null)
+                    {
+                        throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
+                    }
+                    // Update the booking entity with new values from the request
+                    booking.Status = status;
+                    _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+                    return true;
+                });
+            } catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while updating the booking: " + ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<bool> UpdateBookingPickUpStatusAsync(Guid bookingId, PickUpStatus status)
+        {
+            try
+            {
+                var booking = await _unitOfWork.GetRepository<Booking>()
+                    .FirstOrDefaultAsync(
+                        predicate: b => b.BookingId == bookingId, 
+                        include: b => b.Include(u => u.Freelancer)
+                            .Include(u => u.Customer)
+                            .Include(u => u.Pets)
+                            .Include(u => u.Services));
+                if (booking == null)
+                {
+                    throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
+                }
+
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var booking = await _unitOfWork.GetRepository<Booking>()
+                        .FirstOrDefaultAsync(predicate: b => b.BookingId == bookingId, include: b => b.Include(u => u.Freelancer).Include(u => u.Customer));
+                    if (booking == null)
+                    {
+                        throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
+                    }
+                    // Update the booking entity with new values from the request
+                    booking.PickUpStatus = status;
+                    _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+                    return true;
+                });
+            } catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while updating the booking: " + ex.Message);
+                throw;
+            }
+        }
+
         // Implement methods related to booking operations
         public async Task<IEnumerable<GetBookingResponse>> GetAllBookingsAsync()
         {

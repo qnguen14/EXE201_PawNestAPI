@@ -70,6 +70,8 @@ public class ApiEndpointConstants
         public const string CreateBookingEndpoint = BookingEndpoint + "/create";
         public const string UpdateBookingEndpoint = BookingEndpoint + "/update/{id}";
         public const string CancelBookingEndpoint = BookingEndpoint + "/cancel/{id}";
+        public const string UpdateBookingStatusEndpoint = BookingEndpoint + "/status/{id}";
+        public const string UpdateBookingPickUpStatusEndpoint = BookingEndpoint + "/pickup-status/{id}";
     }
 
     public static class Service
