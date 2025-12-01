@@ -1,4 +1,4 @@
-﻿using PawNest.Repository.Data.Entities;
+﻿﻿using PawNest.Repository.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,8 @@ namespace PawNest.Repository.Data.Responses.Payment
     public class PaymentQueryResponse
     {
         public bool Success { get; set; }
+        public string TransactionId { get; set; }
+        public decimal Amount { get; set; }
         public PaymentStatus Status { get; set; }
         public string Message { get; set; }
     }

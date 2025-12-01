@@ -1,4 +1,4 @@
-﻿using PawNest.Repository.Data.Entities;
+﻿﻿using PawNest.Repository.Data.Entities;
 using PawNest.Repository.Data.Requests.Payment;
 using PawNest.Repository.Data.Responses.Payment;
 using System;
@@ -16,6 +16,7 @@ namespace PawNest.Services.Services.Interfaces
         Task<bool> UpdatePaymentStatusAsync(Guid bookingId, PaymentCallbackResponse callbackResponse);
         Task<Payment?> GetPaymentByBookingIdAsync(Guid bookingId);
         Task<Payment?> GetPaymentByIdAsync(Guid paymentId);
+        Task<Payment?> GetPaymentByTransactionIdAsync(string transactionId);
         Task<bool> CancelPaymentAsync(Guid paymentId);
         Task<PaymentStatus> CheckPaymentStatus(Guid bookingId);
     }

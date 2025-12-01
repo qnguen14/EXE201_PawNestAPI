@@ -19,13 +19,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PawNest.Services\PawNest.Services.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Content Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PawNest.Services\PawNest.Services.csproj" />
     </ItemGroup>
 
 </Project>

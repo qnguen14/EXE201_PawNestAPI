@@ -1,4 +1,4 @@
-﻿using System.CodeDom;
+﻿﻿using System.CodeDom;
 
 namespace PawNest.API.Constants;
 
@@ -87,12 +87,12 @@ public class ApiEndpointConstants
     {
         public const string PaymentEndpoint = ApiEndpoint + "/payment";
         public const string CreatePaymentEndpoint = PaymentEndpoint + "/create";
-        public const string VNPayCallbackEndpoint = PaymentEndpoint + "/vnpay-callback";
-        public const string MoMoCallbackEndpoint = PaymentEndpoint + "/momo-callback";
-        public const string MoMoReturnEndpoint = PaymentEndpoint + "/momo-return";
+        public const string PayOSCallbackEndpoint = PaymentEndpoint + "/payos-callback";
+        public const string PayOSWebhookEndpoint = PaymentEndpoint + "/payos-webhook";
         public const string GetPaymentByBookingIdEndpoint = PaymentEndpoint + "/booking/{bookingId}";
         public const string GetPaymentByIdEndpoint = PaymentEndpoint + "/{paymentId}";
         public const string CancelPaymentEndpoint = PaymentEndpoint + "/{paymentId}/cancel";
+        public const string CheckPaymentStatusEndpoint = PaymentEndpoint + "/{bookingId}/status";
     }
 
     public static class Profile

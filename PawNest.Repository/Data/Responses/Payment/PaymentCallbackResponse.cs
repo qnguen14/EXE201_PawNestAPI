@@ -14,5 +14,6 @@ namespace PawNest.Repository.Data.Responses.Payment
         public decimal Amount { get; set; }
         public PaymentStatus Status { get; set; }
         public string Message { get; set; }
+        public DateTime PaymentDate { get; set; }
     }
 }

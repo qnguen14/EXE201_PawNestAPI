@@ -9,9 +9,9 @@ namespace PawNest.Repository.Data.Requests.Payment
 {
     public enum PaymentMethod
     {
-        VNPay,
-        MoMo
+        PayOS
     }
+    
     public class PaymentRequest
     {
         [Required(ErrorMessage = "BookingId is required")]
@@ -20,10 +20,7 @@ namespace PawNest.Repository.Data.Requests.Payment
         [Required(ErrorMessage = "Payment method is required")]
         public PaymentMethod Method { get; set; }
 
-        // Optional: dùng cho MoMo/VNPay trả về URL
-        public string? ReturnUrl { get; set; }
-
-        // Optional: trường note của user
+        // Optional: user's note
         public string? Description { get; set; }
     }
 }
