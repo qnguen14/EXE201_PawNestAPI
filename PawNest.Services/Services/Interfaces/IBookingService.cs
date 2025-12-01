@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PawNest.Repository.Data.Entities;
 
 namespace PawNest.Services.Services.Interfaces
 {
@@ -15,5 +16,7 @@ namespace PawNest.Services.Services.Interfaces
         Task<GetBookingResponse> CreateBookingAsync(CreateBookingRequest request);
         Task<GetBookingUpdateResponse> UpdateBookingAsync(Guid bookingId, UpdateBookingRequest request);
         Task<bool> CancelBookingAsync(Guid bookingId);
+        Task<bool> UpdateBookingStatusAsync(Guid bookingId, BookingStatus status);
+        Task<bool> UpdateBookingPickUpStatusAsync(Guid bookingId, PickUpStatus status);
     }
 }

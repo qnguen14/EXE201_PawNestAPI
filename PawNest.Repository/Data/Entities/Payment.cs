@@ -31,6 +31,9 @@ namespace PawNest.Repository.Data.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Store PayOS transaction ID (orderCode) for tracking
+        public string? TransactionId { get; set; }
+
         // Foreign Key
         [ForeignKey("Booking")]
         public Guid BookingId { get; set; }

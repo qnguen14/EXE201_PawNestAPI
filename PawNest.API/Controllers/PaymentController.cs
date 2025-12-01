@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
 using PawNest.Services.Services.Interfaces;
@@ -9,7 +8,6 @@ namespace PawNest.API.Controllers
 {
 
     [ApiController]
-    [Route(ApiEndpointConstants.Payment.PaymentEndpoint)]
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
@@ -24,9 +22,9 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// Tạo yêu cầu thanh toán mới 
+        /// Create a new payment request
         /// </summary>
-        [HttpPost("create")]
+        [HttpPost(ApiEndpointConstants.Payment.CreatePaymentEndpoint)]
         [Authorize(Roles = "Customer,Freelancer")]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentRequest request)
         {
@@ -41,7 +39,7 @@ namespace PawNest.API.Controllers
             }
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-            _logger.LogInformation("Creating payment with ReturnUrl: {ReturnUrl}", request.ReturnUrl);
+            _logger.LogInformation("Creating payment for booking: {BookingId}", request.BookingId);
             var result = await _paymentService.CreatePaymentAsync(request, ipAddress);
 
             if (!result.Success)
@@ -52,7 +50,7 @@ namespace PawNest.API.Controllers
                     message = result.Message
                 });
             }
-            _logger.LogInformation("Generated VNPay URL: {PaymentUrl}", result.PaymentUrl);
+            _logger.LogInformation("Generated PayOS URL: {PaymentUrl}", result.PaymentUrl);
 
             return Ok(new
             {
@@ -63,11 +61,10 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// VNPay callback 
+        /// PayOS callback handler
         /// </summary>
-        [HttpGet("vnpay-callback")]
-        [Authorize(Roles = "Customer,Freelancer,Admin")]
-        public async Task<IActionResult> VNPayCallback()
+        [HttpGet(ApiEndpointConstants.Payment.PayOSCallbackEndpoint)]
+        public async Task<IActionResult> PayOsCallback()
         {
             try
             {
@@ -81,42 +78,54 @@ namespace PawNest.API.Controllers
                     x => x.Value.ToString()
                 );
 
-                _logger.LogInformation("VNPay callback received with {Count} parameters", queryParams.Count);
+                _logger.LogInformation("PayOS callback received with {Count} parameters", queryParams.Count);
 
+                // Process the callback to get payment status from PayOS
                 var callbackResponse = await _paymentService.ProcessPaymentCallbackAsync(
-                    PaymentMethod.VNPay,
+                    PaymentMethod.PayOS,
                     queryParams
                 );
 
-                if (callbackResponse.Success && queryParams.ContainsKey("vnp_TxnRef"))
+                if (callbackResponse.Success && !string.IsNullOrEmpty(callbackResponse.TransactionId))
                 {
-                    var bookingId = Guid.Parse(queryParams["vnp_TxnRef"]);
-                    var updated = await _paymentService.UpdatePaymentStatusAsync(bookingId, callbackResponse);
-
-                    if (updated)
+                    // Find payment by TransactionId
+                    var payment = await _paymentService.GetPaymentByTransactionIdAsync(callbackResponse.TransactionId);
+                    
+                    if (payment != null)
                     {
-                        _logger.LogInformation("Payment updated successfully for Booking: {BookingId}", bookingId);
-                        return Redirect($"/payment-success?bookingId={bookingId}&transactionId={callbackResponse.TransactionId}");
+                        // Update payment status
+                        var updated = await _paymentService.UpdatePaymentStatusAsync(payment.BookingId, callbackResponse);
+                        
+                        if (updated)
+                        {
+                            _logger.LogInformation("Payment updated successfully. BookingId: {BookingId}, TransactionId: {TransactionId}", 
+                                payment.BookingId, callbackResponse.TransactionId);
+                            return Redirect($"http://localhost:5173/payment-success?bookingId={payment.BookingId}&transactionId={callbackResponse.TransactionId}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Failed to update payment. BookingId: {BookingId}", payment.BookingId);
+                        }
                     }
                     else
                     {
-                        _logger.LogWarning("Failed to update payment for Booking: {BookingId}", bookingId);
+                        _logger.LogWarning("Payment not found for TransactionId: {TransactionId}", callbackResponse.TransactionId);
                     }
                 }
 
-                return Redirect($"/payment-failed?message={Uri.EscapeDataString(callbackResponse.Message)}");
+                return Redirect($"http://localhost:5173/payment-failed?message={Uri.EscapeDataString(callbackResponse.Message)}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing VNPay callback");
-                return Redirect("/payment-failed?message=System+error");
+                _logger.LogError(ex, "Error processing PayOS callback");
+                return Redirect("http://localhost:5173/payment-failed?message=System+error");
             }
         }
 
         /// <summary>
-        /// Lấy thông tin thanh toán theo booking ID
+        /// Get payment information by booking ID
         /// </summary>
-        [HttpGet("booking/{bookingId}")]
+        [HttpGet(ApiEndpointConstants.Payment.GetPaymentByBookingIdEndpoint)]
         [Authorize(Roles = "Customer,Freelancer,Admin")]
         public async Task<IActionResult> GetPaymentByBookingId(Guid bookingId)
         {
@@ -160,9 +169,9 @@ namespace PawNest.API.Controllers
         }
 
         /// <summary>
-        /// Lấy thông tin thanh toán theo payment ID
+        /// Get payment information by payment ID
         /// </summary>
-        [HttpGet("{paymentId}")]
+        [HttpGet(ApiEndpointConstants.Payment.GetPaymentByIdEndpoint)]
         [Authorize]
         [Authorize(Roles = "Customer,Freelancer,Admin")]
 
@@ -210,7 +219,7 @@ namespace PawNest.API.Controllers
         /// <summary>
         /// Hủy thanh toán
         /// </summary>
-        [HttpPost("{paymentId}/cancel")]
+        [HttpPost(ApiEndpointConstants.Payment.CancelPaymentEndpoint)]
         [Authorize(Roles = "Customer")]
 
 
@@ -248,9 +257,9 @@ namespace PawNest.API.Controllers
         /// <summary>
         /// Kiểm tra trạng thái thanh toán theo booking ID
         /// </summary>
-        [HttpGet("check-status")]
+        [HttpGet(ApiEndpointConstants.Payment.CheckPaymentStatusEndpoint)]
         [Authorize(Roles = "Customer,Freelancer,Admin")]
-        public async Task<IActionResult> CheckPaymentStatus([FromQuery] Guid bookingId)
+        public async Task<IActionResult> CheckPaymentStatus([FromRoute] Guid bookingId)
         {
             try
             {

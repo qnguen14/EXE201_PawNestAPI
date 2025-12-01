@@ -23,16 +23,14 @@ namespace PawNest.Services.Services.Implements
 
         public PaymentService(
             IUnitOfWork<PawNestDbContext> unitOfWork,
-            VnPayGateway vnPayGateway,
-            MoMoGateway moMoGateway,
+            PayOSGateway payOSGateway,
             ILogger<PaymentService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _paymentGateways = new Dictionary<PaymentMethod, IPaymentGateway>
             {
-                { PaymentMethod.VNPay, vnPayGateway },
-                { PaymentMethod.MoMo, moMoGateway }
+                { PaymentMethod.PayOS, payOSGateway }
             };
         }
 
@@ -135,7 +133,7 @@ namespace PawNest.Services.Services.Implements
                     OrderInfo = string.IsNullOrEmpty(request.Description)
                         ? $"Thanh toan booking #{booking.BookingId}"
                         : request.Description,
-                    ReturnUrl = request.ReturnUrl ?? GetDefaultReturnUrl(request.Method),
+                    ReturnUrl = GetDefaultReturnUrl(request.Method),
                     NotifyUrl = GetDefaultNotifyUrl(request.Method),
                     IpAddress = ipAddress
                 };
@@ -144,7 +142,13 @@ namespace PawNest.Services.Services.Implements
 
                 if (paymentUrlResponse.Success)
                 {
-                    _logger.LogInformation("Payment URL created successfully for Payment: {PaymentId}", payment.PaymentId);
+                    // Update payment record with TransactionId
+                    payment.TransactionId = paymentUrlResponse.TransactionId;
+                    paymentRepo.UpdateAsync(payment);
+                    await _unitOfWork.SaveChangesAsync();
+                    
+                    _logger.LogInformation("Payment URL created successfully for Payment: {PaymentId}, TransactionId: {TransactionId}", 
+                        payment.PaymentId, paymentUrlResponse.TransactionId);
                 }
                 else
                 {
@@ -213,10 +217,17 @@ namespace PawNest.Services.Services.Implements
 
                     // Update payment status
                     payment.Status = callbackResponse.Status;
+                    
+                    // Store TransactionId if not already set
+                    if (string.IsNullOrEmpty(payment.TransactionId) && !string.IsNullOrEmpty(callbackResponse.TransactionId))
+                    {
+                        payment.TransactionId = callbackResponse.TransactionId;
+                    }
+                    
                     paymentRepo.UpdateAsync(payment);
 
-                    _logger.LogInformation("Payment status updated: {PaymentId}, Status: {Status}",
-                        payment.PaymentId, callbackResponse.Status);
+                    _logger.LogInformation("Payment status updated: {PaymentId}, Status: {Status}, TransactionId: {TransactionId}",
+                        payment.PaymentId, callbackResponse.Status, callbackResponse.TransactionId);
 
                  
                     // If payment successful, update booking
@@ -293,6 +304,26 @@ namespace PawNest.Services.Services.Implements
             }
         }
 
+        public async Task<Payment?> GetPaymentByTransactionIdAsync(string transactionId)
+        {
+            try
+            {
+                var paymentRepo = _unitOfWork.GetRepository<Payment>();
+
+                var payment = await paymentRepo.FirstOrDefaultAsync(
+                    predicate: p => p.TransactionId == transactionId,
+                    include: query => query.Include(p => p.Booking)
+                );
+
+                return payment;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting payment by TransactionId: {TransactionId}", transactionId);
+                return null;
+            }
+        }
+
         public async Task<bool> CancelPaymentAsync(Guid paymentId)
         {
             try
@@ -335,19 +366,19 @@ namespace PawNest.Services.Services.Implements
         {
             return method switch
             {
-                PaymentMethod.VNPay => "https://yoursite.com/payment/vnpay-callback",
-                PaymentMethod.MoMo => "https://yoursite.com/payment/momo-callback",
-                _ => "https://yoursite.com/payment/callback"
+                PaymentMethod.PayOS => "https://localhost:7050/api/v1/payment/payos-callback",
+                _ => "https://localhost:7050/api/v1/payment/callback"
             };
         }
+        
         private string GetDefaultNotifyUrl(PaymentMethod method)
         {
             return method switch
             {
-                PaymentMethod.VNPay => "https://your-backend.com/api/payment/vnpay-ipn",
-                PaymentMethod.MoMo => "https://your-backend.com/api/payment/momo-ipn",
-                _ => "https://your-backend.com/api/payment/ipn"
+                PaymentMethod.PayOS => "https://localhost:7050/api/v1/payment/payos-webhook",
+                _ => "https://localhost:7050/api/v1/payment/webhook"
             };
         }
+
     }
 }

@@ -12,7 +12,6 @@ using PawNest.Repository.Data.Requests.User;
 using PawNest.Repository.Data.Responses.Auth;
 using PawNest.Repository.Data.Responses.User;
 using PawNest.Repository.Repositories.Interfaces;
-using System.Data.Entity;
 
 namespace PawNest.Services.Services.Implements
 {
