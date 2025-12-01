@@ -88,7 +88,15 @@ namespace PawNest.Repository.Mappers
         public partial IEnumerable<CreatePostResponse> MapToCreatePostResponseList(IEnumerable<Post> posts);
 
         // For update scenario
-        public partial void UpdatePostFromRequest(Post source, Post target);
+        public void UpdatePostFromRequest(UpdatePostRequest request, Post target)
+        {
+            // Phải tự viết logic update
+            target.Title = request.Title;
+            target.Content = request.Content;
+            target.ImageUrl = request.ImageUrl;
+            target.Category = request.Category;
+           
+        }
 
         // Profile Mappers
 

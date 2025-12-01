@@ -19,12 +19,13 @@ namespace PawNest.Services.Services.Implements
         private readonly string _vnpTmnCode;
         private readonly string _vnpHashSecret;
         private readonly string _vnpVersion = "2.1.0";
-
+        private readonly string _vnpReturnUrl;
         public VnPayGateway(IConfiguration configuration)
         {
             _vnpUrl = configuration["VNPay:Url"];
             _vnpTmnCode = configuration["VNPay:TmnCode"];
             _vnpHashSecret = configuration["VNPay:HashSecret"];
+            _vnpReturnUrl = configuration["VNPay:ReturnUrl"];
         }
 
         public Task<PaymentGatewayResponse> CreatePaymentUrl(PaymentGatewayRequest request)
@@ -41,7 +42,7 @@ namespace PawNest.Services.Services.Implements
             vnpay.AddRequestData("vnp_Locale", "vn");
             vnpay.AddRequestData("vnp_OrderInfo", request.OrderInfo);
             vnpay.AddRequestData("vnp_OrderType", "other");
-            vnpay.AddRequestData("vnp_ReturnUrl", request.ReturnUrl);
+            vnpay.AddRequestData("vnp_ReturnUrl", _vnpReturnUrl);
             vnpay.AddRequestData("vnp_TxnRef", request.BookingId.ToString());
 
             string paymentUrl = vnpay.CreateRequestUrl(_vnpUrl, _vnpHashSecret);

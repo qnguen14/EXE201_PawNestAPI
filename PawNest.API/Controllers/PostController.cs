@@ -1,6 +1,8 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PawNest.API.Constants;
 using PawNest.Repository.Data.Entities;
 using PawNest.Repository.Data.Exceptions;
 using PawNest.Repository.Data.Metadata;
@@ -15,8 +17,9 @@ using PawNest.Services.Services.Interfaces;
 
 namespace PawNest.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route(ApiEndpointConstants.Post.PostEndpoint)]
+    
     public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
@@ -35,6 +38,7 @@ namespace PawNest.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Authorize(Roles = "Admin, Staff, Freelancer,Customer")]
         public async Task<IActionResult> GetAllPosts()
         {
             try
@@ -52,6 +56,7 @@ namespace PawNest.API.Controllers
         /// Tạo bài đăng mới
         /// </summary>
         [HttpPost]
+        [Authorize(Roles = "Admin, Staff, Freelancer,Customer")]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
         {
             try
@@ -84,6 +89,7 @@ namespace PawNest.API.Controllers
         /// Xóa bài đăng theo ID
         /// </summary>
         [HttpDelete("{postId:guid}")]
+        [Authorize(Roles = "Admin, Staff, Freelancer,Customer")]
         public async Task<IActionResult> DeletePost(Guid postId)
         {
             try
@@ -107,6 +113,7 @@ namespace PawNest.API.Controllers
         /// <param name="postId"></param>
         /// <returns></returns>
         [HttpGet("{postId:guid}")]
+        [Authorize(Roles = "Admin, Staff, Freelancer,Customer")]
         public async Task<IActionResult> GetPostById(Guid postId)
         {
             try
@@ -131,6 +138,7 @@ namespace PawNest.API.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPut("{postId:guid}")]
+        [Authorize(Roles = "Admin, Staff, Freelancer,Customer")]
         public async Task<IActionResult> UpdatePost(Guid postId, [FromBody] UpdatePostRequest request)
         {
             try

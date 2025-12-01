@@ -114,4 +114,14 @@ public class ApiEndpointConstants
         public const string RespondReviewEndpoint = ReviewEndpoint + "/respond/{id}";
         public const string DeleteReviewEndpoint = ReviewEndpoint + "/delete/{id}";
     }
+    public static class Post
+    {
+        public const string PostEndpoint = ApiEndpoint + "/post";
+
+        public const string GetAllPostsEndpoint = PostEndpoint + "/getall";
+        public const string CreatePostEndpoint = PostEndpoint + "/create";
+        public const string GetPostByIdEndpoint = PostEndpoint + "/{postId}";
+        public const string UpdatePostEndpoint = PostEndpoint + "/update/{postId}";
+        public const string DeletePostEndpoint = PostEndpoint + "/delete/{postId}";
+    }
 }

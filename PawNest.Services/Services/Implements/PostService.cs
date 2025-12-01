@@ -32,9 +32,9 @@ namespace PawNest.Services.Services.Implements
         {
             try
             {
-                return await _unitOfWork.ExecuteInTransactionAsync(async() =>
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
-                    var existingPost = _unitOfWork.GetRepository<Post>()
+                    var existingPost = await _unitOfWork.GetRepository<Post>()
                         .FirstOrDefaultAsync(
                             predicate: p => p.Title == request.Title,
                             orderBy: null,
@@ -47,9 +47,12 @@ namespace PawNest.Services.Services.Implements
                     }
 
                     var post = _postMapper.MapToPost(request);
+                    var now = DateTime.UtcNow;
+                    post.CreatedAt = now;
+                    post.UpdatedAt = now;
                     await _unitOfWork.GetRepository<Post>().InsertAsync(post);
-                    
-                    return _mapper.MapToCreatePostResponse(post);
+
+                    return _postMapper.MapToCreatePostResponse(post);
 
                 });
             }
@@ -67,26 +70,29 @@ namespace PawNest.Services.Services.Implements
                 return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
                     var post = await _unitOfWork.GetRepository<Post>()
-                        .FirstOrDefaultAsync(
-                            predicate: p => p.Id == postId,
-                            orderBy: null,
-                            include: null
-                        );
+                        .FirstOrDefaultAsync(predicate: p => p.Id == postId);
+
                     if (post == null)
-                    {
                         throw new NotFoundException($"Post with ID {postId} not found.");
-                    }
-                    _unitOfWork.GetRepository<Post>().UpdateAsync(post);
+
+                    // Map Request → Post
+                    _postMapper.UpdatePostFromRequest(request, post);
+
+                    post.UpdatedAt = DateTime.UtcNow;
+
+                     _unitOfWork.GetRepository<Post>().UpdateAsync(post);
+
                     return _postMapper.MapToCreatePostResponse(post);
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred while updating the post: " + ex.Message);
+                _logger.LogError("Error while updating post: " + ex.Message);
                 throw;
             }
         }
-        public async  Task<bool> DeletePost(Guid postId)
+
+        public async Task<bool> DeletePost(Guid postId)
         {
             try
             {
@@ -102,11 +108,11 @@ namespace PawNest.Services.Services.Implements
                     {
                         throw new NotFoundException($"Post with ID {postId} not found.");
                     }
-                    _unitOfWork.GetRepository<Post>().DeleteAsync(post);
+                     _unitOfWork.GetRepository<Post>().DeleteAsync(post);
                     return true;
                 });
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 _logger.LogError("An error occurred while deleting the post: " + ex.Message);
                 throw;
@@ -117,7 +123,7 @@ namespace PawNest.Services.Services.Implements
         {
             try
             {
-                return await _unitOfWork.ExecuteInTransactionAsync(async() =>
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
                     var posts = await _unitOfWork.GetRepository<Post>()
                         .GetListAsync(
@@ -139,7 +145,7 @@ namespace PawNest.Services.Services.Implements
         {
             try
             {
-                return await _unitOfWork.ExecuteInTransactionAsync(async() =>
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
                 {
                     var post = await _unitOfWork.GetRepository<Post>()
                         .FirstOrDefaultAsync(
