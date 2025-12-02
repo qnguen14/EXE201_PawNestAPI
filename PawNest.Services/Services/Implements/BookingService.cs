@@ -142,23 +142,35 @@ namespace PawNest.Services.Services.Implements
                 {
                     var booking = await _unitOfWork.GetRepository<Booking>()
                         .FirstOrDefaultAsync(
-                        predicate: b => b.BookingId == bookingId, 
-                        include: b => b
-                        .Include(u => u.Freelancer)
-                        .Include(u => u.Customer)
-                        .Include(u => u.Services)
-                        .Include(u => u.Pets)
+                            predicate: b => b.BookingId == bookingId,
+                            include: b => b.Include(u => u.Freelancer)
+                                          .Include(u => u.Customer)
+                                          .Include(u => u.Services)
+                                          .Include(u => u.Pets)
                         );
+
                     if (booking == null)
                     {
                         throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
                     }
 
+                    if (booking.Status == BookingStatus.Cancelled)
+                    {
+                        throw new InvalidOperationException("Booking is already cancelled.");
+                    }
+
+                    if (booking.Status == BookingStatus.Completed)
+                    {
+                        throw new InvalidOperationException("Cannot cancel a completed booking.");
+                    }
+
                     booking.Status = BookingStatus.Cancelled;
+                    booking.UpdatedAt = DateTime.UtcNow;
+
+                    _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
 
                     return true;
                 });
-
             }
             catch (Exception ex)
             {
@@ -166,6 +178,7 @@ namespace PawNest.Services.Services.Implements
                 throw;
             }
         }
+
 
         public async Task<bool> UpdateBookingStatusAsync(Guid bookingId, BookingStatus status)
         {
@@ -315,7 +328,7 @@ namespace PawNest.Services.Services.Implements
                         throw new KeyNotFoundException("Booking with ID " + bookingId + " not found.");
                     }
                     // Update the booking entity with new values from the request
-                    booking.Status = request.Status;
+                    booking.IsPaid = request.IsPaid;
                     booking.UpdatedAt = DateTime.UtcNow;
                     _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                     return _bookingMapper.MapToGetBookingUpdateResponse(booking);
@@ -325,6 +338,87 @@ namespace PawNest.Services.Services.Implements
                 _logger.LogError("An error occurred while updating the booking: " + ex.Message);
                 throw;
             }
+        }
+        public async Task<IEnumerable<GetBookingResponse>> GetBookingHistoryByCustomerAsync(Guid customerId)
+        {
+            try
+            {
+                var bookings = await _unitOfWork.GetRepository<Booking>()
+                    .GetListAsync(
+                        predicate: b => b.CustomerId == customerId,
+                        include: b => b.Include(u => u.Freelancer)
+                                      .Include(u => u.Pets)
+                                      .Include(u => u.Services)
+                                      .Include(u => u.Customer)
+                                      .Include(u => u.Payment),
+                        orderBy: b => b.OrderByDescending(u => u.CreatedAt)
+                    );
+
+                if (bookings == null || !bookings.Any())
+                {
+                    return Enumerable.Empty<GetBookingResponse>();
+                }
+
+                var result = bookings.Select(b => _bookingMapper.MapToGetBookingResponse(b));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while retrieving customer booking history: " + ex.Message);
+                throw;
+            }
+        }
+
+        // Get booking history for current logged-in customer
+        public async Task<IEnumerable<GetBookingResponse>> GetMyBookingHistoryAsync()
+        {
+            try
+            {
+                var currentUserId = GetCurrentUserId();
+                return await GetBookingHistoryByCustomerAsync(currentUserId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while retrieving booking history: " + ex.Message);
+                throw;
+            }
+        }
+
+        // Get booking history for a specific freelancer
+        public async Task<IEnumerable<GetBookingResponse>> GetBookingHistoryByFreelancerAsync(Guid freelancerId)
+        {
+            try
+            {
+                var bookings = await _unitOfWork.GetRepository<Booking>()
+                    .GetListAsync(
+                        predicate: b => b.FreelancerId == freelancerId,
+                        include: b => b.Include(u => u.Freelancer)
+                                      .Include(u => u.Pets)
+                                      .Include(u => u.Services)
+                                      .Include(u => u.Customer)
+                                      .Include(u => u.Payment),
+                        orderBy: b => b.OrderByDescending(u => u.CreatedAt)
+                    );
+
+                if (bookings == null || !bookings.Any())
+                {
+                    return Enumerable.Empty<GetBookingResponse>();
+                }
+
+                var result = bookings.Select(b => _bookingMapper.MapToGetBookingResponse(b));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while retrieving freelancer booking history: " + ex.Message);
+                throw;
+            }
+        }
+
+        // Get booking details with full information (alternative name for clarity)
+        public async Task<GetBookingResponse> GetBookingDetailsAsync(Guid bookingId)
+        {
+            return await GetBookingByIdAsync(bookingId);
         }
     }
 }
