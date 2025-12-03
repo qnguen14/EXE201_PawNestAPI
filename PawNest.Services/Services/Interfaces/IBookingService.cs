@@ -13,10 +13,14 @@ namespace PawNest.Services.Services.Interfaces
     {
         Task<IEnumerable<GetBookingResponse>> GetAllBookingsAsync();
         Task<GetBookingResponse> GetBookingByIdAsync(Guid bookingId);
+        Task<GetBookingResponse> GetBookingDetailsAsync(Guid bookingId);
         Task<GetBookingResponse> CreateBookingAsync(CreateBookingRequest request);
         Task<GetBookingUpdateResponse> UpdateBookingAsync(Guid bookingId, UpdateBookingRequest request);
         Task<bool> CancelBookingAsync(Guid bookingId);
         Task<bool> UpdateBookingStatusAsync(Guid bookingId, BookingStatus status);
         Task<bool> UpdateBookingPickUpStatusAsync(Guid bookingId, PickUpStatus status);
+        Task<IEnumerable<GetBookingResponse>> GetBookingHistoryByCustomerAsync(Guid customerId);
+        Task<IEnumerable<GetBookingResponse>> GetMyBookingHistoryAsync();
+        Task<IEnumerable<GetBookingResponse>> GetBookingHistoryByFreelancerAsync(Guid freelancerId);
     }
 }

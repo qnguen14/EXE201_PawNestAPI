@@ -1,10 +1,10 @@
-﻿﻿using System.CodeDom;
+﻿using System.CodeDom;
 
 namespace PawNest.API.Constants;
 
 public class ApiEndpointConstants
 {
-    static ApiEndpointConstants() {  }
+    static ApiEndpointConstants() { }
 
     public const string RootEndpoint = "/api";
     public const string ApiVersion = "/v1";
@@ -15,12 +15,12 @@ public class ApiEndpointConstants
     {
         public const string AuthEndpoint = ApiEndpoint + "/auth";
         public const string LoginEndpoint = ApiEndpoint + "/login";
-        public const string RegisterEndpoint = ApiEndpoint + "/register"; 
-        public const string SendResetCodeEndpoint = ApiEndpoint + "/reset"; 
-        public const string VerifyResetCodeEndpoint = ApiEndpoint + "/verify/reset"; 
-        public const string DisableAccountEndpoint = ApiEndpoint + "/disable"; 
+        public const string RegisterEndpoint = ApiEndpoint + "/register";
+        public const string SendResetCodeEndpoint = ApiEndpoint + "/reset";
+        public const string VerifyResetCodeEndpoint = ApiEndpoint + "/verify/reset";
+        public const string DisableAccountEndpoint = ApiEndpoint + "/disable";
         public const string VerifyDisableCodeEndpoint = ApiEndpoint + "/verify/disable";
-        public const string LogoutEndpoint = ApiEndpoint + "/logout"; 
+        public const string LogoutEndpoint = ApiEndpoint + "/logout";
     }
 
     public static class User
@@ -65,13 +65,27 @@ public class ApiEndpointConstants
     public static class Booking
     {
         public const string BookingEndpoint = ApiEndpoint + "/booking";
-        public const string GetBookingByIdEndpoint = BookingEndpoint + "/{id}";
+
+        // Read endpoints
         public const string GetAllBookingsEndpoint = BookingEndpoint + "/getall";
+        public const string GetBookingByIdEndpoint = BookingEndpoint + "/{bookingId}";
+        public const string GetBookingDetailsEndpoint = BookingEndpoint + "/{bookingId}/details";
+
+        // Booking history endpoints
+        public const string GetMyBookingHistoryEndpoint = BookingEndpoint + "/my-history";
+        public const string GetBookingHistoryByCustomerEndpoint = BookingEndpoint + "/customer/{customerId}/history";
+        public const string GetBookingHistoryByFreelancerEndpoint = BookingEndpoint + "/freelancer/{freelancerId}/history";
+
+        // Create endpoint
         public const string CreateBookingEndpoint = BookingEndpoint + "/create";
-        public const string UpdateBookingEndpoint = BookingEndpoint + "/update/{id}";
-        public const string CancelBookingEndpoint = BookingEndpoint + "/cancel/{id}";
+
+        // Update endpoints
+        public const string UpdateBookingEndpoint = BookingEndpoint + "/update/{bookingId}";
         public const string UpdateBookingStatusEndpoint = BookingEndpoint + "/status/{id}";
         public const string UpdateBookingPickUpStatusEndpoint = BookingEndpoint + "/pickup-status/{id}";
+
+        // Cancel endpoint
+        public const string CancelBookingEndpoint = BookingEndpoint + "/cancel/{bookingId}";
     }
 
     public static class Service
@@ -83,7 +97,8 @@ public class ApiEndpointConstants
         public const string UpdateServiceEndpoint = ServiceEndpoint + "/update/{id}";
         public const string DeleteServiceEndpoint = ServiceEndpoint + "/delete/{id}";
     }
-   public static class Payment
+
+    public static class Payment
     {
         public const string PaymentEndpoint = ApiEndpoint + "/payment";
         public const string CreatePaymentEndpoint = PaymentEndpoint + "/create";
@@ -116,10 +131,10 @@ public class ApiEndpointConstants
         public const string RespondReviewEndpoint = ReviewEndpoint + "/respond/{id}";
         public const string DeleteReviewEndpoint = ReviewEndpoint + "/delete/{id}";
     }
+
     public static class Post
     {
         public const string PostEndpoint = ApiEndpoint + "/post";
-
         public const string GetAllPostsEndpoint = PostEndpoint + "/getall";
         public const string CreatePostEndpoint = PostEndpoint + "/create";
         public const string GetPostByIdEndpoint = PostEndpoint + "/{postId}";

@@ -10,11 +10,6 @@ namespace PawNest.Repository.Data.Requests.Booking
 {
     public class UpdateBookingRequest
     {
-        public PickUpTime PickUpTime { get; set; }
-        public PickUpStatus PickUpStatus { get; set; }
-        public DateOnly BookingDate { get; set; }
-        public BookingStatus Status { get; set; }
-        public Guid ServiceId { get; set; }
-        public List<CreatePetRequest> Pets { get; set; } = new List<CreatePetRequest>();
+        public bool IsPaid { get; set; }
     }
 }
