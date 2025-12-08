@@ -10,7 +10,7 @@ namespace PawNest.API.Extensions
         {
             app.UseStaticFiles();
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
@@ -23,7 +23,8 @@ namespace PawNest.API.Extensions
 
             app.UseCors(options =>
             {
-                options.SetIsOriginAllowed(origin => origin.StartsWith("http://localhost:"))
+                options
+                    .AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
