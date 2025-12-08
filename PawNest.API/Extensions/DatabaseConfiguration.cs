@@ -11,7 +11,20 @@ namespace PawNest.API.Extensions
         {
             services.AddDbContext<PawNestDbContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
+                // Try to get connection string from environment variable first (Heroku)
+                var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+                                       ?? configuration.GetConnectionString("DefaultConnection");
+
+                // Convert Heroku's postgres:// format to Npgsql format if needed
+                if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgres://"))
+                {
+                    var databaseUri = new Uri(connectionString);
+                    var userInfo = databaseUri.UserInfo.Split(':');
+                    
+                    connectionString = $"Host={databaseUri.Host};Port={databaseUri.Port};Database={databaseUri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+                }
+
+                options.UseNpgsql(connectionString,
                     npgsqlOptionsAction: sqlOptions =>
                     {
                         sqlOptions.EnableRetryOnFailure(
@@ -20,8 +33,6 @@ namespace PawNest.API.Extensions
                             errorCodesToAdd: null);
                     });
             });
-
-
 
             return services;
         }
