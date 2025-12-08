@@ -1,18 +1,11 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
-using PawNest.Repository.Data.Entities;
 using PawNest.Repository.Data.Exceptions;
 using PawNest.Repository.Data.Metadata;
-using PawNest.Repository.Data.Requests.Pet;
 using PawNest.Repository.Data.Requests.Post;
-using PawNest.Repository.Data.Responses.Auth;
-using PawNest.Repository.Data.Responses.Pet;
 using PawNest.Repository.Data.Responses.Post;
-using PawNest.Repository.Mappers;
-using PawNest.Services.Services.Implements;
 using PawNest.Services.Services.Interfaces;
 
 namespace PawNest.API.Controllers
@@ -23,14 +16,12 @@ namespace PawNest.API.Controllers
     public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
-        private readonly ILogger<PostController> _logger;
-        private readonly IMapperlyMapper _postMapper;    
+        private readonly ILogger<PostController> _logger;    
 
-        public PostController(IPostService postService, ILogger<PostController> logger, IMapperlyMapper mapper)
+        public PostController(IPostService postService, ILogger<PostController> logger)
         {
             _postService = postService;
             _logger = logger;
-            _postMapper = mapper;
         }
 
         /// <summary>
@@ -56,7 +47,7 @@ namespace PawNest.API.Controllers
         /// Tạo bài đăng mới
         /// </summary>
         [HttpPost]
-        [Authorize(Roles = "Admin, Staff, Freelancer,Customer")]
+        [Authorize(Roles = "Staff")]
         public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request)
         {
             try
@@ -74,6 +65,41 @@ namespace PawNest.API.Controllers
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
                     Data = createdPost 
+                };
+
+                return Ok(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
+        
+        [HttpPost("admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreatePostAdmin([FromBody] CreatePostRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var success = await _postService.CreatePostAdmin(request);
+
+                if (!success)
+                {
+                    return BadRequest("Unable to create post as admin");
+                }
+
+                var apiResponse = new ApiResponse<bool>
+                {
+                    Message = "Post created successfully.",
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Data = true
                 };
 
                 return Ok(apiResponse);
@@ -162,5 +188,116 @@ namespace PawNest.API.Controllers
                 return StatusCode(500, "An error occurred");
             }
         }
+
+        /// <summary>
+        /// Lấy các bài đăng của staff hiện tại
+        /// </summary>
+        [HttpGet("staff")]
+        [Authorize(Roles = "Staff, Admin")]
+        public async Task<IActionResult> GetPostByStaffId()
+        {
+            try
+            {
+                var posts = await _postService.GetPostByStaffId();
+                return Ok(posts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
+
+        /// <summary>
+        /// Lấy các bài đăng đang chờ duyệt
+        /// </summary>
+        [HttpGet("pending")]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<IActionResult> GetAllPendingPosts()
+        {
+            try
+            {
+                var posts = await _postService.GetAllPendingPosts();
+                return Ok(posts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
+
+        /// <summary>
+        /// Duyệt bài đăng theo ID
+        /// </summary>
+        [HttpPost("{postId:guid}/approve")]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<IActionResult> ApprovePost(Guid postId)
+        {
+            try
+            {
+                var result = await _postService.ApprovePost(postId);
+                if (!result)
+                {
+                    return BadRequest("Unable to approve post");
+                }
+
+                var apiResponse = new ApiResponse<bool>
+                {
+                    Message = "Post approved successfully.",
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Data = result
+                };
+
+                return Ok(apiResponse);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
+
+        /// <summary>
+        /// Từ chối bài đăng theo ID
+        /// </summary>
+        [HttpPost("{postId:guid}/reject")]
+        [Authorize(Roles = "Admin, Staff")]
+        public async Task<IActionResult> RejectPost(Guid postId)
+        {
+            try
+            {
+                var result = await _postService.RejectPost(postId);
+                if (!result)
+                {
+                    return BadRequest("Unable to reject post");
+                }
+
+                var apiResponse = new ApiResponse<bool>
+                {
+                    Message = "Post rejected successfully.",
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Data = result
+                };
+
+                return Ok(apiResponse);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                return StatusCode(500, "An error occurred");
+            }
+        }
+
     }
 }

@@ -15,11 +15,14 @@ namespace PawNest.Services.Services.Interfaces
         Task<IEnumerable<CreatePostResponse>> GetAllPosts();
         Task<CreatePostResponse> GetPostById(Guid postId);
         Task<CreatePostResponse> CreatePost(CreatePostRequest request);
+        Task<bool> CreatePostAdmin(CreatePostRequest request);
         Task<CreatePostResponse> UpdatePost(UpdatePostRequest request, Guid id);
         Task<bool> DeletePost(Guid postId);
         Task<IEnumerable<CreatePostResponse>> GetPostByStaffId();
         Task<IEnumerable<CreatePostResponse>> GetAllPendingPosts();
         //Task<IEnumerable<CreatePostResponse>> GetFilteredPosts(string filter); // TODO: use poststatus enum filter
+        Task<bool> ApprovePost(Guid postId);
+        Task<bool> RejectPost(Guid postId);
 
         // TODO: add paging to posts
     }
