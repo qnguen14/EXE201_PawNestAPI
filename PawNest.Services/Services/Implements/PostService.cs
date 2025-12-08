@@ -50,9 +50,46 @@ namespace PawNest.Services.Services.Implements
                     var now = DateTime.UtcNow;
                     post.CreatedAt = now;
                     post.UpdatedAt = now;
+                    post.StaffId = GetCurrentUserId();
                     await _unitOfWork.GetRepository<Post>().InsertAsync(post);
 
                     return _postMapper.MapToCreatePostResponse(post);
+
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while creating the post: " + ex.Message);
+                throw;
+            }
+        }
+        
+        public async Task<bool> CreatePostAdmin(CreatePostRequest request)
+        {
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var existingPost = await _unitOfWork.GetRepository<Post>()
+                        .FirstOrDefaultAsync(
+                            predicate: p => p.Title == request.Title,
+                            orderBy: null,
+                            include: null
+                        );
+
+                    if (existingPost != null)
+                    {
+                        throw new BadRequestException($"A post with the title '{request.Title}' already exists.");
+                    }
+
+                    var post = _postMapper.MapToPost(request);
+                    var now = DateTime.UtcNow;
+                    post.CreatedAt = now;
+                    post.UpdatedAt = now;
+                    post.StaffId = GetCurrentUserId();
+                    await _unitOfWork.GetRepository<Post>().InsertAsync(post);
+
+                    return true;
 
                 });
             }
@@ -83,6 +120,58 @@ namespace PawNest.Services.Services.Implements
                      _unitOfWork.GetRepository<Post>().UpdateAsync(post);
 
                     return _postMapper.MapToCreatePostResponse(post);
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while updating post: " + ex.Message);
+                throw;
+            }
+        }
+        
+        public async Task<bool> ApprovePost(Guid postId)
+        {
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var post = await _unitOfWork.GetRepository<Post>()
+                        .FirstOrDefaultAsync(predicate: p => p.Id == postId);
+
+                    if (post == null)
+                        throw new NotFoundException($"Post with ID {postId} not found.");
+
+                    post.Status = PostStatus.Approved;
+
+                    _unitOfWork.GetRepository<Post>().UpdateAsync(post);
+
+                    return true;
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while updating post: " + ex.Message);
+                throw;
+            }
+        }
+        
+        public async Task<bool> RejectPost(Guid postId)
+        {
+            try
+            {
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
+                    var post = await _unitOfWork.GetRepository<Post>()
+                        .FirstOrDefaultAsync(predicate: p => p.Id == postId);
+
+                    if (post == null)
+                        throw new NotFoundException($"Post with ID {postId} not found.");
+
+                    post.Status = PostStatus.Rejected;
+
+                    _unitOfWork.GetRepository<Post>().UpdateAsync(post);
+
+                    return true;
                 });
             }
             catch (Exception ex)

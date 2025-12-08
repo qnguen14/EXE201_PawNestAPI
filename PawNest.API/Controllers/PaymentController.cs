@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PawNest.API.Constants;
 using PawNest.Services.Services.Interfaces;
 using PawNest.Repository.Data.Requests.Payment;
@@ -12,13 +17,21 @@ namespace PawNest.API.Controllers
     {
         private readonly IPaymentService _paymentService;
         private readonly ILogger<PaymentController> _logger;
+        private readonly string _frontendSuccessUrl;
+        private readonly string _frontendFailureUrl;
 
         public PaymentController(
             IPaymentService paymentService,
-            ILogger<PaymentController> logger)
+            ILogger<PaymentController> logger,
+            IConfiguration configuration)
         {
             _paymentService = paymentService;
             _logger = logger;
+
+            // Read frontend URLs from configuration; fall back to localhost:5173 if not set
+            var frontendBase = configuration["Frontend:BaseUrl"] ?? configuration["App:FrontendUrl"] ?? "http://localhost:5173";
+            _frontendSuccessUrl = (configuration["Frontend:SuccessUrl"] ?? (frontendBase.TrimEnd('/') + "/payment-success")).TrimEnd('/');
+            _frontendFailureUrl = (configuration["Frontend:FailureUrl"] ?? (frontendBase.TrimEnd('/') + "/payment-failed")).TrimEnd('/');
         }
 
         /// <summary>
@@ -64,19 +77,35 @@ namespace PawNest.API.Controllers
         /// PayOS callback handler
         /// </summary>
         [HttpGet(ApiEndpointConstants.Payment.PayOSCallbackEndpoint)]
+        [HttpPost(ApiEndpointConstants.Payment.PayOSCallbackEndpoint)]
         public async Task<IActionResult> PayOsCallback()
         {
             try
             {
-                if (!Request.Query.Any())
+                // Support both GET (query string) and POST (form) payloads from PayOS
+                var queryParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+                if (Request.HasFormContentType && Request.Form?.Any() == true)
                 {
-                    _logger.LogWarning("No query parameters received in callback");
-                    return BadRequest("No parameters received");
+                    foreach (var kv in Request.Form)
+                    {
+                        queryParams[kv.Key] = kv.Value.ToString();
+                    }
                 }
-                var queryParams = Request.Query.ToDictionary(
-                    x => x.Key,
-                    x => x.Value.ToString()
-                );
+                else if (Request.Query?.Any() == true)
+                {
+                    foreach (var kv in Request.Query)
+                    {
+                        queryParams[kv.Key] = kv.Value.ToString();
+                    }
+                }
+
+                if (!queryParams.Any())
+                {
+                    _logger.LogWarning("No parameters received in PayOS callback");
+                    // Redirect to failure page with message
+                    return Redirect(_frontendFailureUrl + "?message=" + Uri.EscapeDataString("No parameters received"));
+                }
 
                 _logger.LogInformation("PayOS callback received with {Count} parameters", queryParams.Count);
 
@@ -86,39 +115,49 @@ namespace PawNest.API.Controllers
                     queryParams
                 );
 
+                if (callbackResponse == null)
+                {
+                    _logger.LogWarning("ProcessPaymentCallbackAsync returned null response");
+                    return Redirect(_frontendFailureUrl + "?message=" + Uri.EscapeDataString("Invalid callback response"));
+                }
+
                 if (callbackResponse.Success && !string.IsNullOrEmpty(callbackResponse.TransactionId))
                 {
                     // Find payment by TransactionId
                     var payment = await _paymentService.GetPaymentByTransactionIdAsync(callbackResponse.TransactionId);
-                    
+
                     if (payment != null)
                     {
                         // Update payment status
                         var updated = await _paymentService.UpdatePaymentStatusAsync(payment.BookingId, callbackResponse);
-                        
+
                         if (updated)
                         {
-                            _logger.LogInformation("Payment updated successfully. BookingId: {BookingId}, TransactionId: {TransactionId}", 
+                            _logger.LogInformation("Payment updated successfully. BookingId: {BookingId}, TransactionId: {TransactionId}",
                                 payment.BookingId, callbackResponse.TransactionId);
-                            return Redirect($"http://localhost:5173/payment-success?bookingId={payment.BookingId}&transactionId={callbackResponse.TransactionId}");
+
+                            var url = _frontendSuccessUrl + "?bookingId=" + Uri.EscapeDataString(payment.BookingId.ToString()) + "&transactionId=" + Uri.EscapeDataString(callbackResponse.TransactionId);
+                            return Redirect(url);
                         }
                         else
                         {
                             _logger.LogWarning("Failed to update payment. BookingId: {BookingId}", payment.BookingId);
+                            return Redirect(_frontendFailureUrl + "?message=" + Uri.EscapeDataString("Failed to update payment"));
                         }
                     }
                     else
                     {
                         _logger.LogWarning("Payment not found for TransactionId: {TransactionId}", callbackResponse.TransactionId);
+                        return Redirect(_frontendFailureUrl + "?message=" + Uri.EscapeDataString("Payment not found"));
                     }
                 }
 
-                return Redirect($"http://localhost:5173/payment-failed?message={Uri.EscapeDataString(callbackResponse.Message)}");
+                return Redirect(_frontendFailureUrl + "?message=" + Uri.EscapeDataString(callbackResponse.Message ?? "Payment failed"));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing PayOS callback");
-                return Redirect("http://localhost:5173/payment-failed?message=System+error");
+                return Redirect(_frontendFailureUrl + "?message=" + Uri.EscapeDataString("System error"));
             }
         }
 
@@ -172,7 +211,6 @@ namespace PawNest.API.Controllers
         /// Get payment information by payment ID
         /// </summary>
         [HttpGet(ApiEndpointConstants.Payment.GetPaymentByIdEndpoint)]
-        [Authorize]
         [Authorize(Roles = "Customer,Freelancer,Admin")]
 
         public async Task<IActionResult> GetPaymentById(Guid paymentId)
