@@ -34,7 +34,7 @@ namespace PawNest.API.Extensions
             // Add your real frontend URLs here:
             var allowedOrigins = new[]
             {
-                "http://localhost:3000",
+                "http://localhost",
                 "https://pawnsnest-fe.vercel.app", // example
             };
 
