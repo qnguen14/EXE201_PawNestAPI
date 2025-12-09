@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PawNest.Repository.Data.Context;
@@ -11,9 +12,11 @@ using PawNest.Repository.Data.Context;
 namespace PawNest.Repository.Migrations
 {
     [DbContext(typeof(PawNestDbContext))]
-    partial class PawNestDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251209072323_VideosEntityUpdate")]
+    partial class VideosEntityUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

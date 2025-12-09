@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PawNest.API.Constants;
+using PawNest.Repository.Data.Exceptions;
 using PawNest.Services.Services.Interfaces;
 
 namespace PawNest.API.Controllers
@@ -12,10 +13,14 @@ namespace PawNest.API.Controllers
     {
         private readonly IImageService _imageService;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IVideoService _videoService;
+        private readonly ILogger<CloudinaryController> _logger;
 
-        public CloudinaryController(IImageService imageService, ICloudinaryService cloudinaryService)
+        public CloudinaryController(IImageService imageService, IVideoService videoService, ILogger<CloudinaryController> logger, ICloudinaryService cloudinaryService)
         {
             _imageService = imageService;
+            _videoService = videoService;
+            _logger = logger;
             _cloudinaryService = cloudinaryService;
         }
 
@@ -155,7 +160,170 @@ namespace PawNest.API.Controllers
                 return StatusCode(500, $"Error getting image URL: {ex.Message}");
             }
         }
+        
+/// <summary>
+        /// Uploads a video file to Cloudinary and saves to database.
+        /// </summary>
+        [HttpPost("upload-video")]
+        public async Task<IActionResult> UploadVideo(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+        
+            try
+            {
+                using var stream = file.OpenReadStream();
+                var result = await _videoService.UploadVideoAsync(stream, file.FileName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error uploading video: " + ex.Message);
+                return StatusCode(500, $"Error uploading video: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Uploads a base64 encoded video to Cloudinary and saves to database.
+        /// </summary>
+        [HttpPost("upload-base64-video")]
+        public async Task<IActionResult> UploadBase64Video([FromBody] Base64VideoRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Base64Video))
+                return BadRequest("No video data provided");
+        
+            try
+            {
+                var result = await _videoService.UploadBase64VideoAsync(request.Base64Video, request.FileName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error uploading base64 video: " + ex.Message);
+                return StatusCode(500, $"Error uploading video: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Deletes a video from Cloudinary and database by GUID.
+        /// </summary>
+        [HttpDelete("video/{id:guid}")]
+        public async Task<IActionResult> DeleteVideoById(Guid id)
+        {
+            try
+            {
+                await _videoService.DeleteVideoAsync(id);
+                return Ok(new { message = "Video deleted successfully" });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error deleting video: " + ex.Message);
+                return StatusCode(500, $"Error deleting video: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Deletes a video from Cloudinary and database by public ID.
+        /// </summary>
+        [HttpDelete("video/public")]
+        public async Task<IActionResult> DeleteVideoByPublicId([FromQuery] string publicId)
+        {
+            if (string.IsNullOrEmpty(publicId))
+                return BadRequest("Public ID is required");
+        
+            try
+            {
+                await _videoService.DeleteVideoByPublicIdAsync(publicId);
+                return Ok(new { message = "Video deleted successfully" });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error deleting video: " + ex.Message);
+                return StatusCode(500, $"Error deleting video: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Get video by ID from database.
+        /// </summary>
+        [HttpGet("video/{id:guid}")]
+        public async Task<IActionResult> GetVideoById(Guid id)
+        {
+            try
+            {
+                var video = await _videoService.GetVideoByIdAsync(id);
+                return Ok(video);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error retrieving video: " + ex.Message);
+                return StatusCode(500, $"Error retrieving video: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Get video by public ID from database.
+        /// </summary>
+        [HttpGet("video/public")]
+        public async Task<IActionResult> GetVideoByPublicId([FromQuery] string publicId)
+        {
+            if (string.IsNullOrEmpty(publicId))
+                return BadRequest("Public ID is required");
+        
+            try
+            {
+                var video = await _videoService.GetVideoByPublicIdAsync(publicId);
+                return Ok(video);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error retrieving video: " + ex.Message);
+                return StatusCode(500, $"Error retrieving video: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Get all videos from database.
+        /// </summary>
+        [HttpGet("videos")]
+        public async Task<IActionResult> GetAllVideos()
+        {
+            try
+            {
+                var videos = await _videoService.GetAllVideosAsync();
+                return Ok(videos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error retrieving videos: " + ex.Message);
+                return StatusCode(500, $"Error retrieving videos: {ex.Message}");
+            }
+        }
     }
+    
+            
+    public class Base64VideoRequest
+    {
+        public string Base64Video { get; set; } = string.Empty;
+        public string FileName { get; set; } = "video.mp4";
+    }
+
 
     public class Base64ImageRequest
     {

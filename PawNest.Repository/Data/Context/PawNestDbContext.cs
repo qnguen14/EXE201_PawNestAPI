@@ -20,6 +20,7 @@ public class PawNestDbContext : DbContext
     public DbSet<Report> Reports { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Image> Images { get; set; }
+    public DbSet<Video> Videos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

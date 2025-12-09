@@ -11,5 +11,7 @@ public interface IImageService
     Task<ImageResponse?> GetImageByIdAsync(Guid imageId);
     Task<ImageResponse?> GetImageByPublicIdAsync(string publicId);
     Task<IEnumerable<ImageResponse>> GetAllImagesAsync();
+    
+    
 }
 

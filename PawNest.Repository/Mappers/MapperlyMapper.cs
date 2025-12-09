@@ -20,24 +20,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PawNest.Repository.Data.Responses.Image;
+using PawNest.Repository.Data.Responses.Video;
 
 namespace PawNest.Repository.Mappers
 {
     [Mapper]
     public partial class MapperlyMapper : IMapperlyMapper
     {
-// Image Mappers
+        // Video Mappers
         
-        // CreateImageRequest to Image
+        public partial VideoResponse MapToVideoResponse(Video video);
+        public partial IEnumerable<VideoResponse> MapToVideoResponseList(IEnumerable<Video> videos);
+        
+        // Image Mappers
         
         // Image to ImageResponse
         public partial ImageResponse MapToImageResponse(Image image);
         
         // IEnumerable mapping
         public partial IEnumerable<ImageResponse> MapToImageResponseList(IEnumerable<Image> images);
-        
-        // For update scenario
-        
         
         // Booking Mappers
 
