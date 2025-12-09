@@ -18,7 +18,6 @@ namespace PawNest.API.Extensions
             app.UseRouting();
             app.UseStaticFiles();
 
-            // Swagger should be allowed in Production on Heroku
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
@@ -26,30 +25,22 @@ namespace PawNest.API.Extensions
                 options.InjectStylesheet("/swagger-ui/SwaggerDark.css");
                 options.RoutePrefix = string.Empty;
             });
-
-            // -------------------------
-            // FIXED CORS (NO CRASH)
-            // -------------------------
-
-            // Add your real frontend URLs here:
-            var allowedOrigins = new[]
-            {
-                "http://localhost",
-                "https://pawnsnest-fe.vercel.app", // example
-            };
-
             app.UseCors(options =>
             {
                 options
-                    .WithOrigins(allowedOrigins)
+                    .SetIsOriginAllowed(origin =>
+                    {
+                        // Allow any localhost with any port
+                        if (origin.StartsWith("http://localhost", StringComparison.OrdinalIgnoreCase))
+                            return true;
+            
+                        // Allow specific production URLs
+                        return origin == "https://pawnsnest-fe.vercel.app";
+                    })
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
             });
-
-            // Do NOT use HTTPS redirect on Heroku
-            // Heroku handles HTTPS externally
-            // app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseMiddleware<TokenBlacklistMiddleware>();
