@@ -19,6 +19,7 @@ public class PawNestDbContext : DbContext
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Report> Reports { get; set; }
     public DbSet<Review> Reviews { get; set; }
+    public DbSet<Image> Images { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
