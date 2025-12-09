@@ -51,6 +51,50 @@ namespace PawNest.Repository.Mappers
         // Booking to GetBookingResponse
 
         public partial GetBookingResponse MapToGetBookingResponse(Booking booking);
+        
+        
+        // Booking to GetBookingDetailsResponse
+        public GetBookingDetailsResponse MapToGetBookingDetailsResponse(Booking booking)
+        {
+            if (booking == null)
+                return null;
+
+            return new GetBookingDetailsResponse
+            {
+                BookingId = booking.BookingId,
+                PickUpTime = booking.PickUpTime,
+                PickUpStatus = booking.PickUpStatus,
+                BookingDate = booking.BookingDate,
+                Status = booking.Status,
+                TotalPrice = booking.TotalPrice,
+                IsPaid = booking.IsPaid,
+                CreatedAt = booking.CreatedAt,
+                FreelancerId = booking.FreelancerId,
+                Freelancer = booking.Freelancer != null ? new BookingUserResponse
+                {
+                    Id = booking.Freelancer.Id,
+                    Name = booking.Freelancer.Name ?? string.Empty,
+                    Email = booking.Freelancer.Email ?? string.Empty,
+                    PhoneNumber = booking.Freelancer.PhoneNumber ?? string.Empty,
+                    Address = booking.Freelancer.Address,
+                    Role = booking.Freelancer.Role.RoleName,
+                    AvatarUrl = booking.Freelancer.AvatarUrl
+                } : null,
+                CustomerId = booking.CustomerId,
+                Customer = booking.Customer != null ? new BookingUserResponse
+                {
+                    Id = booking.Customer.Id,
+                    Name = booking.Customer.Name ?? string.Empty,
+                    Email = booking.Customer.Email ?? string.Empty,
+                    PhoneNumber = booking.Customer.PhoneNumber ?? string.Empty,
+                    Address = booking.Customer.Address,
+                    Role = booking.Customer.Role.RoleName,
+                    AvatarUrl = booking.Customer.AvatarUrl
+                } : null,
+                Services = booking.Services?.Select(s => MapToBookingServiceResponse(s)).ToList() ?? new List<BookingServiceResponse>(),
+                Pets = booking.Pets?.Select(p => MapToGetPetResponse(p)).ToList() ?? new List<GetPetResponse>()
+            };
+        }
 
         // Booking to GetBookingUpdateResponse
         public partial GetBookingUpdateResponse MapToGetBookingUpdateResponse(Booking booking);
