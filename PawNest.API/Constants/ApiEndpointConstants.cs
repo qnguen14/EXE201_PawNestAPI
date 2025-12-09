@@ -141,4 +141,12 @@ public class ApiEndpointConstants
         public const string UpdatePostEndpoint = PostEndpoint + "/update/{postId}";
         public const string DeletePostEndpoint = PostEndpoint + "/delete/{postId}";
     }
+    
+    public static class Cloudinary
+    {
+        public const string CloudinaryEndpoint = ApiEndpoint + "/cloudinary";
+        public const string UploadImageEndpoint = CloudinaryEndpoint + "/upload";
+        public const string DeleteImageEndpoint = CloudinaryEndpoint + "/{publicId}";
+        public const string GetImageUrlEndpoint = CloudinaryEndpoint + "/url/{publicId}";
+    }
 }

@@ -19,11 +19,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PawNest.Repository.Data.Responses.Image;
 
 namespace PawNest.Repository.Mappers
 {
     public interface IMapperlyMapper
     {
+// Image Mappers
+        ImageResponse MapToImageResponse(Image image);
+        IEnumerable<ImageResponse> MapToImageResponseList(IEnumerable<Image> images);
+        
         // Booking Mappers
 
         Booking MapToBooking(CreateBookingRequest request);

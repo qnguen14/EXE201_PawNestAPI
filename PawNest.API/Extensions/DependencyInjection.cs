@@ -28,6 +28,8 @@ namespace PawNest.API.Extensions
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddScoped<IImageService, ImageService>();
             services.AddScoped<TokenProvider>();
             
             // Payment gateway
