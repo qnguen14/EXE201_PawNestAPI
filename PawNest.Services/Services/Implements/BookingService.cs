@@ -416,9 +416,34 @@ namespace PawNest.Services.Services.Implements
         }
 
         // Get booking details with full information (alternative name for clarity)
-        public async Task<GetBookingResponse> GetBookingDetailsAsync(Guid bookingId)
+        public async Task<GetBookingDetailsResponse> GetBookingDetailsAsync(Guid bookingId)
         {
-            return await GetBookingByIdAsync(bookingId);
+            try
+            {
+                var booking = await _unitOfWork.GetRepository<Booking>()
+                    .FirstOrDefaultAsync(
+                        predicate: b => b.BookingId == bookingId,
+                        include: b => b.Include(u => u.Freelancer)
+                            .Include(u => u.Pets)     
+                            .Include(u => u.Services)
+                            .Include(u => u.Customer)
+                            .Include(u => u.Freelancer.Role)
+                            .Include(u => u.Customer.Role)
+                            .Include(u => u.Services)
+                    );
+
+                if (booking == null)
+                {
+                    return null;
+                }
+
+                return _bookingMapper.MapToGetBookingDetailsResponse(booking);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while retrieving the booking: " + ex.Message);
+                throw;
+            }
         }
     }
 }

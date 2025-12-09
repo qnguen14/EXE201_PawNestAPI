@@ -108,7 +108,7 @@ namespace PawNest.API.Controllers
         /// Lấy chi tiết booking theo ID (bao gồm đầy đủ thông tin payment, services, pets)
         /// </summary>
         [HttpGet(ApiEndpointConstants.Booking.GetBookingDetailsEndpoint)]
-        [ProducesResponseType(typeof(ApiResponse<GetBookingResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<GetBookingDetailsResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         [Authorize]
@@ -126,7 +126,7 @@ namespace PawNest.API.Controllers
                     });
                 }
 
-                var apiResponse = new ApiResponse<GetBookingResponse>
+                var apiResponse = new ApiResponse<GetBookingDetailsResponse>
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Booking details retrieved successfully.",

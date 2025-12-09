@@ -44,6 +44,9 @@ namespace PawNest.Repository.Mappers
 
         // Booking to GetBookingResponse
         GetBookingResponse MapToGetBookingResponse(Booking booking);
+        
+        // Booking to GetBookingDetailsResponse
+        GetBookingDetailsResponse MapToGetBookingDetailsResponse(Booking booking);
 
         // Booking to GetBookingUpdateResponse
         GetBookingUpdateResponse MapToGetBookingUpdateResponse(Booking booking);
