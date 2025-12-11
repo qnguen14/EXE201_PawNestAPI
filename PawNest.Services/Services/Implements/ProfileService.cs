@@ -101,9 +101,6 @@ namespace PawNest.Services.Services.Implements
             try
             {
                 var userId = GetCurrentUserId();
-                if (!await IsCustomer(userId))
-                    throw new UnauthorizedAccessException("User is not a customer.");
-
                 var userRepo = _unitOfWork.GetRepository<User>();
                 var bookingRepo = _unitOfWork.GetRepository<Booking>();
 
