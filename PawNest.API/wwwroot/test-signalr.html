@@ -22,7 +22,7 @@
         const token = document.getElementById('token').value;
 
         connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://pawnest-api-770977efd30e.herokuapp.com/notificationHub", {
+            .withUrl("https://localhost:7050/notificationHub", {
                 accessTokenFactory: () => token
             })
             .withAutomaticReconnect()

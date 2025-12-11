@@ -13,6 +13,7 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSignalR();
 builder.Services.AddPawNestCore(builder.Configuration); 
 
 var app = builder.Build();

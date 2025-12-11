@@ -11,13 +11,29 @@ namespace PawNest.API.Extensions
         /// </summary>
         public static IServiceCollection AddPawNestCore(this IServiceCollection services, IConfiguration configuration)
         {
-            // 🧱 Base setup
+            // Cors setup
+            services.AddCors(options =>
+            {
+                options.AddPolicy("PawNestCorsPolicy", policy =>
+                {
+                    policy.WithOrigins(
+                            "https://pawnsnest-fe.vercel.app",
+                            "http://localhost:3000",
+                            "http://localhost:5173",
+                            "http://localhost:4200"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+            
+            // Base setup
             services.AddMemoryCache();
             services.AddHttpContextAccessor();
-            services.AddSignalR();
 
 
-            // 🌐 Modular configuration setup
+            // Modular configuration setup
             services.AddSwaggerDocumentation();
             services.AddJwtAuthentication(configuration);
             services.AddAuthorizationPolicies();
