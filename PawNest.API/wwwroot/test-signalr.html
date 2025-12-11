@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+</head>
+<body>
+<h2>SignalR Notification Test</h2>
+<div>
+    <label>JWT Token:</label>
+    <input type="text" id="token" style="width: 500px;" />
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+</div>
+<div id="status">Disconnected</div>
+<div id="messages" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto;"></div>
+
+<script>
+    let connection = null;
+
+    async function connect() {
+        const token = document.getElementById('token').value;
+
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://pawnest-api-770977efd30e.herokuapp.com/notificationHub", {
+                accessTokenFactory: () => token
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveNotification", (message) => {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += `<p>${JSON.stringify(message, null, 2)}</p>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        try {
+            await connection.start();
+            document.getElementById('status').innerHTML = '<strong style="color:green;">Connected</strong>';
+            console.log("SignalR Connected");
+        } catch (err) {
+            document.getElementById('status').innerHTML = '<strong style="color:red;">Connection Failed</strong>';
+            console.error(err);
+        }
+    }
+
+    async function disconnect() {
+        if (connection) {
+            await connection.stop();
+            document.getElementById('status').innerHTML = '<strong style="color:orange;">Disconnected</strong>';
+        }
+    }
+</script>
+</body>
+</html>

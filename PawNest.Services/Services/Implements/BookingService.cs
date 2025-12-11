@@ -20,12 +20,18 @@ namespace PawNest.Services.Services.Implements
     public class BookingService : BaseService<BookingService>, IBookingService
     {
         private readonly IMapperlyMapper _bookingMapper;
-        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, ILogger<BookingService> logger, IHttpContextAccessor httpContextAccessor, IMapperlyMapper mapper)
+        private readonly INotificationService _notificationService;
+        public BookingService(IUnitOfWork<PawNestDbContext> unitOfWork, 
+            ILogger<BookingService> logger, 
+            IHttpContextAccessor httpContextAccessor, 
+            IMapperlyMapper mapper,
+            INotificationService notificationService)
             : base(unitOfWork, logger, httpContextAccessor, mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _bookingMapper = mapper;
+            _notificationService = notificationService;
         }
 
         private bool IsCustomer(string role)
@@ -123,6 +129,13 @@ namespace PawNest.Services.Services.Implements
                     booking.Pets = pets.ToList();
 
                     await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
+                    
+                    // Send notification to freelancer
+                    var customerName = $"{booking.Customer?.Name ?? "Customer"}";
+                    await _notificationService.SendBookingCreatedNotificationAsync(
+                        booking.FreelancerId, 
+                        booking.BookingId, 
+                        customerName);
 
                     return _bookingMapper.MapToGetBookingResponse(booking);
                 });
@@ -168,6 +181,12 @@ namespace PawNest.Services.Services.Implements
                     booking.UpdatedAt = DateTime.UtcNow;
 
                     _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+                    
+                    // Send notification to both customer and freelancer
+                    await _notificationService.SendBookingCancelledNotificationAsync(
+                        booking.FreelancerId, 
+                        booking.CustomerId, 
+                        booking.BookingId);
 
                     return true;
                 });
@@ -207,6 +226,12 @@ namespace PawNest.Services.Services.Implements
                     // Update the booking entity with new values from the request
                     booking.Status = status;
                     _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+                    
+                    // Send notification to customer
+                    await _notificationService.SendBookingStatusUpdatedNotificationAsync(
+                        booking.CustomerId, 
+                        booking.BookingId, 
+                        status.ToString());
                     return true;
                 });
             } catch (Exception ex)
@@ -243,6 +268,12 @@ namespace PawNest.Services.Services.Implements
                     // Update the booking entity with new values from the request
                     booking.PickUpStatus = status;
                     _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+                    
+                    // Send notification to customer
+                    await _notificationService.SendBookingPickUpStatusUpdatedNotificationAsync(
+                        booking.CustomerId, 
+                        booking.BookingId, 
+                        status.ToString());
                     return true;
                 });
             } catch (Exception ex)

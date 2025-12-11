@@ -14,6 +14,7 @@ namespace PawNest.API.Extensions
             // 🧱 Base setup
             services.AddMemoryCache();
             services.AddHttpContextAccessor();
+            services.AddSignalR();
 
 
             // 🌐 Modular configuration setup

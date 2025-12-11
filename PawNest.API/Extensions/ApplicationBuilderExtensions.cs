@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Hosting;
 using PawNest.API.Middleware;
+using PawNest.Services.Hubs;
 
 namespace PawNest.API.Extensions
 {
@@ -41,6 +42,7 @@ namespace PawNest.API.Extensions
                     .AllowAnyMethod()
                     .AllowCredentials();
             });
+            app.MapHub<NotificationHub>("/notificationHub");
 
             app.UseAuthentication();
             app.UseMiddleware<TokenBlacklistMiddleware>();
