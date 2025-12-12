@@ -116,7 +116,8 @@ public class ApiEndpointConstants
         public const string GetMyProfileEndpoint = UserEndpoint + "/profile/me";
         public const string SetRoleEndpoint = UserEndpoint + "/set-role/{id}";
         public const string UpdateProfileEndpoint = UserEndpoint + "/profile/{id}";
-        public const string UpdateMyProfileEndpoint = UserEndpoint + "/profile/me";
+        public const string UpdateMyProfileEndpoint = UserEndpoint + "/profile/customer";
+        public const string UpdateFreelancerProfileEndpoint = UserEndpoint + "/profile/freelancer";
         public const string UpdateAvatarEndpoint = UserEndpoint + "/avatar/{id}";
         public const string UpdateMyAvatarEndpoint = UserEndpoint + "/avatar/me";
         public const string GetFreelancerProfileEndpoint = UserEndpoint + "/profile/freelancer/me";

@@ -91,7 +91,7 @@ namespace PawNest.API.Controllers
         /// Cập nhật thông tin profile của khách hàng hiện tại
         /// </summary>
         /// <param name="request">Thông tin cập nhật</param>
-        [HttpPut("customer")]
+        [HttpPut(ApiEndpointConstants.Profile.UpdateMyProfileEndpoint)]
         [ProducesResponseType(typeof(GetUserProfile), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -124,7 +124,7 @@ namespace PawNest.API.Controllers
         /// Cập nhật thông tin profile của freelancer hiện tại
         /// </summary>
         /// <param name="request">Thông tin cập nhật</param>
-        [HttpPut("freelancer")]
+        [HttpPut(ApiEndpointConstants.Profile.UpdateFreelancerProfileEndpoint)]
         [ProducesResponseType(typeof(GetFreelancerProfile), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
