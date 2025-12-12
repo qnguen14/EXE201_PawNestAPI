@@ -115,7 +115,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="roleName"></param>
     /// <returns></returns>
-    [HttpDelete(ApiEndpointConstants.User.GetUsersByRoleEndpoint)]
+    [HttpGet(ApiEndpointConstants.User.GetUsersByRoleEndpoint)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
