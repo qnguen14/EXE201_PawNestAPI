@@ -51,7 +51,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<CreateUserResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin")] // Admin-only access for user management
+    [Authorize(Roles = "Admin, Freelancer")] // Admin-only access for user management
     public async Task<ActionResult<IEnumerable<CreateUserResponse>>> GetById(Guid id)
     {
         // Service returns all users with basic profile information
