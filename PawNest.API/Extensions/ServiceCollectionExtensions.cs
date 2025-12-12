@@ -17,7 +17,7 @@ namespace PawNest.API.Extensions
                 options.AddPolicy("PawNestCorsPolicy", policy =>
                 {
                     policy.WithOrigins(
-                            "https://pawnsnest-fe.vercel.app",
+                            "https://pawnest.vercel.app/",
                             "http://localhost:3000",
                             "http://localhost:5173",
                             "http://localhost:4200"
